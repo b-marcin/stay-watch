@@ -10,7 +10,7 @@ from stay_watch.config import ConfigError, Secrets, load_secrets, load_watch, pa
 from stay_watch.guard import check_public
 from stay_watch.model import Search
 from stay_watch.profitroom import FixtureClient, ProfitroomClient
-from stay_watch.service import execute_scan, execute_search, public_error, record_failure
+from stay_watch.service import RecordedFailure, execute_scan, execute_search, public_error, record_failure
 from stay_watch.store import Store
 
 
@@ -57,6 +57,9 @@ def _scan(args: argparse.Namespace) -> int:
     store = Store(args.docs, secrets.terms)
     try:
         execute_scan(config, secrets, store, client, now_warsaw())
+    except RecordedFailure as exc:
+        print(f"scan failed: {exc}", file=sys.stderr)
+        return 1
     except Exception as exc:
         record_failure(store, secrets, exc)
         print(f"scan failed: {public_error(exc, secrets.slug)}", file=sys.stderr)

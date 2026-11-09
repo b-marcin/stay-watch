@@ -18,9 +18,17 @@ from stay_watch.notify import (
     deliver,
 )
 from stay_watch.plan import candidate_stays
-from stay_watch.profitroom import FeedChanged, FixtureClient, ProfitroomClient
+from stay_watch.profitroom import FixtureClient, ProfitroomClient
+
+# A handful of empty stays is a real sell-out. A wide empty feed, after a run
+# that still had prices, is treated as a broken feed.
+EMPTY_FEED_MIN = 5
+
+
+class RecordedFailure(Exception):
+    """Failure count is already saved. The caller must not count it again."""
 from stay_watch.rank import priced_results, rank_search
-from stay_watch.render import render_table
+from stay_watch.render import describe, render_table
 from stay_watch.store import (
     Store,
     build_latest,
@@ -39,6 +47,7 @@ def execute_scan(
     now: datetime,
 ) -> None:
     today = now.date()
+    previous_latest = store.load_latest()
     catalog = client.catalog()
     jobs = _jobs(config.searches, today)
     fetched: dict[tuple[str, int, tuple[str, ...]], list] = {}
@@ -48,12 +57,12 @@ def execute_scan(
         fetched[(stay.key, adults, codes)] = quotes
         if quotes:
             any_quote = True
-    if jobs and not any_quote and had_availability(store.load_latest()):
-        raise FeedChanged("every stay returned zero proposals")
 
     history = store.load_history()
     state = store.load_state()
     old_failures = int(state.get("consecutive_failures") or 0)
+    had_prices = bool(state.get("seen_prices")) or had_availability(previous_latest) or any_quote
+    suspected = len(jobs) >= EMPTY_FEED_MIN and not any_quote and had_prices
     sent = state.get("alerts_sent") or {}
     ranked_by_search: list[tuple[Search, list]] = []
     hits = []
@@ -79,15 +88,14 @@ def execute_scan(
             if result.best is None:
                 rows.append((result.stay.key, result.stay.check_in, None, None, None))
             else:
-                offer = catalog.offers.get(result.best.offer_id)
-                room = catalog.rooms.get(result.best.room_id)
+                offer_name, room_name, _meal, _cancel = describe(result, catalog)
                 rows.append(
                     (
                         result.stay.key,
                         result.stay.check_in,
                         result.best.price,
-                        offer.name if offer else None,
-                        room,
+                        offer_name,
+                        room_name,
                     )
                 )
 
@@ -103,6 +111,18 @@ def execute_scan(
         raise PublicFilesError(findings[0])
 
     searches = {search.id: search for search in config.searches}
+    if suspected:
+        count = old_failures + 1
+        state["seen_prices"] = True
+        state["alerts_sent"] = sent
+        state["consecutive_failures"] = count
+        store.save_state(state)
+        if count == 3:
+            try:
+                deliver(secrets, build_failure_message(secrets, count, "every stay returned zero proposals"))
+            except MailError:
+                print("could not send the failure email")
+        raise RecordedFailure("every stay returned zero proposals")
     if hits:
         deliver(secrets, build_alert_message(secrets, hits, searches, catalog))
         state["alerts_sent"] = sent
@@ -116,10 +136,13 @@ def execute_scan(
         deliver(secrets, build_recovered_message(secrets))
 
     state["alerts_sent"] = sent
+    state["seen_prices"] = had_prices
     state["consecutive_failures"] = 0
     store.save_state(state)
     stay_count = sum(len(ranked) for _, ranked in ranked_by_search)
-    print(f"scan ok: {len(config.searches)} searches, {stay_count} stays, {len(hits)} alerts")
+    skipped = getattr(client, "skipped_proposals", 0)
+    extra = f", skipped {skipped} proposals" if skipped else ""
+    print(f"scan ok: {len(config.searches)} searches, {stay_count} stays, {len(hits)} alerts{extra}")
 
 
 def execute_search(

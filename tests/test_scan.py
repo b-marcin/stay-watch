@@ -163,24 +163,52 @@ def test_weekly_digest_sends_once_per_day(tmp_path):
     assert "Weekly digest" in next_week.stdout
 
 
-def test_repeated_empty_feed_alerts_then_recovers(tmp_path):
-    write_watch(tmp_path, QUIET_TOML.replace('weekday = "mon"', 'weekday = "off"'))
+def _empty_fixtures(tmp_path):
     empty = tmp_path / "empty-fixtures"
     empty.mkdir()
     shutil.copy(FIXTURES / "offers.json", empty / "offers.json")
     shutil.copy(FIXTURES / "rooms.json", empty / "rooms.json")
     docs = tmp_path / "docs" / "data"
     docs.mkdir(parents=True)
-    previous = json.dumps({"searches": [{"stays": [{"price": 100}]}]})
-    (docs / "latest.json").write_text(previous, encoding="utf-8")
+    (docs / "latest.json").write_text(
+        json.dumps({"searches": [{"stays": [{"price": 100}]}]}),
+        encoding="utf-8",
+    )
+    return empty, docs
 
+
+def test_small_sellout_is_written_and_is_not_a_failure(tmp_path):
+    write_watch(tmp_path, QUIET_TOML.replace('weekday = "mon"', 'weekday = "off"'))
+    empty, docs = _empty_fixtures(tmp_path)
+    proc = run_cli(tmp_path, ["scan", "--fixtures", str(empty)])
+    assert proc.returncode == 0, proc.stderr
+    assert "Stay Watch is failing" not in proc.stdout
+    latest = json.loads((docs / "latest.json").read_text(encoding="utf-8"))
+    stays = latest["searches"][0]["stays"]
+    assert stays
+    assert all(stay["price"] is None for stay in stays)
+    state = json.loads((docs / "state.json").read_text(encoding="utf-8"))
+    assert state["consecutive_failures"] == 0
+
+
+def test_wide_empty_feed_counts_a_failure_and_still_writes(tmp_path):
+    write_watch(
+        tmp_path,
+        QUIET_TOML.replace('weekday = "mon"', 'weekday = "off"').replace('to = "2026-12-08"', 'to = "2027-02-01"'),
+    )
+    empty, docs = _empty_fixtures(tmp_path)
     outputs = []
-    for _ in range(3):
+    for run in range(1, 4):
         proc = run_cli(tmp_path, ["scan", "--fixtures", str(empty)])
         assert proc.returncode == 1
         assert "zero proposals" in proc.stderr
         outputs.append(proc.stdout)
-        assert (docs / "latest.json").read_text(encoding="utf-8") == previous
+        latest = json.loads((docs / "latest.json").read_text(encoding="utf-8"))
+        stays = latest["searches"][0]["stays"]
+        assert len(stays) >= 5
+        assert all(stay["price"] is None for stay in stays)
+        state = json.loads((docs / "state.json").read_text(encoding="utf-8"))
+        assert state["consecutive_failures"] == run
     assert "Stay Watch is failing" not in outputs[0]
     assert "Stay Watch is failing" not in outputs[1]
     assert "Stay Watch is failing" in outputs[2]
