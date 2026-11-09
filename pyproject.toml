@@ -1,0 +1,12 @@
+[project]
+name = "stay-watch"
+version = "1.0.0"
+description = "Watch stay prices for one hotel and publish a dashboard."
+requires-python = ">=3.12"
+readme = "README.md"
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
