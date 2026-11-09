@@ -8,7 +8,7 @@ from datetime import date, datetime
 from stay_watch.alerts import evaluate
 from stay_watch.config import Secrets, WatchConfig
 from stay_watch.guard import PublicFilesError, check_tree
-from stay_watch.model import Search, Stay
+from stay_watch.model import Search, Stay, StayResult
 from stay_watch.notify import (
     MailError,
     build_alert_message,
@@ -20,15 +20,7 @@ from stay_watch.notify import (
 )
 from stay_watch.plan import candidate_stays
 from stay_watch.profitroom import FixtureClient, ProfitroomClient
-
-# A handful of empty stays is a real sell-out. A wide empty feed, after a run
-# that still had prices, is treated as a broken feed.
-EMPTY_FEED_MIN = 5
-
-
-class RecordedFailure(Exception):
-    """Failure count is already saved. The caller must not count it again."""
-from stay_watch.rank import priced_results, rank_search
+from stay_watch.rank import cheapest, priced_results, rank_search, select_quotes
 from stay_watch.render import describe, display_name, render_table
 from stay_watch.store import (
     Store,
@@ -38,6 +30,15 @@ from stay_watch.store import (
     last_recorded_price,
     update_history,
 )
+from stay_watch.tracked import evaluate_tracked
+
+# A handful of empty stays is a real sell-out. A wide empty feed, after a run
+# that still had prices, is treated as a broken feed.
+EMPTY_FEED_MIN = 5
+
+
+class RecordedFailure(Exception):
+    """Failure count is already saved. The caller must not count it again."""
 
 
 def execute_scan(
@@ -50,10 +51,10 @@ def execute_scan(
     today = now.date()
     previous_latest = store.load_latest()
     catalog = client.catalog()
-    jobs = _jobs(config.searches, today)
+    search_jobs, tracked_jobs = _fetch_plan(config, today)
     fetched: dict[tuple[str, int, tuple[str, ...]], list] = {}
     any_quote = False
-    for stay, adults, codes in jobs:
+    for stay, adults, codes in [*search_jobs, *tracked_jobs]:
         quotes = client.quotes(stay, adults, codes)
         fetched[(stay.key, adults, codes)] = quotes
         if quotes:
@@ -63,47 +64,65 @@ def execute_scan(
     state = store.load_state()
     old_failures = int(state.get("consecutive_failures") or 0)
     had_prices = bool(state.get("seen_prices")) or had_availability(previous_latest) or any_quote
-    suspected = len(jobs) >= EMPTY_FEED_MIN and not any_quote and had_prices
+    # Tracked trips count toward a broken feed only when the searches fetched nothing.
+    feed_count = len(search_jobs) if search_jobs else len(tracked_jobs)
+    suspected = feed_count >= EMPTY_FEED_MIN and not any_quote and had_prices
     sent = state.get("alerts_sent") or {}
     ranked_by_search: list[tuple[Search, list]] = []
     hits = []
-    observations: dict[str, list] = {}
+    observations: dict[str, dict] = {}
+
+    def observe(group: str, result: StayResult) -> None:
+        rows = observations.setdefault(group, {})
+        if result.stay.key in rows:
+            return
+        if result.best is None:
+            rows[result.stay.key] = (result.stay.key, result.stay.check_in, None, None, None)
+            return
+        offer_name, room_name, _meal, _cancel = describe(result, catalog)
+        rows[result.stay.key] = (result.stay.key, result.stay.check_in, result.best.price, offer_name, room_name)
+
     for search in config.searches:
         stays = candidate_stays(search, today)
-        quotes_by_key = {
-            stay.key: fetched[(stay.key, search.adults, search.codes)]
-            for stay in stays
-        }
+        quotes_by_key = {stay.key: fetched[(stay.key, search.adults, search.codes)] for stay in stays}
         ranked = rank_search(search, stays, quotes_by_key, catalog)
         group = history_group(search.adults, search.codes, search.offer_filter, search.room_filter)
         bucket = history.get(group) if isinstance(history.get(group), dict) else {}
-        previous = {
-            result.stay.key: last_recorded_price(bucket.get(result.stay.key) or [])
-            for result in ranked
-        }
+        previous = {result.stay.key: last_recorded_price(bucket.get(result.stay.key) or []) for result in ranked}
         search_hits, sent = evaluate(search, ranked, previous, sent)
         hits.extend(search_hits)
         ranked_by_search.append((search, ranked))
-        rows = observations.setdefault(group, [])
         for result in ranked:
-            if result.best is None:
-                rows.append((result.stay.key, result.stay.check_in, None, None, None))
-            else:
-                offer_name, room_name, _meal, _cancel = describe(result, catalog)
-                rows.append(
-                    (
-                        result.stay.key,
-                        result.stay.check_in,
-                        result.best.price,
-                        offer_name,
-                        room_name,
-                    )
-                )
+            observe(group, result)
 
-    latest = build_latest(ranked_by_search, catalog, history, now)
+    active = [trip for trip in config.tracked if trip.stay.check_in >= today]
+    tracked_ranked = []
+    for trip in active:
+        quotes = fetched[(trip.stay.key, trip.adults, trip.codes)]
+        matched = select_quotes(quotes, catalog, (), ())
+        result = StayResult(trip.stay, cheapest(matched), len({quote.offer_id for quote in matched}))
+        tracked_ranked.append((trip, result))
+        observe(history_group(trip.adults, trip.codes), result)
+
+    tracked_before = state.get("tracked") if isinstance(state.get("tracked"), dict) else {}
+    new_tracked: dict = {}
+    notices = []
+    for trip, result in tracked_ranked:
+        notice, entry = evaluate_tracked(trip, result, tracked_before.get(trip.id))
+        new_tracked[trip.id] = entry
+        if notice:
+            notices.append(notice)
+
+    latest = build_latest(ranked_by_search, catalog, history, now, tracked_ranked, new_tracked)
     new_history = history
     for group, rows in observations.items():
-        new_history = update_history(new_history, group, rows, now.isoformat(timespec="seconds"), now.date())
+        new_history = update_history(
+            new_history,
+            group,
+            list(rows.values()),
+            now.isoformat(timespec="seconds"),
+            now.date(),
+        )
 
     store.save_latest(latest)
     store.save_history(new_history)
@@ -111,39 +130,44 @@ def execute_scan(
     if findings:
         raise PublicFilesError(findings[0])
 
-    searches = {search.id: replace(search, name=display_name(search, today)) for search in config.searches}
+    shown = {search.id: replace(search, name=display_name(search, today)) for search in config.searches}
+
+    def persist() -> None:
+        state["alerts_sent"] = sent
+        state["tracked"] = new_tracked
+        store.save_state(state, today=today, searches=config.searches, tracked=config.tracked)
+
     if suspected:
         count = old_failures + 1
         state["seen_prices"] = True
         state["alerts_sent"] = sent
         state["consecutive_failures"] = count
-        store.save_state(state, today=today, searches=config.searches)
+        store.save_state(state, today=today, searches=config.searches, tracked=config.tracked)
         if count == 3:
             try:
                 deliver(secrets, build_failure_message(secrets, count, "every stay returned zero proposals"))
             except MailError:
                 print("could not send the failure email")
         raise RecordedFailure("every stay returned zero proposals")
-    if hits:
-        deliver(secrets, build_alert_message(secrets, hits, searches, catalog))
-        state["alerts_sent"] = sent
-        store.save_state(state, today=today, searches=config.searches)
-    if _digest_due(config, state, now) and config.searches:
-        sections = [(searches[search.id], priced_results(ranked, search.top)) for search, ranked in ranked_by_search]
-        deliver(secrets, build_digest_message(secrets, sections, catalog))
+    if hits or notices:
+        deliver(secrets, build_alert_message(secrets, hits, shown, catalog, notices))
+        persist()
+    if _digest_due(config, state, now) and (config.searches or tracked_ranked):
+        sections = [(shown[search.id], priced_results(ranked, search.top)) for search, ranked in ranked_by_search]
+        deliver(secrets, build_digest_message(secrets, sections, catalog, tracked_ranked))
         state["last_digest_date"] = now.date().isoformat()
-        store.save_state(state, today=today, searches=config.searches)
+        persist()
     if old_failures >= 3:
         deliver(secrets, build_recovered_message(secrets))
 
-    state["alerts_sent"] = sent
     state["seen_prices"] = had_prices
     state["consecutive_failures"] = 0
-    store.save_state(state, today=today, searches=config.searches)
+    persist()
     stay_count = sum(len(ranked) for _, ranked in ranked_by_search)
     skipped = getattr(client, "skipped_proposals", 0)
     extra = f", skipped {skipped} proposals" if skipped else ""
-    print(f"scan ok: {len(config.searches)} searches, {stay_count} stays, {len(hits)} alerts{extra}")
+    tracked_note = f", {len(tracked_ranked)} tracked" if tracked_ranked else ""
+    print(f"scan ok: {len(config.searches)} searches, {stay_count} stays, {len(hits)} alerts{tracked_note}{extra}")
 
 
 def execute_search(
@@ -205,17 +229,26 @@ def public_error(exc: BaseException, slug: str) -> str:
     return text[:500]
 
 
-def _jobs(searches: tuple[Search, ...], today: date | None = None) -> list[tuple[Stay, int, tuple[str, ...]]]:
-    jobs: list[tuple[Stay, int, tuple[str, ...]]] = []
+def _fetch_plan(config: WatchConfig, today: date | None) -> tuple[list, list]:
     seen: set[tuple[str, int, tuple[str, ...]]] = set()
-    for search in searches:
+    search_jobs: list[tuple[Stay, int, tuple[str, ...]]] = []
+    tracked_jobs: list[tuple[Stay, int, tuple[str, ...]]] = []
+
+    def take(stay: Stay, adults: int, codes: tuple[str, ...], dest: list) -> None:
+        key = (stay.key, adults, codes)
+        if key in seen:
+            return
+        seen.add(key)
+        dest.append((stay, adults, codes))
+
+    for search in config.searches:
         for stay in candidate_stays(search, today):
-            key = (stay.key, search.adults, search.codes)
-            if key in seen:
-                continue
-            seen.add(key)
-            jobs.append((stay, search.adults, search.codes))
-    return jobs
+            take(stay, search.adults, search.codes, search_jobs)
+    for trip in config.tracked:
+        if today is not None and trip.stay.check_in < today:
+            continue
+        take(trip.stay, trip.adults, trip.codes, tracked_jobs)
+    return search_jobs, tracked_jobs
 
 
 def _digest_due(config: WatchConfig, state: dict, now: datetime) -> bool:

@@ -105,6 +105,84 @@ def render_table(results: list[StayResult], catalog: Catalog, top: int | None) -
     return "\n".join(lines) + "\n"
 
 
+def format_delta(grosze: int) -> str:
+    if grosze > 0:
+        return f"+{format_pln(grosze)}"
+    return format_pln(grosze)
+
+
+def tracked_change_text(old: int, new: int) -> str:
+    pct = round((new - old) * 100 / old) if old else 0
+    return f"{format_pln(old)} → {format_pln(new)} ({format_delta(new - old)}, {pct:+d}%)"
+
+
+def tracked_status_line(result: StayResult, catalog: Catalog) -> str:
+    when = format_stay(result.stay)
+    if result.best is None:
+        return f"{when} — sold out"
+    _offer, room, meal, _cancel = describe(result, catalog)
+    return f"{when} — {format_pln(result.best.price)} — {room}, {meal}"
+
+
+def tracked_notice_plain(notice, catalog: Catalog, link: str) -> str:
+    result = notice.result
+    when = format_stay(result.stay)
+    lines: list[str] = []
+    if "now_tracking" in notice.reasons:
+        lines.append("Now tracking")
+    lines.append(when)
+    if result.best is None:
+        if isinstance(notice.previous_price, int):
+            lines.append(f"{format_pln(notice.previous_price)} → sold out")
+        else:
+            lines.append("sold out")
+        lines.append(link)
+        return "\n".join(lines)
+    price = result.best.price
+    if isinstance(notice.previous_price, int) and notice.previous_price != price and "now_tracking" not in notice.reasons:
+        lines.append(tracked_change_text(notice.previous_price, price))
+    elif notice.previous_price is None and "now_tracking" not in notice.reasons:
+        lines.append(f"sold out → {format_pln(price)}")
+    else:
+        each = format_pln(price // result.stay.nights)
+        lines.append(f"{format_pln(price)} ({each} a night)")
+    if "below" in notice.reasons and notice.trip.below is not None:
+        lines.append(f"under {format_pln(notice.trip.below)}")
+    offer, room, meal, cancel = describe(result, catalog)
+    lines.append(f"{room}; {meal}; {offer}")
+    lines.append(cancel)
+    lines.append(link)
+    return "\n".join(lines)
+
+
+def one_tracked_subject(notice) -> str:
+    when = format_stay(notice.result.stay)
+    price = None if notice.result.best is None else notice.result.best.price
+    if price is None:
+        return f"Tracked: {when} sold out"
+    if "now_tracking" in notice.reasons:
+        return f"Tracked: {when} now {format_pln(price)}"
+    if isinstance(notice.previous_price, int) and notice.previous_price != price:
+        return f"Tracked: {when} {format_pln(notice.previous_price)} → {format_pln(price)}"
+    return f"Tracked: {when} {format_pln(price)}"
+
+
+def scan_subject(notices: list, hits: list[AlertHit]) -> str:
+    groups = group_hits(hits) if hits else []
+    if len(notices) == 1 and not groups:
+        return one_tracked_subject(notices[0])
+    parts: list[str] = []
+    if notices:
+        noun = "trip" if len(notices) == 1 else "trips"
+        parts.append(f"{len(notices)} tracked {noun} changed")
+    if groups:
+        noun = "deal" if len(groups) == 1 else "deals"
+        parts.append(f"{len(groups)} new {noun}")
+    if parts:
+        return ", ".join(parts)
+    return alert_subject(hits)
+
+
 def alert_subject(hits: list[AlertHit]) -> str:
     groups = group_hits(hits)
     count = len(groups)

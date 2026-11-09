@@ -8,7 +8,18 @@ from datetime import date, datetime
 from pathlib import Path
 
 from stay_watch.config import WEEKDAY_NAMES
-from stay_watch.model import AlertRule, Below, BelowRecentLowest, Catalog, Discounted, DropPct, PerNightBelow, Search, StayResult
+from stay_watch.model import (
+    AlertRule,
+    Below,
+    BelowRecentLowest,
+    Catalog,
+    Discounted,
+    DropPct,
+    PerNightBelow,
+    Search,
+    StayResult,
+    TrackedTrip,
+)
 from stay_watch.alerts import rule_id, rule_matches
 from stay_watch.rank import per_night
 from stay_watch.render import describe, display_name
@@ -70,6 +81,7 @@ def history_group(
 def default_state() -> dict:
     return {
         "alerts_sent": {},
+        "tracked": {},
         "consecutive_failures": 0,
         "last_digest_date": None,
     }
@@ -117,6 +129,24 @@ def prune_alerts_sent(sent: dict, today: date, searches: Sequence[Search] | None
     return kept
 
 
+def prune_tracked_state(tracked_state: dict, today: date, trips: Sequence[TrackedTrip] | None) -> dict:
+    """Drop trips removed from the config, and trips whose check-in has passed."""
+    if not isinstance(tracked_state, dict):
+        return {}
+    known = None if trips is None else {trip.id for trip in trips}
+    kept: dict = {}
+    for trip_id, entry in tracked_state.items():
+        if not isinstance(entry, dict):
+            continue
+        if known is not None and trip_id not in known:
+            continue
+        check_in = check_in_of(str(trip_id))
+        if check_in is not None and check_in < today:
+            continue
+        kept[trip_id] = entry
+    return kept
+
+
 def update_history(
     history: dict,
     group: str,
@@ -153,6 +183,13 @@ def last_recorded_price(rows: list) -> int | None:
         return None
     price = rows[-1][1]
     return price if isinstance(price, int) else None
+
+
+def lowest_seen(rows: list, current: int | None) -> int | None:
+    prices = [row[1] for row in rows if isinstance(row, list) and len(row) > 1 and isinstance(row[1], int)]
+    if isinstance(current, int):
+        prices.append(current)
+    return min(prices) if prices else None
 
 
 def trend_baseline(rows: list, current: int | None) -> int | None:
@@ -213,6 +250,8 @@ def build_latest(
     catalog: Catalog,
     history: dict,
     scanned_at: datetime,
+    tracked: list[tuple[TrackedTrip, StayResult]] | None = None,
+    tracked_state: dict | None = None,
 ) -> dict:
     payload_searches = []
     for search, results in searches:
@@ -261,6 +300,51 @@ def build_latest(
     return {
         "scanned_at": scanned_at.isoformat(timespec="seconds"),
         "searches": payload_searches,
+        "tracked": [_tracked_payload(item, catalog, history, tracked_state or {}) for item in tracked or []],
+    }
+
+
+def _tracked_payload(
+    item: tuple[TrackedTrip, StayResult],
+    catalog: Catalog,
+    history: dict,
+    tracked_state: dict,
+) -> dict:
+    trip, result = item
+    group = history_group(trip.adults, trip.codes)
+    bucket = history.get(group) if isinstance(history.get(group), dict) else {}
+    rows = bucket.get(result.stay.key) or []
+    current = None if result.best is None else result.best.price
+    entry = tracked_state.get(trip.id) if isinstance(tracked_state.get(trip.id), dict) else {}
+    quote = describe_quote(catalog, result)
+    last_notified = entry.get("last_notified_price")
+    return {
+        "id": trip.id,
+        "key": result.stay.key,
+        "check_in": result.stay.check_in.isoformat(),
+        "check_out": result.stay.check_out.isoformat(),
+        "nights": result.stay.nights,
+        "adults": trip.adults,
+        "codes": list(trip.codes),
+        "notify": trip.notify,
+        "below": trip.below,
+        "added": trip.added.isoformat(),
+        "history_key": group,
+        "sold_out": result.best is None,
+        "offer_count": result.offer_count,
+        "price": quote["price"],
+        "per_night": quote["per_night"],
+        "recent_lowest": quote["recent_lowest"],
+        "original": quote["original"],
+        "rooms_left": quote["rooms_left"],
+        "offer_name": quote["offer_name"],
+        "room_name": quote["room_name"],
+        "meal_plan": quote["meal_plan"],
+        "cancel": quote["cancel"],
+        "previous_price": trend_baseline(rows, current),
+        "first_price": entry.get("first_price"),
+        "lowest_seen": lowest_seen(rows, current),
+        "last_notified_price": last_notified if isinstance(last_notified, int) else None,
     }
 
 
@@ -273,6 +357,9 @@ def had_availability(latest: dict | None) -> bool:
         for stay in search.get("stays") or []:
             if isinstance(stay, dict) and isinstance(stay.get("price"), int):
                 return True
+    for trip in latest.get("tracked") or []:
+        if isinstance(trip, dict) and isinstance(trip.get("price"), int):
+            return True
     return False
 
 
@@ -297,6 +384,8 @@ class Store:
         state.update(loaded)
         if not isinstance(state.get("alerts_sent"), dict):
             state["alerts_sent"] = {}
+        if not isinstance(state.get("tracked"), dict):
+            state["tracked"] = {}
         return state
 
     def save_latest(self, payload: dict) -> None:
@@ -311,11 +400,15 @@ class Store:
         *,
         today: date | None = None,
         searches: Sequence[Search] | None = None,
+        tracked: Sequence[TrackedTrip] | None = None,
     ) -> None:
         if today is not None:
             payload = copy.deepcopy(payload)
             if isinstance(payload.get("alerts_sent"), dict):
                 payload["alerts_sent"] = prune_alerts_sent(payload["alerts_sent"], today, searches)
+            if isinstance(payload.get("tracked"), dict) or tracked is not None:
+                raw = payload.get("tracked")
+                payload["tracked"] = prune_tracked_state(raw if isinstance(raw, dict) else {}, today, tracked)
         self._write("state.json", payload)
 
     def _read(self, name: str) -> dict | None:

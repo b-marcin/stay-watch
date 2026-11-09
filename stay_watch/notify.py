@@ -7,8 +7,20 @@ import urllib.parse
 from email.message import EmailMessage
 
 from stay_watch.config import Secrets
-from stay_watch.model import AlertHit, Catalog, Search, Stay, StayResult
-from stay_watch.render import alert_subject, describe, format_pln, format_stay, group_hits, render_table, rule_label
+from stay_watch.model import AlertHit, Catalog, Search, Stay, StayResult, TrackedTrip
+from stay_watch.render import (
+    alert_subject,
+    describe,
+    format_pln,
+    format_stay,
+    group_hits,
+    render_table,
+    rule_label,
+    scan_subject,
+    tracked_notice_plain,
+    tracked_status_line,
+)
+from stay_watch.tracked import TrackedNotice
 
 
 class MailError(Exception):
@@ -47,10 +59,20 @@ def build_alert_message(
     hits: list[AlertHit],
     searches: dict[str, Search],
     catalog: Catalog,
+    notices: list[TrackedNotice] | None = None,
 ) -> EmailMessage:
-    groups = group_hits(hits)
+    notices = list(notices or [])
+    groups = group_hits(hits) if hits else []
     plain_parts: list[str] = []
     html_parts: list[str] = []
+    if notices:
+        plain_parts.append("Tracked trips")
+        html_parts.append("<h2>Tracked trips</h2>")
+        for notice in notices:
+            link = booking_url(secrets.slug, notice.result.stay, notice.trip.adults)
+            plain = tracked_notice_plain(notice, catalog, link)
+            plain_parts.append(plain)
+            html_parts.append(_html_lines(plain))
     for group in groups:
         lead = group[0]
         search = searches[lead.search_id]
@@ -84,17 +106,33 @@ def build_alert_message(
         + "".join(html_parts)
         + "</body></html>"
     )
-    return _message(secrets, alert_subject(hits), plain, body)
+    subject = scan_subject(notices, hits) if notices else alert_subject(hits)
+    return _message(secrets, subject, plain, body)
 
 
 def build_digest_message(
     secrets: Secrets,
     sections: list[tuple[Search, list[StayResult]]],
     catalog: Catalog,
+    tracked: list[tuple[TrackedTrip, StayResult]] | None = None,
 ) -> EmailMessage:
     priced: list[tuple[Search, StayResult]] = []
     plain_parts: list[str] = []
     html_parts: list[str] = []
+    for trip, result in tracked or []:
+        if not plain_parts:
+            plain_parts.append("Tracked trips")
+            html_parts.append("<h2>Tracked trips</h2>")
+        status = tracked_status_line(result, catalog)
+        link = booking_url(secrets.slug, result.stay, trip.adults)
+        plain_parts.append(status)
+        plain_parts.append(link)
+        html_parts.append(
+            "<p>"
+            f"{html.escape(status)}<br>"
+            f"<a href=\"{html.escape(link, quote=True)}\">Open the booking page</a>"
+            "</p>"
+        )
     for search, results in sections:
         plain_parts.append(search.name)
         plain_parts.append(render_table(results, catalog, search.top).rstrip())
@@ -126,7 +164,12 @@ def build_digest_message(
         best = priced[0][1]
         subject = f"Weekly digest: {format_stay(best.stay)} {format_pln(best.best.price)}"
     else:
-        subject = "Weekly digest: no prices"
+        available = [result for _trip, result in (tracked or []) if result.best is not None]
+        if available:
+            best = min(available, key=lambda result: (result.best.price, result.stay.check_in))
+            subject = f"Weekly digest: {format_stay(best.stay)} {format_pln(best.best.price)}"
+        else:
+            subject = "Weekly digest: no prices"
     plain = "\n".join(plain_parts) + "\n"
     body = (
         "<!DOCTYPE html><html><body style=\"font-family:sans-serif;color:#1c1915\">"
@@ -187,6 +230,17 @@ def build_recovered_message(secrets: Secrets) -> EmailMessage:
         "<p>The watcher completed a scan after earlier failures.</p></body></html>"
     )
     return _message(secrets, "Stay Watch recovered", plain, body)
+
+
+def _html_lines(plain: str) -> str:
+    parts: list[str] = []
+    for line in plain.splitlines():
+        if line.startswith("https://"):
+            href = html.escape(line, quote=True)
+            parts.append(f'<a href="{href}">Open the booking page</a>')
+        else:
+            parts.append(html.escape(line))
+    return "<p>" + "<br>".join(parts) + "</p>"
 
 
 def _message(secrets: Secrets, subject: str, plain: str, html_body: str) -> EmailMessage:
