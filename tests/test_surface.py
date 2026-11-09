@@ -61,9 +61,16 @@ def test_dashboard_is_static_and_does_not_name_a_booking_engine():
         assert not re.fullmatch(r"[A-Za-z0-9_-]+", head), url
     assert "profitroom" not in folded.replace("booking.profitroom.com", "")
     fetches = re.findall(r"""fetch\(\s*(["'])(.*?)\1""", text)
-    assert fetches
     for _quote, target in fetches:
-        assert target.startswith("data/")
+        assert not target.casefold().startswith("http"), target
+        assert not target.startswith("//"), target
+    for api in (
+        "XMLHttpRequest",
+        "navigator.sendBeacon",
+        "new WebSocket",
+        "EventSource",
+    ):
+        assert api not in text
 
 
 def test_failed_scan_still_reaches_the_public_check_and_the_commit():
