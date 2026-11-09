@@ -273,7 +273,7 @@
     --cell: 22px;
     display: grid; width: max-content; gap: 3px;
     grid-template-columns: 14px repeat(var(--cols, 1), var(--cell));
-    grid-template-rows: 16px repeat(7, var(--cell));
+    grid-template-rows: 16px repeat(var(--rows, 7), var(--cell));
     font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums;
   }
   @media (max-width: 719px) { .cal { --cell: 19px; } }
@@ -282,7 +282,7 @@
     .cal {
       width: 100%;
       grid-template-columns: 24px repeat(var(--cols, 1), minmax(46px, 1fr));
-      grid-template-rows: 18px repeat(7, 32px);
+      grid-template-rows: 18px repeat(var(--rows, 7), 32px);
     }
     .cal .cell { width: 100%; height: 32px; font-size: 11.5px; line-height: 1; }
     .cal .cell { flex-direction: column; gap: 2px; line-height: 1; }
@@ -404,6 +404,8 @@ var HEAT_NEAR = 1.10;
 var HEAT_MID = 1.25;
 var CHART_STEPS = [5000, 10000, 20000, 25000, 50000, 100000];
 var WEEKDAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+var WEEKDAY_LETTER = ["M", "T", "W", "T", "F", "S", "S"];
+var WEEKDAY_NAME = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 var MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function isNumber(value) {
@@ -779,7 +781,7 @@ function chartGeometry(series, opts) {
   };
 }
 
-/* Check-in calendar: weeks as columns (Monday first), weekdays as rows. */
+/* Check-in calendar: weeks as columns (Monday first), one row per weekday that holds a check-in in this search. */
 function calendarLayout(stays, ref) {
   var items = [];
   var mondays = [];
@@ -791,15 +793,21 @@ function calendarLayout(stays, ref) {
     items.push({ stay: stay, t: t, row: index, monday: monday });
     mondays.push(monday);
   });
-  if (!items.length) return { cols: 0, cells: [], months: [] };
+  if (!items.length) return { cols: 0, cells: [], months: [], weekdays: [] };
   var first = Math.min.apply(null, mondays);
   var last = Math.max.apply(null, mondays);
   var cols = Math.round((last - first) / (7 * DAY_MS)) + 1;
+  /* Only weekdays that hold a check-in get a row. lane is that row's position in the grid, Monday first. */
+  var used = [false, false, false, false, false, false, false];
+  items.forEach(function (item) { used[item.row] = true; });
+  var weekdays = [];
+  used.forEach(function (on, day) { if (on) weekdays.push(day); });
   var cells = items.map(function (item) {
     return {
       stay: item.stay,
       col: Math.round((item.monday - first) / (7 * DAY_MS)),
       row: item.row,
+      lane: weekdays.indexOf(item.row),
       day: new Date(item.t).getUTCDate(),
       tier: heatTier(item.stay, ref)
     };
@@ -814,7 +822,7 @@ function calendarLayout(stays, ref) {
       previous = month;
     }
   }
-  return { cols: cols, cells: cells, months: months };
+  return { cols: cols, cells: cells, months: months, weekdays: weekdays };
 }
 </script>
 
@@ -1450,16 +1458,17 @@ function calendarLayout(stays, ref) {
     var layout = calendarLayout(search.stays, ref);
     var grid = el("div", { class: "cal", role: "group", "aria-label": "Prices by check-in for " + search.name });
     grid.style.setProperty("--cols", String(Math.max(layout.cols, 1)));
+    grid.style.setProperty("--rows", String(Math.max(layout.weekdays.length, 1)));
     layout.months.forEach(function (m) {
       var node = el("div", { class: "mon", text: m.label, "aria-hidden": "true" });
       node.style.gridColumn = String(m.col + 2);
       node.style.gridRow = "1";
       grid.appendChild(node);
     });
-    ["M", "T", "W", "T", "F", "S", "S"].forEach(function (letter, i) {
-      var node = el("div", { class: "wd", text: letter, "aria-hidden": "true" });
+    layout.weekdays.forEach(function (day, lane) {
+      var node = el("div", { class: "wd", text: WEEKDAY_LETTER[day], "aria-hidden": "true", "data-tip": WEEKDAY_NAME[day] });
       node.style.gridColumn = "1";
-      node.style.gridRow = String(i + 2);
+      node.style.gridRow = String(lane + 2);
       grid.appendChild(node);
     });
     layout.cells.forEach(function (c) {
@@ -1478,7 +1487,7 @@ function calendarLayout(stays, ref) {
         isPriced(c.stay) ? el("span", { class: "p", text: formatCompactPln(c.stay.price) }) : null
       ]);
       cell.style.gridColumn = String(c.col + 2);
-      cell.style.gridRow = String(c.row + 2);
+      cell.style.gridRow = String(c.lane + 2);
       cell.addEventListener("click", function () { heatClick(search, c.stay); });
       grid.appendChild(cell);
     });
