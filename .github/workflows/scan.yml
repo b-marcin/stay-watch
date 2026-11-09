@@ -53,6 +53,8 @@ jobs:
         with:
           python-version: "3.12"
       - name: Scan or search
+        id: scan
+        continue-on-error: true
         env:
           HOTEL_SLUG: ${{ secrets.HOTEL_SLUG }}
           HOTEL_NAME_TERMS: ${{ secrets.HOTEL_NAME_TERMS }}
@@ -79,10 +81,15 @@ jobs:
             python -m stay_watch "${args[@]}"
           else
             python -m stay_watch scan
-            python -m stay_watch check-public
           fi
+      - name: Check public files
+        id: check
+        env:
+          HOTEL_SLUG: ${{ secrets.HOTEL_SLUG }}
+          HOTEL_NAME_TERMS: ${{ secrets.HOTEL_NAME_TERMS }}
+        run: python -m stay_watch check-public
       - name: Commit dashboard data
-        if: success() && inputs.mode != 'search'
+        if: steps.check.outcome == 'success' && inputs.mode != 'search'
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -94,3 +101,6 @@ jobs:
             git commit -m "Update stay data"
             git push
           fi
+      - name: Report a failed scan
+        if: steps.scan.outcome == 'failure'
+        run: exit 1
