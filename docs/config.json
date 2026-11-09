@@ -3,7 +3,9 @@
   "defaults": {
     "adults": 2,
     "nights": 2,
-    "must_include": ["sat"],
+    "must_include": [
+      "sat"
+    ],
     "top": 3,
     "codes": []
   },
@@ -17,17 +19,35 @@
       "from": "2026-12-01",
       "to": "2027-03-01",
       "nights": 2,
-      "must_include": ["sat"],
+      "must_include": [
+        "sat"
+      ],
       "adults": 2,
       "top": 3,
       "codes": [],
       "offers": [],
       "rooms": [],
       "alerts": [
-        { "kind": "below", "amount": 1300 },
-        { "kind": "below_recent_lowest" }
+        {
+          "kind": "below",
+          "amount": 1300
+        },
+        {
+          "kind": "below_recent_lowest"
+        }
       ]
     }
   ],
-  "tracked": []
+  "tracked": [
+    {
+      "id": "2027-01-02_2027-01-04_a2",
+      "check_in": "2027-01-02",
+      "check_out": "2027-01-04",
+      "adults": 2,
+      "codes": [],
+      "notify": "any",
+      "below": null,
+      "added": "2026-11-09"
+    }
+  ]
 }
