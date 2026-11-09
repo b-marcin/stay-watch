@@ -19,12 +19,12 @@ from stay_watch.model import (
 _MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
 
-def derived_window_name(start: date, end: date, scan_year: int) -> str:
+def derived_window_name(start: date, end: date, scan: date) -> str:
     """Date span used when a search has no name of its own.
 
-    Years show when the window crosses a year, or when it is not in the scan year.
+    Years show on both sides only when the window ends more than 365 days after the scan date.
     """
-    show_year = start.year != end.year or start.year != scan_year
+    show_year = (end - scan).days > 365
 
     def side(day: date) -> str:
         text = f"{day.day} {_MONTHS[day.month - 1]}"
@@ -38,7 +38,7 @@ def derived_window_name(start: date, end: date, scan_year: int) -> str:
 def display_name(search: Search, on: date) -> str:
     if search.name:
         return search.name
-    return derived_window_name(search.window_start, search.window_end, on.year)
+    return derived_window_name(search.window_start, search.window_end, on)
 
 
 def format_pln(grosze: int) -> str:

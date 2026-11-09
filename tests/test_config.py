@@ -199,10 +199,18 @@ def test_invalid_config_names_the_json_path(tmp_path, mutate, fragment):
     assert fragment in str(caught.value)
 
 
-def test_derived_names_include_years_when_the_window_crosses_a_year():
-    assert derived_window_name(date(2026, 12, 1), date(2026, 12, 8), 2026) == "1 Dec – 8 Dec"
-    assert derived_window_name(date(2026, 12, 28), date(2027, 1, 3), 2026) == "28 Dec 2026 – 3 Jan 2027"
-    assert derived_window_name(date(2027, 3, 1), date(2027, 3, 8), 2026) == "1 Mar 2027 – 8 Mar 2027"
+def test_derived_names_omit_years_when_the_end_is_within_a_year_of_the_scan():
+    scanned = date(2026, 11, 9)
+    assert derived_window_name(date(2026, 12, 1), date(2026, 12, 8), scanned) == "1 Dec – 8 Dec"
+    assert derived_window_name(date(2026, 12, 28), date(2027, 1, 3), scanned) == "28 Dec – 3 Jan"
+    assert derived_window_name(date(2027, 3, 1), date(2027, 3, 8), scanned) == "1 Mar – 8 Mar"
+
+
+def test_derived_names_show_years_only_when_the_end_is_more_than_365_days_after_the_scan():
+    scanned = date(2026, 11, 9)
+    assert derived_window_name(date(2026, 12, 1), date(2027, 3, 1), scanned) == "1 Dec – 1 Mar"
+    assert derived_window_name(date(2026, 11, 20), date(2026, 11, 30), scanned) == "20 Nov – 30 Nov"
+    assert derived_window_name(date(2026, 12, 1), date(2027, 12, 1), scanned) == "1 Dec 2026 – 1 Dec 2027"
 
 
 def test_secrets_include_the_slug_and_longest_terms_first():

@@ -19,7 +19,7 @@ Each search:
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `id` | string | Search id from the config. |
-| `name` | string | The custom name, or the derived name when the config name is null. Derived form is `{d} {Mon} – {d} {Mon}`, with the year on both sides when the window crosses a year or is not in the scan year. |
+| `name` | string | The custom name, or the derived name when the config name is null. Derived form is `{d} {Mon} – {d} {Mon}`, with the year on both sides only when the window end is more than 365 days after the scan date. |
 | `custom_name` | boolean | True when the config name is a string. False when the name was derived. |
 | `window_start` | string | Earliest check-in, `YYYY-MM-DD`. |
 | `window_end` | string | Latest check-out, `YYYY-MM-DD`. |
