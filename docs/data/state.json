@@ -1,6 +1,6 @@
 {
   "alerts_sent": {},
   "tracked": {},
-  "consecutive_failures": 5,
+  "consecutive_failures": 6,
   "last_digest_date": null
 }

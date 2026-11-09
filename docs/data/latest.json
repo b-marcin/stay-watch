@@ -1,5 +1,5 @@
 {
-  "scanned_at": "2026-11-09T18:10:05+01:00",
+  "scanned_at": "2026-11-09T18:23:53+01:00",
   "searches": [
     {
       "id": "s1",
@@ -18,7 +18,7 @@
       "alerts": [
         {
           "kind": "below",
-          "amount": 130000
+          "amount": 120000
         },
         {
           "kind": "below_recent_lowest"
@@ -34,7 +34,7 @@
           "offer_count": 3,
           "previous_price": null,
           "matched_rules": [
-            "below:130000"
+            "below:120000"
           ],
           "price": 99300,
           "per_night": 49650,
@@ -55,7 +55,7 @@
           "offer_count": 3,
           "previous_price": null,
           "matched_rules": [
-            "below:130000",
+            "below:120000",
             "below_recent_lowest"
           ],
           "price": 100300,
@@ -77,7 +77,7 @@
           "offer_count": 3,
           "previous_price": null,
           "matched_rules": [
-            "below:130000",
+            "below:120000",
             "below_recent_lowest"
           ],
           "price": 100900,
@@ -99,7 +99,7 @@
           "offer_count": 3,
           "previous_price": null,
           "matched_rules": [
-            "below:130000"
+            "below:120000"
           ],
           "price": 108100,
           "per_night": 54050,
@@ -120,7 +120,7 @@
           "offer_count": 3,
           "previous_price": null,
           "matched_rules": [
-            "below:130000"
+            "below:120000"
           ],
           "price": 112000,
           "per_night": 56000,
@@ -140,9 +140,7 @@
           "sold_out": false,
           "offer_count": 3,
           "previous_price": null,
-          "matched_rules": [
-            "below:130000"
-          ],
+          "matched_rules": [],
           "price": 120500,
           "per_night": 60250,
           "recent_lowest": 111000,
@@ -161,9 +159,7 @@
           "sold_out": false,
           "offer_count": 3,
           "previous_price": 127000,
-          "matched_rules": [
-            "below:130000"
-          ],
+          "matched_rules": [],
           "price": 128800,
           "per_night": 64400,
           "recent_lowest": 114900,
