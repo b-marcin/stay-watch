@@ -11,6 +11,7 @@ from stay_watch.config import WEEKDAY_NAMES
 from stay_watch.model import AlertRule, Below, BelowRecentLowest, Catalog, Discounted, DropPct, PerNightBelow, Search, StayResult
 from stay_watch.alerts import rule_id, rule_matches
 from stay_watch.rank import per_night
+from stay_watch.render import describe
 
 
 class StoreError(Exception):
@@ -147,24 +148,6 @@ def update_history(
     return history
 
 
-def prune_history(history: dict, today: date) -> dict:
-    history = copy.deepcopy(history)
-    if not isinstance(history, dict):
-        return {}
-    for group in list(history):
-        bucket = history.get(group)
-        if not isinstance(bucket, dict):
-            history.pop(group, None)
-            continue
-        for stay_key in list(bucket):
-            check_in = check_in_of(stay_key)
-            if check_in is not None and check_in < today:
-                del bucket[stay_key]
-        if not bucket:
-            del history[group]
-    return history
-
-
 def last_recorded_price(rows: list) -> int | None:
     if not rows:
         return None
@@ -211,16 +194,7 @@ def describe_quote(catalog: Catalog, result: StayResult) -> dict:
             "meal_plan": None,
             "cancel": None,
         }
-    offer = catalog.offers.get(quote.offer_id)
-    room_name = catalog.rooms.get(quote.room_id) or f"Room {quote.room_id}"
-    if offer is None:
-        offer_name = f"Offer {quote.offer_id}"
-        meal = "other"
-        cancel = "no free cancellation"
-    else:
-        offer_name = offer.name
-        meal = offer.meal_plan_label
-        cancel = offer.cancel_for(quote.profile_id)
+    offer_name, room_name, meal, cancel = describe(result, catalog)
     return {
         "price": quote.price,
         "per_night": per_night(quote.price, result.stay.nights),

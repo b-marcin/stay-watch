@@ -79,8 +79,7 @@ def render_table(results: list[StayResult], catalog: Catalog, top: int | None) -
 
 
 def alert_subject(hits: list[AlertHit]) -> str:
-    groups = _group_hits(hits)
-    groups.sort(key=lambda group: (group[0].stay_result.best.price, group[0].stay_result.stay.check_in))
+    groups = group_hits(hits)
     count = len(groups)
     noun = "stay" if count == 1 else "stays"
     lead = groups[0][0]
@@ -93,7 +92,7 @@ def alert_subject(hits: list[AlertHit]) -> str:
     return f"{count} {label}: {when} {price}"
 
 
-def _group_hits(hits: list[AlertHit]) -> list[list[AlertHit]]:
+def group_hits(hits: list[AlertHit]) -> list[list[AlertHit]]:
     groups: list[list[AlertHit]] = []
     index: dict[tuple[str, str], list[AlertHit]] = {}
     for hit in hits:
@@ -102,4 +101,5 @@ def _group_hits(hits: list[AlertHit]) -> list[list[AlertHit]]:
             index[key] = []
             groups.append(index[key])
         index[key].append(hit)
+    groups.sort(key=lambda group: (group[0].stay_result.best.price, group[0].stay_result.stay.check_in))
     return groups

@@ -8,7 +8,7 @@ from email.message import EmailMessage
 
 from stay_watch.config import Secrets
 from stay_watch.model import AlertHit, Catalog, Search, Stay, StayResult
-from stay_watch.render import alert_subject, describe, format_pln, format_stay, render_table, rule_label
+from stay_watch.render import alert_subject, describe, format_pln, format_stay, group_hits, render_table, rule_label
 
 
 class MailError(Exception):
@@ -48,7 +48,7 @@ def build_alert_message(
     searches: dict[str, Search],
     catalog: Catalog,
 ) -> EmailMessage:
-    groups = _group(hits)
+    groups = group_hits(hits)
     plain_parts: list[str] = []
     html_parts: list[str] = []
     for group in groups:
@@ -206,14 +206,3 @@ def _dry_text(message: EmailMessage) -> str:
     return f"To: {message['To']}\nSubject: {message['Subject']}\n\n{text.rstrip()}\n"
 
 
-def _group(hits: list[AlertHit]) -> list[list[AlertHit]]:
-    groups: list[list[AlertHit]] = []
-    index: dict[tuple[str, str], list[AlertHit]] = {}
-    for hit in hits:
-        key = (hit.search_id, hit.stay_result.stay.key)
-        if key not in index:
-            index[key] = []
-            groups.append(index[key])
-        index[key].append(hit)
-    groups.sort(key=lambda group: (group[0].stay_result.best.price, group[0].stay_result.stay.check_in))
-    return groups

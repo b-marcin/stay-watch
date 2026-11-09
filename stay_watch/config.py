@@ -85,10 +85,6 @@ class WatchConfig:
     digest_weekday: int | None
 
 
-def weekday_name(weekday: int) -> str:
-    return WEEKDAY_NAMES[weekday]
-
-
 def parse_weekday_token(token: str) -> int:
     key = token.strip().lower()
     if key not in WEEKDAYS:

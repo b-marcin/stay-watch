@@ -31,7 +31,7 @@ def _env(extra=None):
     env["HOTEL_NAME_TERMS"] = "Example Hotel"
     env["DRY_RUN"] = "1"
     env["ALERT_TO"] = "guest@example.com"
-    env["STAY_WATCH_NOW"] = "2026-11-09T10:00:00+01:00"
+    env.pop("STAY_WATCH_NOW", None)
     env.pop("SMTP_PASSWORD", None)
     git_cmd = Path(r"C:\Program Files\Git\cmd")
     if git_cmd.is_dir():
@@ -42,8 +42,11 @@ def _env(extra=None):
 
 
 def run_cli(tmp_path, args, extra_env=None):
+    command = list(args)
+    if command and command[0] in {"scan", "search"} and "--now" not in command:
+        command = [command[0], "--now", "2026-11-09T10:00:00+01:00", *command[1:]]
     return subprocess.run(
-        [PY, "-m", "stay_watch", *args],
+        [PY, "-m", "stay_watch", *command],
         cwd=tmp_path,
         env=_env(extra_env),
         capture_output=True,
@@ -156,11 +159,43 @@ def test_weekly_digest_sends_once_per_day(tmp_path):
     assert "Weekly digest" not in again.stdout
     next_week = run_cli(
         tmp_path,
-        ["scan", "--fixtures", str(FIXTURES)],
-        {"STAY_WATCH_NOW": "2026-11-16T10:00:00+01:00"},
+        ["scan", "--now", "2026-11-16T10:00:00+01:00", "--fixtures", str(FIXTURES)],
     )
     assert next_week.returncode == 0, next_week.stderr
     assert "Weekly digest" in next_week.stdout
+
+
+def test_now_flag_sets_the_scan_clock_and_ignores_the_old_env_hook(tmp_path):
+    from stay_watch.clock import now_warsaw
+
+    write_watch(tmp_path, QUIET_TOML)
+    previous = os.environ.get("STAY_WATCH_NOW")
+    os.environ["STAY_WATCH_NOW"] = "2001-01-01T00:00:00+01:00"
+    try:
+        assert now_warsaw().year != 2001
+    finally:
+        if previous is None:
+            os.environ.pop("STAY_WATCH_NOW", None)
+        else:
+            os.environ["STAY_WATCH_NOW"] = previous
+
+    stamped = run_cli(
+        tmp_path,
+        ["scan", "--now", "2026-11-16T10:00:00+01:00", "--fixtures", str(FIXTURES)],
+        {"STAY_WATCH_NOW": "2001-01-01T00:00:00+01:00"},
+    )
+    assert stamped.returncode == 0, stamped.stderr
+    latest = json.loads((tmp_path / "docs" / "data" / "latest.json").read_text(encoding="utf-8"))
+    assert latest["scanned_at"] == "2026-11-16T10:00:00+01:00"
+
+    naive = run_cli(
+        tmp_path,
+        ["scan", "--now", "2026-11-09T10:00:00", "--fixtures", str(FIXTURES)],
+    )
+    assert naive.returncode == 0, naive.stderr
+    scanned_at = json.loads((tmp_path / "docs" / "data" / "latest.json").read_text(encoding="utf-8"))["scanned_at"]
+    assert scanned_at.startswith("2026-11-09T10:00:00")
+    assert scanned_at != "2026-11-09T10:00:00"
 
 
 def _empty_fixtures(tmp_path):

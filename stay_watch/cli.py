@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import argparse
 import sys
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from stay_watch.clock import now_warsaw
 from stay_watch.config import ConfigError, Secrets, load_secrets, load_watch, parse_weekday_token
@@ -23,6 +24,7 @@ def main(argv: list[str] | None = None) -> int:
     scan.add_argument("--fixtures", type=Path)
     scan.add_argument("--config", type=Path, default=Path("watch.toml"))
     scan.add_argument("--docs", type=Path, default=Path("docs"))
+    scan.add_argument("--now", default=None, help=argparse.SUPPRESS)
 
     search = sub.add_parser("search", help="print an ad hoc search without saving it")
     search.add_argument("--from", dest="start", required=True)
@@ -34,6 +36,7 @@ def main(argv: list[str] | None = None) -> int:
     search.add_argument("--codes", default="")
     search.add_argument("--email", action="store_true")
     search.add_argument("--fixtures", type=Path)
+    search.add_argument("--now", default=None, help=argparse.SUPPRESS)
 
     check = sub.add_parser("check-public", help="fail if public files name the hotel")
     check.add_argument("--root", type=Path, default=Path("."))
@@ -55,7 +58,7 @@ def _scan(args: argparse.Namespace) -> int:
     config = load_watch(args.config)
     client = _client(args.fixtures, secrets)
     store = Store(args.docs, secrets.terms)
-    now = now_warsaw()
+    now = _moment(args.now)
     try:
         execute_scan(config, secrets, store, client, now)
     except RecordedFailure as exc:
@@ -94,7 +97,7 @@ def _search(args: argparse.Namespace) -> int:
     )
     client = _client(args.fixtures, secrets)
     try:
-        execute_search(search, secrets, client, args.email, now_warsaw().date())
+        execute_search(search, secrets, client, args.email, _moment(args.now).date())
     except Exception as exc:
         print(f"search failed: {public_error(exc, secrets.slug)}", file=sys.stderr)
         return 1
@@ -109,6 +112,19 @@ def _check(args: argparse.Namespace) -> int:
         return 1
     print("public files are clear")
     return 0
+
+
+def _moment(raw: str | None) -> datetime:
+    if not raw:
+        return now_warsaw()
+    moment = datetime.fromisoformat(raw)
+    if moment.tzinfo is not None:
+        return moment
+    try:
+        zone = ZoneInfo("Europe/Warsaw")
+    except ZoneInfoNotFoundError:
+        zone = datetime.now().astimezone().tzinfo
+    return moment.replace(tzinfo=zone)
 
 
 def _client(fixtures: Path | None, secrets: Secrets) -> ProfitroomClient | FixtureClient:

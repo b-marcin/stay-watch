@@ -25,6 +25,19 @@ def test_readme_says_to_enter_a_stem():
     assert "examplet" in folded
 
 
+def test_clock_fallback_and_duplicate_helpers_are_gone():
+    import stay_watch.clock as clock
+    import stay_watch.config as config
+    import stay_watch.notify as notify
+    import stay_watch.store as store
+
+    assert not hasattr(clock, "in_warsaw")
+    assert not hasattr(config, "weekday_name")
+    assert not hasattr(store, "prune_history")
+    assert not hasattr(notify, "_group")
+    assert hasattr(store, "describe_quote")
+
+
 def test_dashboard_is_static_and_does_not_name_a_booking_engine():
     text = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
     folded = text.casefold()
