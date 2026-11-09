@@ -1,0 +1,1070 @@
+[
+ {
+  "id": 856556,
+  "type": "S",
+  "status": 1,
+  "profiles": [
+   {
+    "profileId": 147793,
+    "type": "elastic",
+    "methods": [
+     80,
+     20,
+     162,
+     163,
+     164,
+     183,
+     188
+    ],
+    "deposit": {
+     "percentage": 30,
+     "nights": null
+    },
+    "params": {
+     "cancelTime": "3",
+     "cancelUnit": "days",
+     "arrivalTime": null,
+     "modifyTime": null,
+     "modifyUnit": null,
+     "scheduleChargingCard": null,
+     "remainingPaymentType": "upon_arrival",
+     "schedule": null
+    },
+    "dateRanges": null,
+    "conditions": [],
+    "translations": null
+   },
+   {
+    "profileId": 11556,
+    "type": "lastminute",
+    "methods": [
+     25
+    ],
+    "deposit": {
+     "percentage": 0,
+     "nights": null
+    },
+    "params": null,
+    "dateRanges": null,
+    "conditions": [
+     {
+      "bookDateTime": {
+       "from": "2026-11-09 16:00:00",
+       "to": "2026-11-09 23:59:59"
+      },
+      "minRoomAvailability": 1
+     },
+     {
+      "bookDateTime": {
+       "from": "2026-11-09 09:00:00",
+       "to": "2026-11-09 15:59:59"
+      },
+      "minRoomAvailability": 1
+     },
+     {
+      "bookDateTime": {
+       "from": "2026-11-10 00:00:00",
+       "to": "2026-11-10 23:59:59"
+      },
+      "minRoomAvailability": 1
+     }
+    ],
+    "translations": null
+   }
+  ],
+  "attributes": {
+   "mealPlanType": 176,
+   "dateRange": {
+    "from": "2026-10-01",
+    "to": "2026-11-29"
+   },
+   "minimumNights": 2,
+   "numberNights": null,
+   "kind": null,
+   "isHiddenPromoCodes": false,
+   "isSpecialOffer": false,
+   "isComplimentary": false
+  },
+  "gallery": {
+   "title": null,
+   "description": null,
+   "featured": {
+    "title": null,
+    "description": null,
+    "fileName": "CMDtMz9cRsyawtxb.jpg",
+    "orderIndex": null
+   },
+   "images": []
+  },
+  "translations": [
+   {
+    "locale": "en",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Autumn relaxation at Example Hotel Resort & SPA"
+     }
+    ]
+   },
+   {
+    "locale": "pl",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Jesienny relaks w hotelu Example Hotel Resort & SPA"
+     }
+    ]
+   }
+  ],
+  "restrictions": {
+   "availableFrom": "2026-10-01",
+   "availableTo": "2026-11-29",
+   "minNights": 2,
+   "fixedNights": null,
+   "checkInWeekDays": [],
+   "availableWeekDays": [
+    5,
+    6
+   ],
+   "shutsDates": [],
+   "checkInDates": [],
+   "publishTo": null
+  },
+  "tags": [
+   176,
+   234
+  ],
+  "orderIndex": 2,
+  "channelIds": [
+   100,
+   1772,
+   1898
+  ],
+  "roomIds": [
+   209996,
+   210304,
+   210306,
+   210308,
+   210310,
+   259790,
+   259792
+  ],
+  "isCodeRestricted": false
+ },
+ {
+  "id": 586177,
+  "type": "O",
+  "status": 1,
+  "profiles": [
+   {
+    "profileId": 147795,
+    "type": "schedule",
+    "methods": [
+     80,
+     98,
+     162,
+     163,
+     164,
+     183,
+     188
+    ],
+    "deposit": null,
+    "params": {
+     "cancelTime": null,
+     "cancelUnit": null,
+     "arrivalTime": null,
+     "modifyTime": null,
+     "modifyUnit": null,
+     "scheduleChargingCard": null,
+     "remainingPaymentType": null,
+     "schedule": [
+      {
+       "daysOffset": 23,
+       "type": "percentage",
+       "value": 30
+      },
+      {
+       "daysOffset": 20,
+       "type": "percentage",
+       "value": 100
+      }
+     ]
+    },
+    "dateRanges": null,
+    "conditions": [],
+    "translations": null
+   }
+  ],
+  "attributes": {
+   "mealPlanType": 20,
+   "dateRange": {
+    "from": "2026-12-23",
+    "to": "2026-12-26"
+   },
+   "minimumNights": 3,
+   "numberNights": null,
+   "kind": null,
+   "isHiddenPromoCodes": false,
+   "isSpecialOffer": false,
+   "isComplimentary": false
+  },
+  "gallery": {
+   "title": null,
+   "description": null,
+   "featured": {
+    "title": null,
+    "description": null,
+    "fileName": "3ER7RCrT37JzyIa2.jpg",
+    "orderIndex": null
+   },
+   "images": []
+  },
+  "translations": [
+   {
+    "locale": "en",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Christmas 2026 at a hotel near the city"
+     }
+    ]
+   },
+   {
+    "locale": "pl",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Boże Narodzenie 2026 w hotelu pod the city"
+     }
+    ]
+   }
+  ],
+  "restrictions": {
+   "availableFrom": "2026-12-23",
+   "availableTo": "2026-12-26",
+   "minNights": 3,
+   "fixedNights": null,
+   "checkInWeekDays": [],
+   "availableWeekDays": [],
+   "shutsDates": [],
+   "checkInDates": [],
+   "publishTo": null
+  },
+  "tags": [
+   20,
+   234,
+   814
+  ],
+  "orderIndex": 3,
+  "channelIds": [
+   100,
+   1772,
+   1898,
+   1766
+  ],
+  "roomIds": [
+   209996,
+   210304,
+   210306,
+   210308,
+   210310,
+   259790,
+   259792
+  ],
+  "isCodeRestricted": false
+ },
+ {
+  "id": 384834,
+  "type": "O",
+  "status": 1,
+  "profiles": [
+   {
+    "profileId": 156485,
+    "type": "nonref",
+    "methods": [
+     80,
+     162,
+     163,
+     164,
+     183,
+     188
+    ],
+    "deposit": {
+     "percentage": 100,
+     "nights": null
+    },
+    "params": null,
+    "dateRanges": null,
+    "conditions": [],
+    "translations": null
+   }
+  ],
+  "attributes": {
+   "mealPlanType": 20,
+   "dateRange": {
+    "from": "2026-12-31",
+    "to": "2026-12-31"
+   },
+   "minimumNights": null,
+   "numberNights": null,
+   "kind": null,
+   "isHiddenPromoCodes": false,
+   "isSpecialOffer": false,
+   "isComplimentary": false
+  },
+  "gallery": {
+   "title": null,
+   "description": null,
+   "featured": {
+    "title": null,
+    "description": null,
+    "fileName": "axXLD78Nb2cfODTN.jpg",
+    "orderIndex": null
+   },
+   "images": []
+  },
+  "translations": [
+   {
+    "locale": "en",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "New Year's Eve 2026/27 at SPA Hotel near"
+     }
+    ]
+   },
+   {
+    "locale": "pl",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Sylwester 2026/2027 w Hotelu SPA pod the city"
+     }
+    ]
+   }
+  ],
+  "restrictions": {
+   "availableFrom": "2026-12-31",
+   "availableTo": "2026-12-31",
+   "minNights": null,
+   "fixedNights": null,
+   "checkInWeekDays": [],
+   "availableWeekDays": [],
+   "shutsDates": [],
+   "checkInDates": [],
+   "publishTo": null
+  },
+  "tags": [
+   20,
+   806
+  ],
+  "orderIndex": 4,
+  "channelIds": [
+   100,
+   1772,
+   1898,
+   1766
+  ],
+  "roomIds": [
+   209996,
+   210304,
+   210306,
+   210308,
+   210310,
+   259790,
+   259792
+  ],
+  "isCodeRestricted": false
+ },
+ {
+  "id": 350548,
+  "type": "O",
+  "status": 1,
+  "profiles": [
+   {
+    "profileId": 147793,
+    "type": "elastic",
+    "methods": [
+     80,
+     20,
+     162,
+     163,
+     164,
+     183,
+     188
+    ],
+    "deposit": {
+     "percentage": 30,
+     "nights": null
+    },
+    "params": {
+     "cancelTime": "3",
+     "cancelUnit": "days",
+     "arrivalTime": null,
+     "modifyTime": null,
+     "modifyUnit": null,
+     "scheduleChargingCard": null,
+     "remainingPaymentType": "upon_arrival",
+     "schedule": null
+    },
+    "dateRanges": null,
+    "conditions": [],
+    "translations": null
+   },
+   {
+    "profileId": 11556,
+    "type": "lastminute",
+    "methods": [
+     25
+    ],
+    "deposit": {
+     "percentage": 0,
+     "nights": null
+    },
+    "params": null,
+    "dateRanges": null,
+    "conditions": [
+     {
+      "bookDateTime": {
+       "from": "2026-11-09 16:00:00",
+       "to": "2026-11-09 23:59:59"
+      },
+      "minRoomAvailability": 1
+     },
+     {
+      "bookDateTime": {
+       "from": "2026-11-09 09:00:00",
+       "to": "2026-11-09 15:59:59"
+      },
+      "minRoomAvailability": 1
+     },
+     {
+      "bookDateTime": {
+       "from": "2026-11-10 00:00:00",
+       "to": "2026-11-10 23:59:59"
+      },
+      "minRoomAvailability": 1
+     }
+    ],
+    "translations": null
+   }
+  ],
+  "attributes": {
+   "mealPlanType": 19,
+   "dateRange": null,
+   "minimumNights": null,
+   "numberNights": null,
+   "kind": null,
+   "isHiddenPromoCodes": false,
+   "isSpecialOffer": false,
+   "isComplimentary": false
+  },
+  "gallery": {
+   "title": null,
+   "description": null,
+   "featured": {
+    "title": null,
+    "description": null,
+    "fileName": "M1JMWt158pXbGu5U.jpg",
+    "orderIndex": null
+   },
+   "images": []
+  },
+  "translations": [
+   {
+    "locale": "en",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Rate of the Day - Flexible Offer"
+     }
+    ]
+   },
+   {
+    "locale": "pl",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Cena dnia - oferta elastyczna"
+     }
+    ]
+   }
+  ],
+  "restrictions": {
+   "availableFrom": null,
+   "availableTo": "2027-11-09",
+   "minNights": null,
+   "fixedNights": null,
+   "checkInWeekDays": [],
+   "availableWeekDays": [],
+   "shutsDates": [
+    "2026-12-23",
+    "2026-12-24",
+    "2026-12-25",
+    "2026-12-26",
+    "2026-12-30"
+   ],
+   "checkInDates": [],
+   "publishTo": null
+  },
+  "tags": [
+   19
+  ],
+  "orderIndex": 5,
+  "channelIds": [
+   100,
+   1772,
+   1898,
+   1766,
+   2000
+  ],
+  "roomIds": [
+   209996,
+   210304,
+   210306,
+   210308,
+   210310,
+   259790,
+   259792
+  ],
+  "isCodeRestricted": false
+ },
+ {
+  "id": 383732,
+  "type": "O",
+  "status": 1,
+  "profiles": [
+   {
+    "profileId": 147793,
+    "type": "elastic",
+    "methods": [
+     80,
+     20,
+     162,
+     163,
+     164,
+     183,
+     188
+    ],
+    "deposit": {
+     "percentage": 30,
+     "nights": null
+    },
+    "params": {
+     "cancelTime": "3",
+     "cancelUnit": "days",
+     "arrivalTime": null,
+     "modifyTime": null,
+     "modifyUnit": null,
+     "scheduleChargingCard": null,
+     "remainingPaymentType": "upon_arrival",
+     "schedule": null
+    },
+    "dateRanges": null,
+    "conditions": [],
+    "translations": null
+   },
+   {
+    "profileId": 11556,
+    "type": "lastminute",
+    "methods": [
+     25
+    ],
+    "deposit": {
+     "percentage": 0,
+     "nights": null
+    },
+    "params": null,
+    "dateRanges": null,
+    "conditions": [
+     {
+      "bookDateTime": {
+       "from": "2026-11-09 16:00:00",
+       "to": "2026-11-09 23:59:59"
+      },
+      "minRoomAvailability": 1
+     },
+     {
+      "bookDateTime": {
+       "from": "2026-11-09 09:00:00",
+       "to": "2026-11-09 15:59:59"
+      },
+      "minRoomAvailability": 1
+     },
+     {
+      "bookDateTime": {
+       "from": "2026-11-10 00:00:00",
+       "to": "2026-11-10 23:59:59"
+      },
+      "minRoomAvailability": 1
+     }
+    ],
+    "translations": null
+   }
+  ],
+  "attributes": {
+   "mealPlanType": 20,
+   "dateRange": null,
+   "minimumNights": null,
+   "numberNights": null,
+   "kind": null,
+   "isHiddenPromoCodes": false,
+   "isSpecialOffer": false,
+   "isComplimentary": false
+  },
+  "gallery": {
+   "title": null,
+   "description": null,
+   "featured": {
+    "title": null,
+    "description": null,
+    "fileName": "TvL9DQ7RWrXiyfpd.jpg",
+    "orderIndex": null
+   },
+   "images": []
+  },
+  "translations": [
+   {
+    "locale": "en",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Accommodation with dinner"
+     }
+    ]
+   },
+   {
+    "locale": "pl",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Nocleg z obiadokolacją"
+     }
+    ]
+   }
+  ],
+  "restrictions": {
+   "availableFrom": null,
+   "availableTo": "2027-11-09",
+   "minNights": null,
+   "fixedNights": null,
+   "checkInWeekDays": [],
+   "availableWeekDays": [],
+   "shutsDates": [
+    "2026-11-09",
+    "2026-11-10",
+    "2026-11-11",
+    "2026-11-12",
+    "2026-11-13",
+    "2026-11-14",
+    "2026-11-15",
+    "2026-11-16",
+    "2026-11-17",
+    "2026-11-18",
+    "2026-11-19",
+    "2026-11-20",
+    "2026-11-21",
+    "2026-11-22",
+    "2026-11-23",
+    "2026-11-24",
+    "2026-11-25",
+    "2026-11-26",
+    "2026-11-27",
+    "2026-11-28",
+    "2026-11-29",
+    "2026-12-23",
+    "2026-12-24",
+    "2026-12-25",
+    "2026-12-26",
+    "2026-12-30",
+    "2026-12-31"
+   ],
+   "checkInDates": [],
+   "publishTo": null
+  },
+  "tags": [
+   20,
+   234
+  ],
+  "orderIndex": 6,
+  "channelIds": [
+   100,
+   1772,
+   1898,
+   2000
+  ],
+  "roomIds": [
+   209996,
+   210304,
+   210306,
+   210308,
+   210310,
+   259790,
+   259792
+  ],
+  "isCodeRestricted": false
+ },
+ {
+  "id": 423916,
+  "type": "S",
+  "status": 1,
+  "profiles": [
+   {
+    "profileId": 147797,
+    "type": "elastic",
+    "methods": [
+     20,
+     80,
+     162,
+     163,
+     164,
+     183,
+     188
+    ],
+    "deposit": {
+     "percentage": 50,
+     "nights": null
+    },
+    "params": {
+     "cancelTime": "7",
+     "cancelUnit": "days",
+     "arrivalTime": null,
+     "modifyTime": null,
+     "modifyUnit": null,
+     "scheduleChargingCard": null,
+     "remainingPaymentType": "before_arrival",
+     "schedule": null
+    },
+    "dateRanges": null,
+    "conditions": [],
+    "translations": null
+   }
+  ],
+  "attributes": {
+   "mealPlanType": 19,
+   "dateRange": null,
+   "minimumNights": null,
+   "numberNights": null,
+   "kind": null,
+   "isHiddenPromoCodes": false,
+   "isSpecialOffer": false,
+   "isComplimentary": false
+  },
+  "gallery": {
+   "title": null,
+   "description": null,
+   "featured": {
+    "title": null,
+    "description": null,
+    "fileName": "LDcE6RuylJCjXdlZ.jpg",
+    "orderIndex": null
+   },
+   "images": []
+  },
+  "translations": [
+   {
+    "locale": "en",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Stay with a visit to the SPA near the city"
+     }
+    ]
+   },
+   {
+    "locale": "pl",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Pobyt z wizytą w SPA blisko the city"
+     }
+    ]
+   }
+  ],
+  "restrictions": {
+   "availableFrom": null,
+   "availableTo": "2027-11-09",
+   "minNights": null,
+   "fixedNights": null,
+   "checkInWeekDays": [],
+   "availableWeekDays": [
+    1,
+    2,
+    3,
+    4,
+    7
+   ],
+   "shutsDates": [
+    "2026-12-23",
+    "2026-12-24",
+    "2026-12-30",
+    "2026-12-31"
+   ],
+   "checkInDates": [],
+   "publishTo": null
+  },
+  "tags": [
+   19,
+   236
+  ],
+  "orderIndex": 7,
+  "channelIds": [
+   100,
+   1772,
+   1898,
+   2000
+  ],
+  "roomIds": [
+   209996,
+   210304,
+   210306,
+   210308,
+   210310,
+   259790,
+   259792
+  ],
+  "isCodeRestricted": false
+ },
+ {
+  "id": 350550,
+  "type": "S",
+  "status": 1,
+  "profiles": [
+   {
+    "profileId": 156485,
+    "type": "nonref",
+    "methods": [
+     80,
+     162,
+     163,
+     164,
+     183,
+     188
+    ],
+    "deposit": {
+     "percentage": 100,
+     "nights": null
+    },
+    "params": null,
+    "dateRanges": null,
+    "conditions": [],
+    "translations": null
+   }
+  ],
+  "attributes": {
+   "mealPlanType": 19,
+   "dateRange": null,
+   "minimumNights": null,
+   "numberNights": null,
+   "kind": null,
+   "isHiddenPromoCodes": false,
+   "isSpecialOffer": false,
+   "isComplimentary": false
+  },
+  "gallery": {
+   "title": null,
+   "description": null,
+   "featured": {
+    "title": null,
+    "description": null,
+    "fileName": "FIUV0RPFyOQftGxg.jpg",
+    "orderIndex": null
+   },
+   "images": []
+  },
+  "translations": [
+   {
+    "locale": "en",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Non-refundable offer"
+     }
+    ]
+   },
+   {
+    "locale": "pl",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Oferta bezzwrotna"
+     }
+    ]
+   }
+  ],
+  "restrictions": {
+   "availableFrom": null,
+   "availableTo": "2027-11-09",
+   "minNights": null,
+   "fixedNights": null,
+   "checkInWeekDays": [],
+   "availableWeekDays": [],
+   "shutsDates": [
+    "2026-12-23",
+    "2026-12-24",
+    "2026-12-25",
+    "2026-12-26",
+    "2026-12-30",
+    "2026-12-31"
+   ],
+   "checkInDates": [],
+   "publishTo": null
+  },
+  "tags": [
+   19,
+   748
+  ],
+  "orderIndex": 8,
+  "channelIds": [
+   100,
+   1772,
+   1898,
+   1766,
+   2000
+  ],
+  "roomIds": [
+   209996,
+   210304,
+   210306,
+   210308,
+   210310,
+   259790,
+   259792
+  ],
+  "isCodeRestricted": false
+ },
+ {
+  "id": 634393,
+  "type": "O",
+  "status": 1,
+  "profiles": [
+   {
+    "profileId": 156485,
+    "type": "nonref",
+    "methods": [
+     80,
+     162,
+     163,
+     164,
+     183,
+     188
+    ],
+    "deposit": {
+     "percentage": 100,
+     "nights": null
+    },
+    "params": null,
+    "dateRanges": null,
+    "conditions": [],
+    "translations": null
+   },
+   {
+    "profileId": 11556,
+    "type": "lastminute",
+    "methods": [
+     25
+    ],
+    "deposit": {
+     "percentage": 0,
+     "nights": null
+    },
+    "params": null,
+    "dateRanges": null,
+    "conditions": [
+     {
+      "bookDateTime": {
+       "from": "2026-11-09 16:00:00",
+       "to": "2026-11-09 23:59:59"
+      },
+      "minRoomAvailability": 1
+     },
+     {
+      "bookDateTime": {
+       "from": "2026-11-09 09:00:00",
+       "to": "2026-11-09 15:59:59"
+      },
+      "minRoomAvailability": 1
+     },
+     {
+      "bookDateTime": {
+       "from": "2026-11-10 00:00:00",
+       "to": "2026-11-10 23:59:59"
+      },
+      "minRoomAvailability": 1
+     }
+    ],
+    "translations": null
+   }
+  ],
+  "attributes": {
+   "mealPlanType": 19,
+   "dateRange": null,
+   "minimumNights": null,
+   "numberNights": null,
+   "kind": null,
+   "isHiddenPromoCodes": false,
+   "isSpecialOffer": false,
+   "isComplimentary": false
+  },
+  "gallery": {
+   "title": null,
+   "description": null,
+   "featured": {
+    "title": null,
+    "description": null,
+    "fileName": "9pCnZ5NMYDXJ0Oiw.jpg",
+    "orderIndex": null
+   },
+   "images": []
+  },
+  "translations": [
+   {
+    "locale": "pl",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "LAST MINUTE BB"
+     }
+    ]
+   }
+  ],
+  "restrictions": {
+   "availableFrom": null,
+   "availableTo": "2027-11-09",
+   "minNights": null,
+   "fixedNights": null,
+   "checkInWeekDays": [],
+   "availableWeekDays": [],
+   "shutsDates": [
+    "2026-12-23",
+    "2026-12-24",
+    "2026-12-25",
+    "2026-12-26",
+    "2026-12-30",
+    "2026-12-31"
+   ],
+   "checkInDates": [],
+   "publishTo": null
+  },
+  "tags": [
+   19,
+   234
+  ],
+  "orderIndex": 9,
+  "channelIds": [
+   100,
+   2000,
+   1766
+  ],
+  "roomIds": [
+   209996,
+   210304,
+   210306,
+   210308,
+   210310,
+   259790,
+   259792
+  ],
+  "isCodeRestricted": false
+ }
+]

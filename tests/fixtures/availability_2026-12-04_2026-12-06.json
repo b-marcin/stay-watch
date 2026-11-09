@@ -1,0 +1,565 @@
+[
+ {
+  "occupancy": {
+   "adults": 2,
+   "children": []
+  },
+  "proposals": [
+   {
+    "proposal": {
+     "OfferID": 350548,
+     "RoomID": 210308,
+     "occupancyOption": {
+      "id": "2003416@1",
+      "arrangementID": null,
+      "extraBedsIDs": []
+     },
+     "price": {
+      "amount": 1392,
+      "currency": "PLN"
+     },
+     "originalPrice": null,
+     "simulatedPrice": null,
+     "recentLowestPrice": {
+      "amount": 1258,
+      "currency": "PLN"
+     },
+     "loyaltyPrice": null,
+     "recentPriceHash": "examplehotel:a3c3a8febe5f44867aa7a6ba2142c6de81d61750",
+     "stay": {
+      "from": "2026-12-04",
+      "to": "2026-12-06"
+     },
+     "occupancy": {
+      "adults": 2,
+      "children": []
+     },
+     "attributes": null,
+     "offerDates": null,
+     "discounts": [],
+     "crmScore": 4,
+     "profileId": 147793
+    },
+    "roomCount": 13
+   },
+   {
+    "proposal": {
+     "OfferID": 350548,
+     "RoomID": 210304,
+     "occupancyOption": {
+      "id": "2003412@1",
+      "arrangementID": null,
+      "extraBedsIDs": []
+     },
+     "price": {
+      "amount": 1592,
+      "currency": "PLN"
+     },
+     "originalPrice": null,
+     "simulatedPrice": null,
+     "recentLowestPrice": {
+      "amount": 1458,
+      "currency": "PLN"
+     },
+     "loyaltyPrice": null,
+     "recentPriceHash": "examplehotel:7cebc9e389353a42331ed74c5f3d8aca2dd14cae",
+     "stay": {
+      "from": "2026-12-04",
+      "to": "2026-12-06"
+     },
+     "occupancy": {
+      "adults": 2,
+      "children": []
+     },
+     "attributes": null,
+     "offerDates": null,
+     "discounts": [],
+     "crmScore": 4,
+     "profileId": 147793
+    },
+    "roomCount": 1
+   },
+   {
+    "proposal": {
+     "OfferID": 350548,
+     "RoomID": 259790,
+     "occupancyOption": {
+      "id": "2445130@4",
+      "arrangementID": null,
+      "extraBedsIDs": []
+     },
+     "price": {
+      "amount": 1672,
+      "currency": "PLN"
+     },
+     "originalPrice": null,
+     "simulatedPrice": null,
+     "recentLowestPrice": {
+      "amount": 1538,
+      "currency": "PLN"
+     },
+     "loyaltyPrice": null,
+     "recentPriceHash": "examplehotel:367d3004e9bf526095b399192be9d67ef45e02a5",
+     "stay": {
+      "from": "2026-12-04",
+      "to": "2026-12-06"
+     },
+     "occupancy": {
+      "adults": 2,
+      "children": []
+     },
+     "attributes": null,
+     "offerDates": null,
+     "discounts": [],
+     "crmScore": 4,
+     "profileId": 147793
+    },
+    "roomCount": 1
+   },
+   {
+    "proposal": {
+     "OfferID": 350548,
+     "RoomID": 259792,
+     "occupancyOption": {
+      "id": "2445132@1",
+      "arrangementID": null,
+      "extraBedsIDs": []
+     },
+     "price": {
+      "amount": 1672,
+      "currency": "PLN"
+     },
+     "originalPrice": null,
+     "simulatedPrice": null,
+     "recentLowestPrice": {
+      "amount": 1538,
+      "currency": "PLN"
+     },
+     "loyaltyPrice": null,
+     "recentPriceHash": "examplehotel:571de79099e293d60ac1ee4d1fbaa4198146c106",
+     "stay": {
+      "from": "2026-12-04",
+      "to": "2026-12-06"
+     },
+     "occupancy": {
+      "adults": 2,
+      "children": []
+     },
+     "attributes": null,
+     "offerDates": null,
+     "discounts": [],
+     "crmScore": 4,
+     "profileId": 147793
+    },
+    "roomCount": 1
+   },
+   {
+    "proposal": {
+     "OfferID": 350548,
+     "RoomID": 209996,
+     "occupancyOption": {
+      "id": "1933968@1",
+      "arrangementID": null,
+      "extraBedsIDs": []
+     },
+     "price": {
+      "amount": 2992,
+      "currency": "PLN"
+     },
+     "originalPrice": null,
+     "simulatedPrice": null,
+     "recentLowestPrice": {
+      "amount": 2858,
+      "currency": "PLN"
+     },
+     "loyaltyPrice": null,
+     "recentPriceHash": "examplehotel:8b873b05e3f1d68008eed5c6a2d7d9f82b6e5b21",
+     "stay": {
+      "from": "2026-12-04",
+      "to": "2026-12-06"
+     },
+     "occupancy": {
+      "adults": 2,
+      "children": []
+     },
+     "attributes": null,
+     "offerDates": null,
+     "discounts": [],
+     "crmScore": 4,
+     "profileId": 147793
+    },
+    "roomCount": 1
+   },
+   {
+    "proposal": {
+     "OfferID": 383732,
+     "RoomID": 210308,
+     "occupancyOption": {
+      "id": "2143008@1",
+      "arrangementID": null,
+      "extraBedsIDs": []
+     },
+     "price": {
+      "amount": 1872,
+      "currency": "PLN"
+     },
+     "originalPrice": null,
+     "simulatedPrice": null,
+     "recentLowestPrice": {
+      "amount": 1738,
+      "currency": "PLN"
+     },
+     "loyaltyPrice": null,
+     "recentPriceHash": "examplehotel:0ba908cd2431d39ecd7284e7d2ffc32bc5740709",
+     "stay": {
+      "from": "2026-12-04",
+      "to": "2026-12-06"
+     },
+     "occupancy": {
+      "adults": 2,
+      "children": []
+     },
+     "attributes": null,
+     "offerDates": null,
+     "discounts": [],
+     "crmScore": 2,
+     "profileId": 147793
+    },
+    "roomCount": 13
+   },
+   {
+    "proposal": {
+     "OfferID": 383732,
+     "RoomID": 210304,
+     "occupancyOption": {
+      "id": "2143004@1",
+      "arrangementID": null,
+      "extraBedsIDs": []
+     },
+     "price": {
+      "amount": 2072,
+      "currency": "PLN"
+     },
+     "originalPrice": null,
+     "simulatedPrice": null,
+     "recentLowestPrice": {
+      "amount": 1938,
+      "currency": "PLN"
+     },
+     "loyaltyPrice": null,
+     "recentPriceHash": "examplehotel:18523e98d871eec6c004d8a45bb1b75dff88a896",
+     "stay": {
+      "from": "2026-12-04",
+      "to": "2026-12-06"
+     },
+     "occupancy": {
+      "adults": 2,
+      "children": []
+     },
+     "attributes": null,
+     "offerDates": null,
+     "discounts": [],
+     "crmScore": 2,
+     "profileId": 147793
+    },
+    "roomCount": 1
+   },
+   {
+    "proposal": {
+     "OfferID": 383732,
+     "RoomID": 259790,
+     "occupancyOption": {
+      "id": "2445126@4",
+      "arrangementID": null,
+      "extraBedsIDs": []
+     },
+     "price": {
+      "amount": 2152,
+      "currency": "PLN"
+     },
+     "originalPrice": null,
+     "simulatedPrice": null,
+     "recentLowestPrice": {
+      "amount": 2018,
+      "currency": "PLN"
+     },
+     "loyaltyPrice": null,
+     "recentPriceHash": "examplehotel:78c4ac9d186e39b7eca2c19d1b8b3c5278a1ead8",
+     "stay": {
+      "from": "2026-12-04",
+      "to": "2026-12-06"
+     },
+     "occupancy": {
+      "adults": 2,
+      "children": []
+     },
+     "attributes": null,
+     "offerDates": null,
+     "discounts": [],
+     "crmScore": 2,
+     "profileId": 147793
+    },
+    "roomCount": 1
+   },
+   {
+    "proposal": {
+     "OfferID": 383732,
+     "RoomID": 259792,
+     "occupancyOption": {
+      "id": "2445128@1",
+      "arrangementID": null,
+      "extraBedsIDs": []
+     },
+     "price": {
+      "amount": 2152,
+      "currency": "PLN"
+     },
+     "originalPrice": null,
+     "simulatedPrice": null,
+     "recentLowestPrice": {
+      "amount": 2018,
+      "currency": "PLN"
+     },
+     "loyaltyPrice": null,
+     "recentPriceHash": "examplehotel:e705edde3c636a3762126762719e1e7ad075f09c",
+     "stay": {
+      "from": "2026-12-04",
+      "to": "2026-12-06"
+     },
+     "occupancy": {
+      "adults": 2,
+      "children": []
+     },
+     "attributes": null,
+     "offerDates": null,
+     "discounts": [],
+     "crmScore": 2,
+     "profileId": 147793
+    },
+    "roomCount": 1
+   },
+   {
+    "proposal": {
+     "OfferID": 383732,
+     "RoomID": 209996,
+     "occupancyOption": {
+      "id": "2143002@1",
+      "arrangementID": null,
+      "extraBedsIDs": []
+     },
+     "price": {
+      "amount": 3472,
+      "currency": "PLN"
+     },
+     "originalPrice": null,
+     "simulatedPrice": null,
+     "recentLowestPrice": {
+      "amount": 3338,
+      "currency": "PLN"
+     },
+     "loyaltyPrice": null,
+     "recentPriceHash": "examplehotel:d21372622e2189e4d905fe2fa2b7d54c32d87bfb",
+     "stay": {
+      "from": "2026-12-04",
+      "to": "2026-12-06"
+     },
+     "occupancy": {
+      "adults": 2,
+      "children": []
+     },
+     "attributes": null,
+     "offerDates": null,
+     "discounts": [],
+     "crmScore": 2,
+     "profileId": 147793
+    },
+    "roomCount": 1
+   },
+   {
+    "proposal": {
+     "OfferID": 350550,
+     "RoomID": 210308,
+     "occupancyOption": {
+      "id": "2003432@1",
+      "arrangementID": null,
+      "extraBedsIDs": []
+     },
+     "price": {
+      "amount": 1270,
+      "currency": "PLN"
+     },
+     "originalPrice": null,
+     "simulatedPrice": null,
+     "recentLowestPrice": {
+      "amount": 1149,
+      "currency": "PLN"
+     },
+     "loyaltyPrice": null,
+     "recentPriceHash": "examplehotel:9de793e99c8d5ab47fc8c15474adc518fe6963ae",
+     "stay": {
+      "from": "2026-12-04",
+      "to": "2026-12-06"
+     },
+     "occupancy": {
+      "adults": 2,
+      "children": []
+     },
+     "attributes": null,
+     "offerDates": null,
+     "discounts": [],
+     "crmScore": 41,
+     "profileId": 156485
+    },
+    "roomCount": 13
+   },
+   {
+    "proposal": {
+     "OfferID": 350550,
+     "RoomID": 210304,
+     "occupancyOption": {
+      "id": "2003428@1",
+      "arrangementID": null,
+      "extraBedsIDs": []
+     },
+     "price": {
+      "amount": 1450,
+      "currency": "PLN"
+     },
+     "originalPrice": null,
+     "simulatedPrice": null,
+     "recentLowestPrice": {
+      "amount": 1329,
+      "currency": "PLN"
+     },
+     "loyaltyPrice": null,
+     "recentPriceHash": "examplehotel:d7e63a03e4926093115470fbee765c67bd95f845",
+     "stay": {
+      "from": "2026-12-04",
+      "to": "2026-12-06"
+     },
+     "occupancy": {
+      "adults": 2,
+      "children": []
+     },
+     "attributes": null,
+     "offerDates": null,
+     "discounts": [],
+     "crmScore": 41,
+     "profileId": 156485
+    },
+    "roomCount": 1
+   },
+   {
+    "proposal": {
+     "OfferID": 350550,
+     "RoomID": 259790,
+     "occupancyOption": {
+      "id": "2445122@4",
+      "arrangementID": null,
+      "extraBedsIDs": []
+     },
+     "price": {
+      "amount": 1522,
+      "currency": "PLN"
+     },
+     "originalPrice": null,
+     "simulatedPrice": null,
+     "recentLowestPrice": {
+      "amount": 1401,
+      "currency": "PLN"
+     },
+     "loyaltyPrice": null,
+     "recentPriceHash": "examplehotel:00f14ae04e30f9112ad71f6192f8e6ae2a533f0f",
+     "stay": {
+      "from": "2026-12-04",
+      "to": "2026-12-06"
+     },
+     "occupancy": {
+      "adults": 2,
+      "children": []
+     },
+     "attributes": null,
+     "offerDates": null,
+     "discounts": [],
+     "crmScore": 41,
+     "profileId": 156485
+    },
+    "roomCount": 1
+   },
+   {
+    "proposal": {
+     "OfferID": 350550,
+     "RoomID": 259792,
+     "occupancyOption": {
+      "id": "2445124@1",
+      "arrangementID": null,
+      "extraBedsIDs": []
+     },
+     "price": {
+      "amount": 1522,
+      "currency": "PLN"
+     },
+     "originalPrice": null,
+     "simulatedPrice": null,
+     "recentLowestPrice": {
+      "amount": 1401,
+      "currency": "PLN"
+     },
+     "loyaltyPrice": null,
+     "recentPriceHash": "examplehotel:20049ec8f34285ad1e6cd04113db6afc75bd6a57",
+     "stay": {
+      "from": "2026-12-04",
+      "to": "2026-12-06"
+     },
+     "occupancy": {
+      "adults": 2,
+      "children": []
+     },
+     "attributes": null,
+     "offerDates": null,
+     "discounts": [],
+     "crmScore": 41,
+     "profileId": 156485
+    },
+    "roomCount": 1
+   },
+   {
+    "proposal": {
+     "OfferID": 350550,
+     "RoomID": 209996,
+     "occupancyOption": {
+      "id": "1933970@1",
+      "arrangementID": null,
+      "extraBedsIDs": []
+     },
+     "price": {
+      "amount": 2710,
+      "currency": "PLN"
+     },
+     "originalPrice": null,
+     "simulatedPrice": null,
+     "recentLowestPrice": {
+      "amount": 2589,
+      "currency": "PLN"
+     },
+     "loyaltyPrice": null,
+     "recentPriceHash": "examplehotel:fd87348fcefc51be06abc8d2164f92ff078ebadc",
+     "stay": {
+      "from": "2026-12-04",
+      "to": "2026-12-06"
+     },
+     "occupancy": {
+      "adults": 2,
+      "children": []
+     },
+     "attributes": null,
+     "offerDates": null,
+     "discounts": [],
+     "crmScore": 41,
+     "profileId": 156485
+    },
+    "roomCount": 1
+   }
+  ]
+ }
+]

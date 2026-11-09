@@ -1,0 +1,3717 @@
+[
+ {
+  "id": 210308,
+  "gallery": {
+   "title": "Standard Room",
+   "description": null,
+   "featured": {
+    "title": null,
+    "description": null,
+    "fileName": "202209161224100.DSC03938_HDR.jpg",
+    "orderIndex": null
+   },
+   "images": []
+  },
+  "attributes": {
+   "area": null,
+   "maxOccupancy": {
+    "people": 2,
+    "extraBeds": null
+   },
+   "bedsConfiguration": {
+    "total": 2,
+    "singleBeds": null,
+    "doubleBeds": null,
+    "foldingBeds": null,
+    "splitBeds": null
+   },
+   "layout": null,
+   "facilities": {
+    "wifi": 1,
+    "airConditioning": 1,
+    "balcony": 0,
+    "television": 1,
+    "parkingLot": 0
+   }
+  },
+  "address": null,
+  "translations": [
+   {
+    "locale": "en",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Standard Room"
+     }
+    ]
+   },
+   {
+    "locale": "pl",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Standard Room"
+     }
+    ]
+   }
+  ],
+  "orderIndex": null,
+  "standard": {
+   "kind": "room",
+   "type": "double",
+   "standard": "standard"
+  },
+  "limits": {
+   "min": {
+    "numberOfPeople": 1,
+    "occupancy": {
+     "adults": 1,
+     "children": [
+      {
+       "minAge": 0,
+       "maxAge": 3,
+       "count": 0
+      },
+      {
+       "minAge": 4,
+       "maxAge": 8,
+       "count": 0
+      },
+      {
+       "minAge": 9,
+       "maxAge": 12,
+       "count": 0
+      }
+     ]
+    }
+   },
+   "max": {
+    "numberOfPeople": 2,
+    "occupancy": {
+     "adults": 2,
+     "children": [
+      {
+       "minAge": 0,
+       "maxAge": 3,
+       "count": 1
+      },
+      {
+       "minAge": 4,
+       "maxAge": 8,
+       "count": 1
+      },
+      {
+       "minAge": 9,
+       "maxAge": 12,
+       "count": 1
+      }
+     ]
+    }
+   }
+  },
+  "totalRooms": 34,
+  "category": null,
+  "offerIds": [
+   350548,
+   350550,
+   383732,
+   384834,
+   423916,
+   586177,
+   634393,
+   856556
+  ],
+  "facilities": [
+   {
+    "id": "0f484181-96e1-4edc-8dc9-029820d1e6e6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Suszarka do włosów"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Hairdryer"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 14
+   },
+   {
+    "id": "12c17c03-6ad3-4f41-b05e-e6b4f0c05f43",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Łazienka z prysznicem"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Bathroom with shower"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 11
+   },
+   {
+    "id": "18362062-54cc-434f-9e62-b73d1c515eab",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Zestaw kosmetyków"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Toiletries"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 15
+   },
+   {
+    "id": "22579330-a5ef-4caa-b57d-b7276c717730",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Ręczniki"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Towels"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 13
+   },
+   {
+    "id": "2620a6f9-b4d1-47da-a7b7-177a96bd9559",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Biurko"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Desk"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 5
+   },
+   {
+    "id": "7ad4b509-ecf5-4cb0-b26e-4a212fcff08e",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Lodówka"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Fridge"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 29
+   },
+   {
+    "id": "8158f7b1-b91c-4411-84a2-df8ac3dc21bc",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "TV"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "TV"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 23
+   },
+   {
+    "id": "869bd382-366a-4989-85d8-4b22938daa82",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Szlafroki"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Bathrobes"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 16
+   },
+   {
+    "id": "a0b296a8-c04f-4e4e-a079-54a6894e39b8",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Smart TV"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Smart TV"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 20
+   },
+   {
+    "id": "c1a0ad7a-f9ed-4097-a5d5-9f51124f0f47",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Kapcie"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Slippers"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 17
+   },
+   {
+    "id": "c662ebcd-a447-40d2-a583-48f26d13c779",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Zestaw do parzenia kawy lub herbaty"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Tea & Coffee making facilities"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 26
+   },
+   {
+    "id": "c9cbc8be-3308-4331-8c88-eb2795223ef6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Szafa"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Wardrobe"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 4
+   },
+   {
+    "id": "d192c5a9-7470-4a7b-ba35-0c4831de2c58",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "WiFi"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "WiFi"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 19
+   },
+   {
+    "id": "da1e4a06-b107-479a-b81d-908697e89dd6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Sejf"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Safe"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 6
+   },
+   {
+    "id": "ff06e09f-e6e3-49c9-a6cc-680f485109c9",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Klimatyzacja"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Air conditioning"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 1
+   }
+  ],
+  "bedTypes": [
+   {
+    "type": "double",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "type",
+        "value": "Łóżko podwójne"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "type",
+        "value": "Double Bed"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "type": "twin",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "type",
+        "value": "Dwa łóżka pojedyncze"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "type",
+        "value": "Twin Beds"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": 210304,
+  "gallery": {
+   "title": "Gallery for: Studio",
+   "description": null,
+   "featured": {
+    "title": null,
+    "description": null,
+    "fileName": "42605e0c-672a-4085-8344-7c79ac5fa568.jpg",
+    "orderIndex": null
+   },
+   "images": []
+  },
+  "attributes": {
+   "area": null,
+   "maxOccupancy": {
+    "people": 2,
+    "extraBeds": 2
+   },
+   "bedsConfiguration": {
+    "total": 1,
+    "singleBeds": null,
+    "doubleBeds": null,
+    "foldingBeds": null,
+    "splitBeds": null
+   },
+   "layout": null,
+   "facilities": {
+    "wifi": 1,
+    "airConditioning": 1,
+    "balcony": 0,
+    "television": 1,
+    "parkingLot": 0
+   }
+  },
+  "address": null,
+  "translations": [
+   {
+    "locale": "en",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Studio"
+     }
+    ]
+   },
+   {
+    "locale": "pl",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Standard Plus"
+     }
+    ]
+   }
+  ],
+  "orderIndex": 1,
+  "standard": {
+   "kind": "room",
+   "type": "doubletwin",
+   "standard": "standard"
+  },
+  "limits": {
+   "min": {
+    "numberOfPeople": 1,
+    "occupancy": {
+     "adults": 1,
+     "children": [
+      {
+       "minAge": 0,
+       "maxAge": 3,
+       "count": 0
+      },
+      {
+       "minAge": 4,
+       "maxAge": 8,
+       "count": 0
+      },
+      {
+       "minAge": 9,
+       "maxAge": 12,
+       "count": 0
+      }
+     ]
+    }
+   },
+   "max": {
+    "numberOfPeople": 4,
+    "occupancy": {
+     "adults": 3,
+     "children": [
+      {
+       "minAge": 0,
+       "maxAge": 3,
+       "count": 1
+      },
+      {
+       "minAge": 4,
+       "maxAge": 8,
+       "count": 2
+      },
+      {
+       "minAge": 9,
+       "maxAge": 12,
+       "count": 2
+      }
+     ]
+    }
+   }
+  },
+  "totalRooms": 16,
+  "category": null,
+  "offerIds": [
+   350548,
+   350550,
+   383732,
+   384834,
+   423916,
+   586177,
+   634393,
+   856556
+  ],
+  "facilities": [
+   {
+    "id": "0f484181-96e1-4edc-8dc9-029820d1e6e6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Suszarka do włosów"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Hairdryer"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 14
+   },
+   {
+    "id": "12c17c03-6ad3-4f41-b05e-e6b4f0c05f43",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Łazienka z prysznicem"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Bathroom with shower"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 11
+   },
+   {
+    "id": "18362062-54cc-434f-9e62-b73d1c515eab",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Zestaw kosmetyków"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Toiletries"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 15
+   },
+   {
+    "id": "22579330-a5ef-4caa-b57d-b7276c717730",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Ręczniki"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Towels"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 13
+   },
+   {
+    "id": "2620a6f9-b4d1-47da-a7b7-177a96bd9559",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Biurko"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Desk"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 5
+   },
+   {
+    "id": "7ad4b509-ecf5-4cb0-b26e-4a212fcff08e",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Lodówka"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Fridge"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 29
+   },
+   {
+    "id": "869bd382-366a-4989-85d8-4b22938daa82",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Szlafroki"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Bathrobes"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 16
+   },
+   {
+    "id": "a0b296a8-c04f-4e4e-a079-54a6894e39b8",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Smart TV"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Smart TV"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 20
+   },
+   {
+    "id": "c1a0ad7a-f9ed-4097-a5d5-9f51124f0f47",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Kapcie"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Slippers"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 17
+   },
+   {
+    "id": "c662ebcd-a447-40d2-a583-48f26d13c779",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Zestaw do parzenia kawy lub herbaty"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Tea & Coffee making facilities"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 26
+   },
+   {
+    "id": "c9cbc8be-3308-4331-8c88-eb2795223ef6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Szafa"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Wardrobe"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 4
+   },
+   {
+    "id": "d192c5a9-7470-4a7b-ba35-0c4831de2c58",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "WiFi"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "WiFi"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 19
+   },
+   {
+    "id": "da1e4a06-b107-479a-b81d-908697e89dd6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Sejf"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Safe"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 6
+   },
+   {
+    "id": "ff06e09f-e6e3-49c9-a6cc-680f485109c9",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Klimatyzacja"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Air conditioning"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 1
+   }
+  ],
+  "bedTypes": [
+   {
+    "type": "double",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "type",
+        "value": "Łóżko podwójne"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "type",
+        "value": "Double Bed"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": 259790,
+  "gallery": {
+   "title": "Gallery for: Superior",
+   "description": null,
+   "featured": {
+    "title": null,
+    "description": null,
+    "fileName": "de5140f4-5dbf-474e-a095-ca5dc86086de.jpg",
+    "orderIndex": null
+   },
+   "images": []
+  },
+  "attributes": {
+   "area": null,
+   "maxOccupancy": {
+    "people": 2,
+    "extraBeds": null
+   },
+   "bedsConfiguration": {
+    "total": 1,
+    "singleBeds": null,
+    "doubleBeds": null,
+    "foldingBeds": null,
+    "splitBeds": null
+   },
+   "layout": null,
+   "facilities": {
+    "wifi": 1,
+    "airConditioning": 1,
+    "balcony": 0,
+    "television": 1,
+    "parkingLot": 0
+   }
+  },
+  "address": null,
+  "translations": [
+   {
+    "locale": "pl",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Superior"
+     }
+    ]
+   },
+   {
+    "locale": "en",
+    "messages": []
+   }
+  ],
+  "orderIndex": 2,
+  "standard": {
+   "kind": "room",
+   "type": "double",
+   "standard": "superior"
+  },
+  "limits": {
+   "min": {
+    "numberOfPeople": 1,
+    "occupancy": {
+     "adults": 1,
+     "children": [
+      {
+       "minAge": 0,
+       "maxAge": 3,
+       "count": 0
+      },
+      {
+       "minAge": 4,
+       "maxAge": 8,
+       "count": 0
+      },
+      {
+       "minAge": 9,
+       "maxAge": 12,
+       "count": 0
+      }
+     ]
+    }
+   },
+   "max": {
+    "numberOfPeople": 2,
+    "occupancy": {
+     "adults": 2,
+     "children": [
+      {
+       "minAge": 0,
+       "maxAge": 3,
+       "count": 1
+      },
+      {
+       "minAge": 4,
+       "maxAge": 8,
+       "count": 1
+      },
+      {
+       "minAge": 9,
+       "maxAge": 12,
+       "count": 1
+      }
+     ]
+    }
+   }
+  },
+  "totalRooms": 1,
+  "category": null,
+  "offerIds": [
+   350550,
+   383732,
+   350548,
+   384834,
+   423916,
+   586177,
+   634393,
+   856556
+  ],
+  "facilities": [
+   {
+    "id": "0f484181-96e1-4edc-8dc9-029820d1e6e6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Suszarka do włosów"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Hairdryer"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 14
+   },
+   {
+    "id": "12c17c03-6ad3-4f41-b05e-e6b4f0c05f43",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Łazienka z prysznicem"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Bathroom with shower"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 11
+   },
+   {
+    "id": "18362062-54cc-434f-9e62-b73d1c515eab",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Zestaw kosmetyków"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Toiletries"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 15
+   },
+   {
+    "id": "22579330-a5ef-4caa-b57d-b7276c717730",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Ręczniki"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Towels"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 13
+   },
+   {
+    "id": "2620a6f9-b4d1-47da-a7b7-177a96bd9559",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Biurko"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Desk"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 5
+   },
+   {
+    "id": "7ad4b509-ecf5-4cb0-b26e-4a212fcff08e",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Lodówka"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Fridge"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 29
+   },
+   {
+    "id": "8158f7b1-b91c-4411-84a2-df8ac3dc21bc",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "TV"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "TV"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 23
+   },
+   {
+    "id": "869bd382-366a-4989-85d8-4b22938daa82",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Szlafroki"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Bathrobes"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 16
+   },
+   {
+    "id": "a0b296a8-c04f-4e4e-a079-54a6894e39b8",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Smart TV"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Smart TV"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 20
+   },
+   {
+    "id": "c0bbabde-effc-409b-a5c4-e3f273ce3f2c",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Część wypoczynkowa"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Seating area"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 3
+   },
+   {
+    "id": "c1a0ad7a-f9ed-4097-a5d5-9f51124f0f47",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Kapcie"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Slippers"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 17
+   },
+   {
+    "id": "c662ebcd-a447-40d2-a583-48f26d13c779",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Zestaw do parzenia kawy lub herbaty"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Tea & Coffee making facilities"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 26
+   },
+   {
+    "id": "c9cbc8be-3308-4331-8c88-eb2795223ef6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Szafa"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Wardrobe"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 4
+   },
+   {
+    "id": "d192c5a9-7470-4a7b-ba35-0c4831de2c58",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "WiFi"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "WiFi"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 19
+   },
+   {
+    "id": "da1e4a06-b107-479a-b81d-908697e89dd6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Sejf"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Safe"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 6
+   },
+   {
+    "id": "ff06e09f-e6e3-49c9-a6cc-680f485109c9",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Klimatyzacja"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Air conditioning"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 1
+   }
+  ],
+  "bedTypes": [
+   {
+    "type": "double",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "type",
+        "value": "Łóżko podwójne"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "type",
+        "value": "Double Bed"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": 259792,
+  "gallery": {
+   "title": "Gallery for: Superior +",
+   "description": null,
+   "featured": {
+    "title": null,
+    "description": null,
+    "fileName": "2c18f077-849b-4941-8f0d-36a4407a8fff.jpg",
+    "orderIndex": null
+   },
+   "images": []
+  },
+  "attributes": {
+   "area": null,
+   "maxOccupancy": {
+    "people": 2,
+    "extraBeds": 2
+   },
+   "bedsConfiguration": {
+    "total": 1,
+    "singleBeds": null,
+    "doubleBeds": null,
+    "foldingBeds": null,
+    "splitBeds": null
+   },
+   "layout": null,
+   "facilities": {
+    "wifi": 1,
+    "airConditioning": 1,
+    "balcony": 0,
+    "television": 1,
+    "parkingLot": 0
+   }
+  },
+  "address": null,
+  "translations": [
+   {
+    "locale": "pl",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Superior +"
+     }
+    ]
+   },
+   {
+    "locale": "en",
+    "messages": []
+   }
+  ],
+  "orderIndex": 3,
+  "standard": {
+   "kind": "room",
+   "type": "doubletwin",
+   "standard": "superior"
+  },
+  "limits": {
+   "min": {
+    "numberOfPeople": 1,
+    "occupancy": {
+     "adults": 1,
+     "children": [
+      {
+       "minAge": 0,
+       "maxAge": 3,
+       "count": 0
+      },
+      {
+       "minAge": 4,
+       "maxAge": 8,
+       "count": 0
+      },
+      {
+       "minAge": 9,
+       "maxAge": 12,
+       "count": 0
+      }
+     ]
+    }
+   },
+   "max": {
+    "numberOfPeople": 4,
+    "occupancy": {
+     "adults": 3,
+     "children": [
+      {
+       "minAge": 0,
+       "maxAge": 3,
+       "count": 1
+      },
+      {
+       "minAge": 4,
+       "maxAge": 8,
+       "count": 2
+      },
+      {
+       "minAge": 9,
+       "maxAge": 12,
+       "count": 2
+      }
+     ]
+    }
+   }
+  },
+  "totalRooms": 2,
+  "category": null,
+  "offerIds": [
+   350550,
+   383732,
+   350548,
+   384834,
+   423916,
+   586177,
+   634393,
+   856556
+  ],
+  "facilities": [
+   {
+    "id": "0f484181-96e1-4edc-8dc9-029820d1e6e6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Suszarka do włosów"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Hairdryer"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 14
+   },
+   {
+    "id": "12c17c03-6ad3-4f41-b05e-e6b4f0c05f43",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Łazienka z prysznicem"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Bathroom with shower"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 11
+   },
+   {
+    "id": "18362062-54cc-434f-9e62-b73d1c515eab",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Zestaw kosmetyków"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Toiletries"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 15
+   },
+   {
+    "id": "22579330-a5ef-4caa-b57d-b7276c717730",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Ręczniki"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Towels"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 13
+   },
+   {
+    "id": "2620a6f9-b4d1-47da-a7b7-177a96bd9559",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Biurko"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Desk"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 5
+   },
+   {
+    "id": "6d0755c1-39d0-463b-9575-f7cbf6f1afc6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Minibar"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Minibar"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 25
+   },
+   {
+    "id": "7ad4b509-ecf5-4cb0-b26e-4a212fcff08e",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Lodówka"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Fridge"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 29
+   },
+   {
+    "id": "8158f7b1-b91c-4411-84a2-df8ac3dc21bc",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "TV"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "TV"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 23
+   },
+   {
+    "id": "869bd382-366a-4989-85d8-4b22938daa82",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Szlafroki"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Bathrobes"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 16
+   },
+   {
+    "id": "a0b296a8-c04f-4e4e-a079-54a6894e39b8",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Smart TV"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Smart TV"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 20
+   },
+   {
+    "id": "c1a0ad7a-f9ed-4097-a5d5-9f51124f0f47",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Kapcie"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Slippers"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 17
+   },
+   {
+    "id": "c662ebcd-a447-40d2-a583-48f26d13c779",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Zestaw do parzenia kawy lub herbaty"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Tea & Coffee making facilities"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 26
+   },
+   {
+    "id": "c9cbc8be-3308-4331-8c88-eb2795223ef6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Szafa"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Wardrobe"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 4
+   },
+   {
+    "id": "d192c5a9-7470-4a7b-ba35-0c4831de2c58",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "WiFi"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "WiFi"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 19
+   },
+   {
+    "id": "da1e4a06-b107-479a-b81d-908697e89dd6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Sejf"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Safe"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 6
+   },
+   {
+    "id": "ff06e09f-e6e3-49c9-a6cc-680f485109c9",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Klimatyzacja"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Air conditioning"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 1
+   }
+  ],
+  "bedTypes": [
+   {
+    "type": "double",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "type",
+        "value": "Łóżko podwójne"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "type",
+        "value": "Double Bed"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": 210310,
+  "gallery": {
+   "title": "Family Room",
+   "description": null,
+   "featured": {
+    "title": null,
+    "description": null,
+    "fileName": "202209161221000.DSC03325_HDR.jpg",
+    "orderIndex": null
+   },
+   "images": []
+  },
+  "attributes": {
+   "area": null,
+   "maxOccupancy": {
+    "people": 2,
+    "extraBeds": 2
+   },
+   "bedsConfiguration": {
+    "total": 1,
+    "singleBeds": null,
+    "doubleBeds": null,
+    "foldingBeds": null,
+    "splitBeds": null
+   },
+   "layout": null,
+   "facilities": {
+    "wifi": 1,
+    "airConditioning": 1,
+    "balcony": 0,
+    "television": 1,
+    "parkingLot": 0
+   }
+  },
+  "address": null,
+  "translations": [
+   {
+    "locale": "en",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Family Room"
+     }
+    ]
+   },
+   {
+    "locale": "pl",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Family Room"
+     }
+    ]
+   }
+  ],
+  "orderIndex": 4,
+  "standard": {
+   "kind": "room",
+   "type": "family",
+   "standard": "standard"
+  },
+  "limits": {
+   "min": {
+    "numberOfPeople": 1,
+    "occupancy": {
+     "adults": 1,
+     "children": [
+      {
+       "minAge": 0,
+       "maxAge": 3,
+       "count": 0
+      },
+      {
+       "minAge": 4,
+       "maxAge": 8,
+       "count": 0
+      },
+      {
+       "minAge": 9,
+       "maxAge": 12,
+       "count": 0
+      }
+     ]
+    }
+   },
+   "max": {
+    "numberOfPeople": 4,
+    "occupancy": {
+     "adults": 3,
+     "children": [
+      {
+       "minAge": 0,
+       "maxAge": 3,
+       "count": 1
+      },
+      {
+       "minAge": 4,
+       "maxAge": 8,
+       "count": 2
+      },
+      {
+       "minAge": 9,
+       "maxAge": 12,
+       "count": 2
+      }
+     ]
+    }
+   }
+  },
+  "totalRooms": 3,
+  "category": null,
+  "offerIds": [
+   350548,
+   350550,
+   383732,
+   384834,
+   423916,
+   586177,
+   634393,
+   856556
+  ],
+  "facilities": [
+   {
+    "id": "0f484181-96e1-4edc-8dc9-029820d1e6e6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Suszarka do włosów"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Hairdryer"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 14
+   },
+   {
+    "id": "12c17c03-6ad3-4f41-b05e-e6b4f0c05f43",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Łazienka z prysznicem"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Bathroom with shower"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 11
+   },
+   {
+    "id": "18362062-54cc-434f-9e62-b73d1c515eab",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Zestaw kosmetyków"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Toiletries"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 15
+   },
+   {
+    "id": "22579330-a5ef-4caa-b57d-b7276c717730",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Ręczniki"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Towels"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 13
+   },
+   {
+    "id": "2620a6f9-b4d1-47da-a7b7-177a96bd9559",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Biurko"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Desk"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 5
+   },
+   {
+    "id": "7ad4b509-ecf5-4cb0-b26e-4a212fcff08e",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Lodówka"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Fridge"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 29
+   },
+   {
+    "id": "8158f7b1-b91c-4411-84a2-df8ac3dc21bc",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "TV"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "TV"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 23
+   },
+   {
+    "id": "869bd382-366a-4989-85d8-4b22938daa82",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Szlafroki"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Bathrobes"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 16
+   },
+   {
+    "id": "a0b296a8-c04f-4e4e-a079-54a6894e39b8",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Smart TV"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Smart TV"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 20
+   },
+   {
+    "id": "c1a0ad7a-f9ed-4097-a5d5-9f51124f0f47",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Kapcie"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Slippers"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 17
+   },
+   {
+    "id": "c662ebcd-a447-40d2-a583-48f26d13c779",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Zestaw do parzenia kawy lub herbaty"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Tea & Coffee making facilities"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 26
+   },
+   {
+    "id": "c9cbc8be-3308-4331-8c88-eb2795223ef6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Szafa"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Wardrobe"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 4
+   },
+   {
+    "id": "d192c5a9-7470-4a7b-ba35-0c4831de2c58",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "WiFi"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "WiFi"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 19
+   },
+   {
+    "id": "da1e4a06-b107-479a-b81d-908697e89dd6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Sejf"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Safe"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 6
+   },
+   {
+    "id": "ff06e09f-e6e3-49c9-a6cc-680f485109c9",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Klimatyzacja"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Air conditioning"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 1
+   }
+  ],
+  "bedTypes": [
+   {
+    "type": "double",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "type",
+        "value": "Łóżko podwójne"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "type",
+        "value": "Double Bed"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": 210306,
+  "gallery": {
+   "title": "Gallery for: Apartament Family",
+   "description": null,
+   "featured": {
+    "title": null,
+    "description": null,
+    "fileName": "8d63f587-32cd-4fcd-b14b-78fc19381cd4.examplehotel.DSC07125-HDR.jpg",
+    "orderIndex": null
+   },
+   "images": []
+  },
+  "attributes": {
+   "area": {
+    "from": 47,
+    "to": 47,
+    "unit": "m²"
+   },
+   "maxOccupancy": {
+    "people": 4,
+    "extraBeds": 1
+   },
+   "bedsConfiguration": {
+    "total": 5,
+    "singleBeds": null,
+    "doubleBeds": null,
+    "foldingBeds": null,
+    "splitBeds": null
+   },
+   "layout": null,
+   "facilities": {
+    "wifi": 1,
+    "airConditioning": 1,
+    "balcony": 0,
+    "television": 1,
+    "parkingLot": 0
+   }
+  },
+  "address": null,
+  "translations": [
+   {
+    "locale": "en",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Family Apartment"
+     }
+    ]
+   },
+   {
+    "locale": "pl",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Apartament Family"
+     }
+    ]
+   }
+  ],
+  "orderIndex": 5,
+  "standard": {
+   "kind": "apartment",
+   "type": "family",
+   "standard": "standard"
+  },
+  "limits": {
+   "min": {
+    "numberOfPeople": 1,
+    "occupancy": {
+     "adults": 1,
+     "children": [
+      {
+       "minAge": 0,
+       "maxAge": 3,
+       "count": 0
+      },
+      {
+       "minAge": 4,
+       "maxAge": 8,
+       "count": 0
+      },
+      {
+       "minAge": 9,
+       "maxAge": 12,
+       "count": 0
+      }
+     ]
+    }
+   },
+   "max": {
+    "numberOfPeople": 5,
+    "occupancy": {
+     "adults": 5,
+     "children": [
+      {
+       "minAge": 0,
+       "maxAge": 3,
+       "count": 1
+      },
+      {
+       "minAge": 4,
+       "maxAge": 8,
+       "count": 3
+      },
+      {
+       "minAge": 9,
+       "maxAge": 12,
+       "count": 3
+      }
+     ]
+    }
+   }
+  },
+  "totalRooms": 1,
+  "category": null,
+  "offerIds": [
+   350548,
+   350550,
+   383732,
+   384834,
+   423916,
+   586177,
+   634393,
+   856556
+  ],
+  "facilities": [
+   {
+    "id": "0f484181-96e1-4edc-8dc9-029820d1e6e6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Suszarka do włosów"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Hairdryer"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 14
+   },
+   {
+    "id": "12c17c03-6ad3-4f41-b05e-e6b4f0c05f43",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Łazienka z prysznicem"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Bathroom with shower"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 11
+   },
+   {
+    "id": "18362062-54cc-434f-9e62-b73d1c515eab",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Zestaw kosmetyków"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Toiletries"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 15
+   },
+   {
+    "id": "22579330-a5ef-4caa-b57d-b7276c717730",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Ręczniki"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Towels"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 13
+   },
+   {
+    "id": "2620a6f9-b4d1-47da-a7b7-177a96bd9559",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Biurko"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Desk"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 5
+   },
+   {
+    "id": "7ad4b509-ecf5-4cb0-b26e-4a212fcff08e",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Lodówka"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Fridge"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 29
+   },
+   {
+    "id": "8158f7b1-b91c-4411-84a2-df8ac3dc21bc",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "TV"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "TV"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 23
+   },
+   {
+    "id": "869bd382-366a-4989-85d8-4b22938daa82",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Szlafroki"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Bathrobes"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 16
+   },
+   {
+    "id": "a0b296a8-c04f-4e4e-a079-54a6894e39b8",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Smart TV"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Smart TV"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 20
+   },
+   {
+    "id": "c0bbabde-effc-409b-a5c4-e3f273ce3f2c",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Część wypoczynkowa"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Seating area"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 3
+   },
+   {
+    "id": "c1a0ad7a-f9ed-4097-a5d5-9f51124f0f47",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Kapcie"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Slippers"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 17
+   },
+   {
+    "id": "c662ebcd-a447-40d2-a583-48f26d13c779",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Zestaw do parzenia kawy lub herbaty"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Tea & Coffee making facilities"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 26
+   },
+   {
+    "id": "c9cbc8be-3308-4331-8c88-eb2795223ef6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Szafa"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Wardrobe"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 4
+   },
+   {
+    "id": "d192c5a9-7470-4a7b-ba35-0c4831de2c58",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "WiFi"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "WiFi"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 19
+   },
+   {
+    "id": "da1e4a06-b107-479a-b81d-908697e89dd6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Sejf"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Safe"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 6
+   },
+   {
+    "id": "ff06e09f-e6e3-49c9-a6cc-680f485109c9",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Klimatyzacja"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Air conditioning"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 1
+   }
+  ],
+  "bedTypes": [
+   {
+    "type": "single",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "type",
+        "value": "Łóżko pojedyncze"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "type",
+        "value": "Single Bed"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": 209996,
+  "gallery": {
+   "title": "Apartament Suite",
+   "description": null,
+   "featured": {
+    "title": null,
+    "description": null,
+    "fileName": "202209161414590.DSC03744_HDR.jpg",
+    "orderIndex": null
+   },
+   "images": []
+  },
+  "attributes": {
+   "area": {
+    "from": 47,
+    "to": 47,
+    "unit": "m²"
+   },
+   "maxOccupancy": {
+    "people": 2,
+    "extraBeds": 2
+   },
+   "bedsConfiguration": {
+    "total": 1,
+    "singleBeds": null,
+    "doubleBeds": null,
+    "foldingBeds": null,
+    "splitBeds": null
+   },
+   "layout": {
+    "rooms": 2,
+    "bathrooms": 2,
+    "kitchen": false
+   },
+   "facilities": {
+    "wifi": 1,
+    "airConditioning": 1,
+    "balcony": 1,
+    "television": 1,
+    "parkingLot": 0
+   }
+  },
+  "address": null,
+  "translations": [
+   {
+    "locale": "en",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Suite Apartment"
+     }
+    ]
+   },
+   {
+    "locale": "pl",
+    "messages": [
+     {
+      "fieldName": "name",
+      "value": "Apartament Suite"
+     }
+    ]
+   }
+  ],
+  "orderIndex": 6,
+  "standard": {
+   "kind": "apartment",
+   "type": "quadruple",
+   "standard": "standard"
+  },
+  "limits": {
+   "min": {
+    "numberOfPeople": 1,
+    "occupancy": {
+     "adults": 1,
+     "children": [
+      {
+       "minAge": 0,
+       "maxAge": 3,
+       "count": 0
+      },
+      {
+       "minAge": 4,
+       "maxAge": 8,
+       "count": 0
+      },
+      {
+       "minAge": 9,
+       "maxAge": 12,
+       "count": 0
+      }
+     ]
+    }
+   },
+   "max": {
+    "numberOfPeople": 4,
+    "occupancy": {
+     "adults": 4,
+     "children": [
+      {
+       "minAge": 0,
+       "maxAge": 3,
+       "count": 1
+      },
+      {
+       "minAge": 4,
+       "maxAge": 8,
+       "count": 2
+      },
+      {
+       "minAge": 9,
+       "maxAge": 12,
+       "count": 2
+      }
+     ]
+    }
+   }
+  },
+  "totalRooms": 1,
+  "category": null,
+  "offerIds": [
+   350548,
+   350550,
+   383732,
+   384834,
+   423916,
+   586177,
+   634393,
+   856556
+  ],
+  "facilities": [
+   {
+    "id": "0f484181-96e1-4edc-8dc9-029820d1e6e6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Suszarka do włosów"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Hairdryer"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 14
+   },
+   {
+    "id": "12c17c03-6ad3-4f41-b05e-e6b4f0c05f43",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Łazienka z prysznicem"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Bathroom with shower"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 11
+   },
+   {
+    "id": "18362062-54cc-434f-9e62-b73d1c515eab",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Zestaw kosmetyków"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Toiletries"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 15
+   },
+   {
+    "id": "22579330-a5ef-4caa-b57d-b7276c717730",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Ręczniki"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Towels"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 13
+   },
+   {
+    "id": "2620a6f9-b4d1-47da-a7b7-177a96bd9559",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Biurko"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Desk"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 5
+   },
+   {
+    "id": "7ad4b509-ecf5-4cb0-b26e-4a212fcff08e",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Lodówka"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Fridge"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 29
+   },
+   {
+    "id": "8158f7b1-b91c-4411-84a2-df8ac3dc21bc",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "TV"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "TV"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 23
+   },
+   {
+    "id": "869bd382-366a-4989-85d8-4b22938daa82",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Szlafroki"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Bathrobes"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 16
+   },
+   {
+    "id": "8ba3eb87-ab8d-4b69-a3df-9620c7ff43d0",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Łazienka z wanną"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Bathroom with bath"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 12
+   },
+   {
+    "id": "a0b296a8-c04f-4e4e-a079-54a6894e39b8",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Smart TV"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Smart TV"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 20
+   },
+   {
+    "id": "c0bbabde-effc-409b-a5c4-e3f273ce3f2c",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Część wypoczynkowa"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Seating area"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 3
+   },
+   {
+    "id": "c1a0ad7a-f9ed-4097-a5d5-9f51124f0f47",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Kapcie"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Slippers"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 17
+   },
+   {
+    "id": "c662ebcd-a447-40d2-a583-48f26d13c779",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Zestaw do parzenia kawy lub herbaty"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Tea & Coffee making facilities"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 26
+   },
+   {
+    "id": "c9cbc8be-3308-4331-8c88-eb2795223ef6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Szafa"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Wardrobe"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 4
+   },
+   {
+    "id": "d192c5a9-7470-4a7b-ba35-0c4831de2c58",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "WiFi"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "WiFi"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 19
+   },
+   {
+    "id": "da1e4a06-b107-479a-b81d-908697e89dd6",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Sejf"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Safe"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 6
+   },
+   {
+    "id": "dd363a75-2ce5-4775-8096-8969f606f963",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Balkon"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Balcony"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 10
+   },
+   {
+    "id": "ff06e09f-e6e3-49c9-a6cc-680f485109c9",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Klimatyzacja"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "name",
+        "value": "Air conditioning"
+       }
+      ]
+     }
+    ],
+    "orderIndex": 1
+   }
+  ],
+  "bedTypes": [
+   {
+    "type": "double",
+    "translations": [
+     {
+      "locale": "pl",
+      "messages": [
+       {
+        "fieldName": "type",
+        "value": "Łóżko podwójne"
+       }
+      ]
+     },
+     {
+      "locale": "en",
+      "messages": [
+       {
+        "fieldName": "type",
+        "value": "Double Bed"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+]
