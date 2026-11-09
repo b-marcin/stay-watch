@@ -81,6 +81,41 @@ def check_in_of(stay_key: str) -> date | None:
         return None
 
 
+def prune_alerts_sent(sent: dict, today: date, searches: Sequence[Search] | None) -> dict:
+    """Drop past stays, and drop rules or searches that are no longer configured."""
+    if not isinstance(sent, dict):
+        return {}
+    known_searches: set[str] | None = None
+    known_rules: dict[str, set[str]] | None = None
+    if searches is not None:
+        known_searches = {search.id for search in searches}
+        known_rules = {search.id: {rule_id(rule) for rule in search.alerts} for search in searches}
+    kept: dict = {}
+    for search_id, rules in sent.items():
+        if known_searches is not None and search_id not in known_searches:
+            continue
+        if not isinstance(rules, dict):
+            continue
+        allowed = None if known_rules is None else known_rules.get(search_id, set())
+        kept_rules: dict = {}
+        for rule, stays in rules.items():
+            if allowed is not None and rule not in allowed:
+                continue
+            if not isinstance(stays, dict):
+                continue
+            kept_stays = {}
+            for stay_key, price in stays.items():
+                check_in = check_in_of(str(stay_key))
+                if check_in is not None and check_in < today:
+                    continue
+                kept_stays[stay_key] = price
+            if kept_stays:
+                kept_rules[rule] = kept_stays
+        if kept_rules:
+            kept[search_id] = kept_rules
+    return kept
+
+
 def update_history(
     history: dict,
     group: str,
@@ -295,7 +330,17 @@ class Store:
     def save_history(self, payload: dict) -> None:
         self._write("history.json", payload)
 
-    def save_state(self, payload: dict) -> None:
+    def save_state(
+        self,
+        payload: dict,
+        *,
+        today: date | None = None,
+        searches: Sequence[Search] | None = None,
+    ) -> None:
+        if today is not None:
+            payload = copy.deepcopy(payload)
+            if isinstance(payload.get("alerts_sent"), dict):
+                payload["alerts_sent"] = prune_alerts_sent(payload["alerts_sent"], today, searches)
         self._write("state.json", payload)
 
     def _read(self, name: str) -> dict | None:

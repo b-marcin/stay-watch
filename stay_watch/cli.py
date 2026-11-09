@@ -55,13 +55,14 @@ def _scan(args: argparse.Namespace) -> int:
     config = load_watch(args.config)
     client = _client(args.fixtures, secrets)
     store = Store(args.docs, secrets.terms)
+    now = now_warsaw()
     try:
-        execute_scan(config, secrets, store, client, now_warsaw())
+        execute_scan(config, secrets, store, client, now)
     except RecordedFailure as exc:
         print(f"scan failed: {exc}", file=sys.stderr)
         return 1
     except Exception as exc:
-        record_failure(store, secrets, exc)
+        record_failure(store, secrets, exc, today=now.date(), searches=config.searches)
         print(f"scan failed: {public_error(exc, secrets.slug)}", file=sys.stderr)
         return 1
     return 0

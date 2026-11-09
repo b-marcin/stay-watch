@@ -116,7 +116,7 @@ def execute_scan(
         state["seen_prices"] = True
         state["alerts_sent"] = sent
         state["consecutive_failures"] = count
-        store.save_state(state)
+        store.save_state(state, today=today, searches=config.searches)
         if count == 3:
             try:
                 deliver(secrets, build_failure_message(secrets, count, "every stay returned zero proposals"))
@@ -126,19 +126,19 @@ def execute_scan(
     if hits:
         deliver(secrets, build_alert_message(secrets, hits, searches, catalog))
         state["alerts_sent"] = sent
-        store.save_state(state)
+        store.save_state(state, today=today, searches=config.searches)
     if _digest_due(config, state, now) and config.searches:
         sections = [(search, priced_results(ranked, search.top)) for search, ranked in ranked_by_search]
         deliver(secrets, build_digest_message(secrets, sections, catalog))
         state["last_digest_date"] = now.date().isoformat()
-        store.save_state(state)
+        store.save_state(state, today=today, searches=config.searches)
     if old_failures >= 3:
         deliver(secrets, build_recovered_message(secrets))
 
     state["alerts_sent"] = sent
     state["seen_prices"] = had_prices
     state["consecutive_failures"] = 0
-    store.save_state(state)
+    store.save_state(state, today=today, searches=config.searches)
     stay_count = sum(len(ranked) for _, ranked in ranked_by_search)
     skipped = getattr(client, "skipped_proposals", 0)
     extra = f", skipped {skipped} proposals" if skipped else ""
@@ -169,7 +169,14 @@ def execute_search(
         deliver(secrets, build_search_message(secrets, search, ranked, catalog))
 
 
-def record_failure(store: Store, secrets: Secrets, exc: BaseException) -> None:
+def record_failure(
+    store: Store,
+    secrets: Secrets,
+    exc: BaseException,
+    *,
+    today: date | None = None,
+    searches: tuple[Search, ...] | None = None,
+) -> None:
     try:
         state = store.load_state()
     except Exception:
@@ -179,7 +186,7 @@ def record_failure(store: Store, secrets: Secrets, exc: BaseException) -> None:
     count = int(state.get("consecutive_failures") or 0) + 1
     state["consecutive_failures"] = count
     try:
-        store.save_state(state)
+        store.save_state(state, today=today, searches=searches)
     except Exception:
         pass
     if count == 3:

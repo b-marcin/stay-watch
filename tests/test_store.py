@@ -1,9 +1,9 @@
 from datetime import date
 
-from stay_watch.model import Catalog, StayResult
+from stay_watch.model import Below, Catalog, StayResult
 from stay_watch.render import describe
 from stay_watch.store import Store, describe_quote, redact, update_history
-from tests.support import make_quote, stay
+from tests.support import make_quote, make_search, stay
 
 
 def test_unknown_offer_and_room_use_fallback_labels():
@@ -81,3 +81,38 @@ def test_history_appends_only_when_the_price_changes_and_prunes_past_stays():
 
     history = update_history(history, group, [], "t4", date(2026, 12, 5))
     assert current not in history.get(group, {})
+
+
+def test_save_state_drops_past_stays_and_removed_rules(tmp_path):
+    search = make_search(id="winter", alerts=(Below(100),))
+    store = Store(tmp_path / "docs", [])
+    store.save_state(
+        {
+            "consecutive_failures": 2,
+            "alerts_sent": {
+                "winter": {
+                    "below:100": {
+                        "2026-12-04_2026-12-06": 900,
+                        "2026-11-09_2026-11-11": 800,
+                        "2026-10-01_2026-10-03": 700,
+                        "not-a-date": 1,
+                    },
+                    "discounted": {"2026-12-04_2026-12-06": 500},
+                },
+                "gone": {"below:100": {"2026-12-04_2026-12-06": 400}},
+            },
+        },
+        today=date(2026, 11, 9),
+        searches=[search],
+    )
+    saved = store.load_state()
+    assert saved["consecutive_failures"] == 2
+    assert saved["alerts_sent"] == {
+        "winter": {
+            "below:100": {
+                "2026-12-04_2026-12-06": 900,
+                "2026-11-09_2026-11-11": 800,
+                "not-a-date": 1,
+            }
+        }
+    }
