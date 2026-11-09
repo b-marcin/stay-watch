@@ -200,6 +200,7 @@
   @media (min-width: 720px) { .kpi-value { font-size: 28px; } }
   .kpi-sub { margin-top: 4px; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
   .kpi-value.good { color: var(--money); }
+  .kpi-value.none { color: var(--muted); font-weight: 500; }
 
   /* Cards and split */
   .split { display: grid; gap: 16px; margin-top: 16px; }
@@ -284,13 +285,13 @@
       grid-template-rows: 18px repeat(7, 32px);
     }
     .cal .cell { width: 100%; height: 32px; font-size: 11.5px; line-height: 1; }
-    .cal .cell .d { color: var(--muted); font-weight: 500; }
-    .cal .cell .s { margin: 0 4px; color: var(--muted); }
-    .cal .cell .p { color: var(--ink); font-weight: 600; }
+    .cal .cell { flex-direction: column; gap: 2px; line-height: 1; }
+    .cal .cell .d { font-size: 10px; color: var(--muted); font-weight: 500; }
+    .cal .cell .p { font-size: 11.5px; color: var(--ink); font-weight: 600; }
     .cal .cell.under .p { font-weight: 700; }
   }
-  .cell .p, .cell .s { display: none; }
-  @media (min-width: 720px) { .cell .p, .cell .s { display: inline; } }
+  .cell .p { display: none; }
+  @media (min-width: 720px) { .cell .p { display: inline; } }
   .cal .mon { align-self: end; white-space: nowrap; font-size: 11px; color: var(--muted); }
   .cal .wd { display: grid; place-items: center; font-size: 10px; color: var(--muted); }
   .cell {
@@ -316,7 +317,7 @@
   .legend .cell.sold { border-width: 1px; }
 
   /* KPI and table on phones */
-  @media (max-width: 719px) {
+  @media (max-width: 899px) {
     .tr.head { display: none; }
     .tr {
       grid-template-columns: minmax(0, 1fr) auto;
@@ -439,11 +440,12 @@ function formatCompactPln(grosze) {
 
 /* Axis labels: 1200 -> "1,2k", 950 -> "950". */
 function formatAxisPln(grosze) {
-  var pln = grosze / 100;
-  if (Math.abs(pln) >= 1000) {
-    return (Math.round(pln / 100) / 10).toString().replace(".", ",") + "k";
+  var pln = Math.round(grosze / 100);
+  /* Compact only on whole hundreds, so 1 250 and 1 300 never both read "1,3k". */
+  if (Math.abs(pln) >= 1000 && pln % 100 === 0) {
+    return (pln / 1000).toString().replace(".", ",") + "k";
   }
-  return groupDigits(Math.round(pln));
+  return groupDigits(pln);
 }
 
 /* Signed whole percent with a real minus; zero reads ±0%. */
@@ -1404,7 +1406,9 @@ function calendarLayout(stays, ref) {
       ]));
     }
     shown.forEach(function (stay) {
+      var key = search.id + "|" + stay.key;
       body.appendChild(stayRow(search, stay));
+      if (state.open[key]) body.appendChild(buildDetail(search, stay, key));
     });
     table.appendChild(body);
     card.appendChild(table);
@@ -1471,7 +1475,6 @@ function calendarLayout(stays, ref) {
         "data-tip": label
       }, [
         el("span", { class: "d", text: String(c.day) }),
-        isPriced(c.stay) ? el("span", { class: "s", text: "·", "aria-hidden": "true" }) : null,
         isPriced(c.stay) ? el("span", { class: "p", text: formatCompactPln(c.stay.price) }) : null
       ]);
       cell.style.gridColumn = String(c.col + 2);
@@ -1484,9 +1487,10 @@ function calendarLayout(stays, ref) {
   }
 
   function kpi(label, value, sub, tip, extraClass) {
+    var classes = "kpi-value" + (extraClass ? " " + extraClass : "") + (value === DASH ? " none" : "");
     return el("div", { class: "kpi", "data-tip": tip }, [
       el("div", { class: "kpi-label", text: label }),
-      el("div", { class: "kpi-value" + (extraClass ? " " + extraClass : ""), text: value }),
+      el("div", { class: classes, text: value }),
       el("div", { class: "kpi-sub", text: sub || " " })
     ]);
   }
@@ -1595,7 +1599,7 @@ function calendarLayout(stays, ref) {
     if (state.loading) {
       app.appendChild(skeleton());
     } else if (state.error) {
-      app.appendChild(emptyCard("Couldn't load the latest data.", "Check the connection, then try again.", retryButton()));
+      app.appendChild(emptyCard("Couldn't read the latest scan.", "Try again in a moment.", retryButton()));
     } else if (!state.latest) {
       app.appendChild(emptyCard("No scans yet", "Prices appear here after the first scan."));
     } else {
