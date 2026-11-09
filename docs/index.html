@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stay Watch</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f3f0e8;
+    --surface: #fffcf7;
+    --ink: #1f1a14;
+    --muted: #5c564e;
+    --line: #e3dcd0;
+    --accent: #1b6546;
+    --accent-soft: #e5f2eb;
+    --warm: #8a4b12;
+    --warm-soft: #fff1d6;
+    --down: #1b6546;
+    --up: #8d2c2c;
+    --sold: #8f877c;
+    --chip: #efeae1;
+    --focus: #1b6546;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --bg: #12110f;
+      --surface: #1c1b18;
+      --ink: #f4efe6;
+      --muted: #c4b8a8;
+      --line: #34302a;
+      --accent: #8fd4b0;
+      --accent-soft: #1a2e24;
+      --warm: #e4b86a;
+      --warm-soft: #2e2618;
+      --down: #8fd4b0;
+      --up: #f0a8a0;
+      --sold: #8a8378;
+      --chip: #2a2723;
+      --focus: #8fd4b0;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; overflow-x: hidden; background: var(--bg); color: var(--ink); }
+  body {
+    font-family: "Segoe UI", "Avenir Next", "Helvetica Neue", sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .page { max-width: 1120px; margin: 0 auto; padding: 16px; }
+  h1 {
+    font-family: Palatino, "Iowan Old Style", Georgia, serif;
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    margin: 0;
+  }
+  h2 { font-size: 1.25rem; margin: 0; letter-spacing: -0.02em; }
+  .top { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; margin-bottom: 16px; }
+  .when { color: var(--muted); margin: 0; font-variant-numeric: tabular-nums; }
+  .empty {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 24px 16px;
+  }
+  .search { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+  .search-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+  .rules { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .chip, .badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 2px 8px;
+    background: var(--chip);
+    color: var(--ink);
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+  .badge.low { background: var(--accent-soft); color: var(--accent); }
+  .badge.left, .badge.alert { background: var(--warm-soft); color: var(--warm); }
+  .glance {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: baseline;
+    margin: 0 0 16px;
+    font-variant-numeric: tabular-nums;
+  }
+  .glance strong { font-size: 1.75rem; letter-spacing: -0.03em; }
+  .glance span { color: var(--muted); }
+  button.toggle, button.stay {
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  button.stay { border: 0; border-radius: 0; padding: 0; text-align: left; }
+  button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .table-scroll { overflow-x: auto; max-width: 100%; }
+  table { border-collapse: collapse; width: 100%; min-width: 760px; font-variant-numeric: tabular-nums; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+  td.num, th.num { text-align: right; }
+  tr.hit { background: var(--warm-soft); }
+  tr.sold { color: var(--sold); }
+  tr.open { box-shadow: inset 3px 0 0 var(--accent); }
+  .trend.down { color: var(--down); }
+  .trend.up { color: var(--up); }
+  .chart-row td { background: var(--bg); }
+  svg.chart { width: 100%; height: 140px; display: block; }
+  .heat { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0 12px; }
+  .cell {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    background: var(--accent);
+    border: 1px solid transparent;
+  }
+  .cell.sold { background: var(--sold); opacity: 0.45; }
+  .cell.hit { outline: 2px solid var(--warm); }
+  .month { width: 100%; color: var(--muted); font-size: 0.75rem; margin-top: 4px; }
+  .muted { color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="top">
+    <h1>Stay Watch</h1>
+    <p class="when" id="when"></p>
+  </header>
+  <p class="glance" id="glance" hidden></p>
+  <p class="empty" id="empty">No scans yet. Prices show up here after the first run.</p>
+  <div id="app"></div>
+</main>
+<script>
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTH_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+function parseDay(iso) {
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day));
+}
+
+function formatDay(iso) {
+  const day = parseDay(iso);
+  return WEEKDAYS[day.getUTCDay()] + " " + day.getUTCDate() + " " + MONTHS[day.getUTCMonth()];
+}
+
+function formatStay(checkIn, checkOut) {
+  return formatDay(checkIn) + " → " + formatDay(checkOut);
+}
+
+function formatPln(grosze) {
+  if (grosze == null) return "—";
+  const sign = grosze < 0 ? "-" : "";
+  const abs = Math.abs(grosze);
+  const whole = Math.floor(abs / 100);
+  const rest = abs % 100;
+  const text = String(whole).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  if (rest === 0) return sign + text + " zł";
+  return sign + text + "," + String(rest).padStart(2, "0") + " zł";
+}
+
+function scannedLabel(iso) {
+  const then = new Date(iso).getTime();
+  if (!Number.isFinite(then)) return "scanned";
+  const minutes = Math.round((Date.now() - then) / 60000);
+  if (minutes < 1) return "scanned just now";
+  if (minutes < 60) return "scanned " + minutes + " min ago";
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return "scanned " + hours + " h ago";
+  const days = Math.round(hours / 24);
+  return "scanned " + days + " d ago";
+}
+
+function ruleText(rule) {
+  if (rule.kind === "below") return "under " + formatPln(rule.amount);
+  if (rule.kind === "per_night_below") return "under " + formatPln(rule.amount) + " / night";
+  if (rule.kind === "drop_pct") return "drop " + rule.pct + "%";
+  if (rule.kind === "below_recent_lowest") return "under 30-day low";
+  if (rule.kind === "discounted") return "discounted";
+  return rule.kind;
+}
+
+function el(tag, attrs, children) {
+  const node = document.createElement(tag);
+  Object.entries(attrs || {}).forEach(function (pair) {
+    const key = pair[0];
+    const value = pair[1];
+    if (value == null) return;
+    if (key === "class") node.className = value;
+    else if (key === "text") node.textContent = value;
+    else node.setAttribute(key, value);
+  });
+  (children || []).forEach(function (child) {
+    if (child) node.append(child);
+  });
+  return node;
+}
+
+function trend(stay) {
+  if (stay.price == null || stay.previous_price == null || stay.price === stay.previous_price) return null;
+  const down = stay.price < stay.previous_price;
+  return el("span", {
+    class: "trend " + (down ? "down" : "up"),
+    title: down ? "Lower than the previous recorded price" : "Higher than the previous recorded price",
+    text: down ? "↓" : "↑"
+  });
+}
+
+function badges(stay) {
+  const wrap = el("div", { class: "rules" });
+  if (stay.recent_lowest != null && stay.price != null && stay.price < stay.recent_lowest) {
+    wrap.append(el("span", { class: "badge low", text: "30-day low" }));
+  }
+  if (stay.original != null) wrap.append(el("span", { class: "badge low", text: "discount" }));
+  if (!stay.sold_out && stay.rooms_left != null && stay.rooms_left <= 2) {
+    wrap.append(el("span", { class: "badge left", text: stay.rooms_left + " left" }));
+  }
+  if (stay.matched_rules && stay.matched_rules.length) {
+    wrap.append(el("span", { class: "badge alert", text: "alert" }));
+  }
+  return wrap.childNodes.length ? wrap : null;
+}
+
+function chart(points) {
+  const priced = (points || []).filter(function (point) { return point[1] != null; });
+  if (!priced.length) return el("p", { class: "muted", text: "No prices yet" });
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 320 140");
+  svg.setAttribute("class", "chart");
+  svg.setAttribute("role", "img");
+  const min = Math.min.apply(null, priced.map(function (point) { return point[1]; }));
+  const max = Math.max.apply(null, priced.map(function (point) { return point[1]; }));
+  const span = max - min || 1;
+  const coords = priced.map(function (point, index) {
+    const x = priced.length === 1 ? 160 : 16 + index * (288 / (priced.length - 1));
+    const y = 16 + 100 * (1 - (point[1] - min) / span);
+    return [x, y];
+  });
+  const poly = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+  poly.setAttribute("fill", "none");
+  poly.setAttribute("stroke", "currentColor");
+  poly.setAttribute("stroke-width", "2");
+  poly.setAttribute("points", coords.map(function (pair) { return pair.join(","); }).join(" "));
+  svg.append(poly);
+  coords.forEach(function (pair) {
+    const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    dot.setAttribute("cx", pair[0]);
+    dot.setAttribute("cy", pair[1]);
+    dot.setAttribute("r", "3");
+    dot.setAttribute("fill", "currentColor");
+    svg.append(dot);
+  });
+  svg.setAttribute("aria-label", formatPln(priced[0][1]) + " to " + formatPln(priced[priced.length - 1][1]));
+  const caption = el("p", {
+    class: "muted",
+    text: formatPln(min) + " – " + formatPln(max)
+  });
+  return el("div", {}, [svg, caption]);
+}
+
+function heatmap(stays) {
+  const wrap = el("div", { class: "heat" });
+  const priced = stays.filter(function (stay) { return stay.price != null; });
+  const min = priced.length ? Math.min.apply(null, priced.map(function (stay) { return stay.price; })) : 0;
+  const max = priced.length ? Math.max.apply(null, priced.map(function (stay) { return stay.price; })) : 1;
+  const span = max - min || 1;
+  let month = "";
+  stays.forEach(function (stay) {
+    const day = parseDay(stay.check_in);
+    const label = MONTH_LONG[day.getUTCMonth()] + " " + day.getUTCFullYear();
+    if (label !== month) {
+      month = label;
+      wrap.append(el("div", { class: "month", text: label }));
+    }
+    const cell = el("span", { class: "cell" + (stay.sold_out ? " sold" : "") + (stay.matched_rules && stay.matched_rules.length ? " hit" : "") });
+    if (!stay.sold_out && stay.price != null) {
+      const faded = (stay.price - min) / span;
+      cell.style.opacity = String(0.35 + (1 - faded) * 0.65);
+    }
+    cell.title = formatStay(stay.check_in, stay.check_out) + " · " + (stay.sold_out ? "sold out" : formatPln(stay.price));
+    wrap.append(cell);
+  });
+  return wrap;
+}
+
+function renderSearch(search, history, showAll) {
+  const section = el("section", { class: "search" });
+  const rules = el("div", { class: "rules" });
+  rules.append(el("span", { class: "chip", text: search.nights + " nights" }));
+  rules.append(el("span", { class: "chip", text: search.adults + " adults" }));
+  const must = (search.must_include || []).join(", ");
+  if (must) rules.append(el("span", { class: "chip", text: "includes " + must }));
+  rules.append(el("span", { class: "chip", text: formatDay(search.window_start) + " – " + formatDay(search.window_end) }));
+  (search.alerts || []).forEach(function (rule) {
+    rules.append(el("span", { class: "chip", text: ruleText(rule) }));
+  });
+  const visible = showAll || search.top == null
+    ? search.stays
+    : search.stays.filter(function (stay) { return !stay.sold_out; }).slice(0, search.top);
+  let toggle = null;
+  if (search.top != null) {
+    toggle = el("button", { class: "toggle", type: "button", text: showAll ? "Show top " + search.top : "Show all" });
+    toggle.addEventListener("click", function () {
+      section.replaceWith(renderSearch(search, history, !showAll));
+    });
+  }
+  const byDate = search.stays.slice().sort(function (a, b) {
+    return a.check_in < b.check_in ? -1 : a.check_in > b.check_in ? 1 : 0;
+  });
+  section.append(
+    el("div", { class: "search-head" }, [
+      el("h2", { text: search.name }),
+      toggle
+    ]),
+    rules,
+    heatmap(byDate)
+  );
+  const table = el("table");
+  table.append(el("thead", {}, [
+    el("tr", {}, ["Stay", "Nights", "Total", "A night", "Room", "Meal", "Offer", "Cancel"].map(function (label, index) {
+      return el("th", { class: index > 0 && index < 4 ? "num" : "", text: label, scope: "col" });
+    }))
+  ]));
+  const body = el("tbody");
+  const series = (history[search.history_key] || {});
+  visible.forEach(function (stay) {
+    const open = { value: false };
+    const row = el("tr", { class: (stay.sold_out ? "sold" : "") + (stay.matched_rules && stay.matched_rules.length ? " hit" : "") });
+    const button = el("button", { class: "stay", type: "button", text: formatStay(stay.check_in, stay.check_out) });
+    const stayCell = el("td", {}, [button, badges(stay)].filter(Boolean));
+    const arrow = trend(stay);
+    const total = el("td", { class: "num" }, [
+      document.createTextNode(stay.sold_out ? "Sold out" : formatPln(stay.price)),
+      arrow ? document.createTextNode(" ") : null,
+      arrow
+    ]);
+    row.append(
+      stayCell,
+      el("td", { class: "num", text: String(stay.nights) }),
+      total,
+      el("td", { class: "num", text: stay.sold_out ? "—" : formatPln(stay.per_night) }),
+      el("td", { text: stay.room_name || "—" }),
+      el("td", { text: stay.meal_plan || "—" }),
+      el("td", { text: stay.offer_name || "—" }),
+      el("td", { text: stay.cancel || "—" })
+    );
+    const detail = el("tr", { class: "chart-row" });
+    const detailCell = el("td", { colspan: "8" });
+    detail.hidden = true;
+    detail.append(detailCell);
+    button.addEventListener("click", function () {
+      open.value = !open.value;
+      detail.hidden = !open.value;
+      row.classList.toggle("open", open.value);
+      if (open.value && !detailCell.childNodes.length) {
+        detailCell.append(chart(series[stay.key] || []));
+      }
+    });
+    body.append(row, detail);
+  });
+  table.append(body);
+  section.append(el("div", { class: "table-scroll" }, [table]));
+  return section;
+}
+
+function cheapest(latest) {
+  let best = null;
+  (latest.searches || []).forEach(function (search) {
+    (search.stays || []).forEach(function (stay) {
+      if (stay.price == null) return;
+      if (!best || stay.price < best.price) best = stay;
+    });
+  });
+  return best;
+}
+
+function show(latest, history) {
+  document.getElementById("empty").hidden = true;
+  const when = scannedLabel(latest.scanned_at);
+  const whenNode = document.getElementById("when");
+  whenNode.textContent = when;
+  whenNode.title = latest.scanned_at || "";
+  const best = cheapest(latest);
+  const glance = document.getElementById("glance");
+  glance.hidden = false;
+  glance.replaceChildren();
+  if (best) {
+    glance.append(
+      el("span", { text: "Cheapest" }),
+      el("strong", { text: formatPln(best.price) }),
+      el("span", { text: formatStay(best.check_in, best.check_out) })
+    );
+  } else {
+    glance.append(el("span", { text: "No prices in the last scan" }));
+  }
+  const app = document.getElementById("app");
+  app.replaceChildren();
+  (latest.searches || []).forEach(function (search) {
+    app.append(renderSearch(search, history, false));
+  });
+}
+
+fetch("data/latest.json")
+  .then(function (response) {
+    if (!response.ok) throw new Error("missing");
+    return response.json();
+  })
+  .then(function (latest) {
+    if (!latest.searches || !latest.searches.length) return;
+    return fetch("data/history.json")
+      .then(function (response) { return response.ok ? response.json() : {}; })
+      .catch(function () { return {}; })
+      .then(function (history) { show(latest, history || {}); });
+  })
+  .catch(function () {});
+</script>
+</body>
+</html>
