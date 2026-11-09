@@ -1149,11 +1149,12 @@ function countLabel(n) {
   return n + " stays to check";
 }
 
-/* Scan year for a scan timestamp in its own offset; falls back to the UTC year of nowMs. */
-function scanYearOf(scannedAt, nowMs) {
+/* Scan date (YYYY-MM-DD) of a scan timestamp in its own offset. Falls back to today in Warsaw when the time is unknown. */
+function scanDayOf(scannedAt, nowMs) {
   var t = Date.parse(scannedAt);
-  if (!isNumber(t)) return new Date(nowMs).getUTCFullYear();
-  return wallParts(t, isoOffsetMinutes(scannedAt)).year;
+  if (!isNumber(t)) return todayIso(nowMs);
+  var p = wallParts(t, isoOffsetMinutes(scannedAt));
+  return p.year + "-" + pad2(p.month + 1) + "-" + pad2(p.day);
 }
 
 function monthDay(t, withYear) {
@@ -1161,23 +1162,25 @@ function monthDay(t, withYear) {
   return d.getUTCDate() + " " + MONTH_SHORT[d.getUTCMonth()] + (withYear ? " " + d.getUTCFullYear() : "");
 }
 
-/* Derived search name: "1 Dec – 1 Mar". Years show when the window crosses a year or starts in another year than
-   the scan. Mirrors the rule the scanner writes into latest.json. */
-function derivedName(from, to, scanYear) {
+/* Derived search name: "1 Dec – 1 Mar". Years show on both sides only when the window ends more than 365 days after
+   the scan date. Mirrors the rule the scanner writes into latest.json. */
+function derivedName(from, to, scanDay) {
   var f = parseIsoDay(from);
   var t = parseIsoDay(to);
   if (f === null || t === null) return "";
-  var fy = new Date(f).getUTCFullYear();
-  var ty = new Date(t).getUTCFullYear();
-  var withYear = fy !== ty || fy !== scanYear;
+  var s = parseIsoDay(scanDay);
+  var withYear = s !== null && t - s > 365 * DAY_MS;
   return monthDay(f, withYear) + " – " + monthDay(t, withYear);
 }
 
-/* Shown name: a custom name from the config, else the scanner's name, else the name derived from the dates. */
-function displayName(cfg, live, scanYear) {
-  if (typeof cfg.name === "string" && cfg.name.trim()) return cfg.name.trim();
-  if (live && live.custom_name !== true && typeof live.name === "string" && live.name) return live.name;
-  return derivedName(cfg.from, cfg.to, scanYear) || "Search";
+/* Shown name and whether the user typed it. A typed name in the config wins. Otherwise the scanner's name shows, unless
+   the config has since cleared the typed name; then the name comes from the dates. The date-range chip in the search
+   header shows only when custom is true, because a derived name already is the date range. */
+function searchName(cfg, live, scanDay) {
+  var typed = typeof cfg.name === "string" ? cfg.name.trim() : "";
+  if (typed) return { name: typed, custom: true };
+  if (live && live.custom_name !== true && typeof live.name === "string" && live.name) return { name: live.name, custom: false };
+  return { name: derivedName(cfg.from, cfg.to, scanDay) || "Search", custom: false };
 }
 
 /* Check-ins the scanner plans: every check-in from max(from, today) through to − nights, where the stay covers each
@@ -1577,8 +1580,8 @@ function encodeConfig(config) {
     return isNumber(t) ? t : Date.now();
   }
 
-  function scanYear() {
-    return scanYearOf(state.latest ? state.latest.scanned_at : "", nowMs());
+  function scanDay() {
+    return scanDayOf(state.latest ? state.latest.scanned_at : "", nowMs());
   }
 
   function el(tag, attrs, kids) {
@@ -2643,11 +2646,12 @@ function encodeConfig(config) {
 
   /* Search panels ------------------------------------------------------------------------------------------ */
 
-  function searchMeta(cfg) {
+  /* showWindow: the date-range chip. It repeats the name when the name is derived, so it shows only for a typed name. */
+  function searchMeta(cfg, showWindow) {
     var meta = el("div", { class: "meta" });
     meta.appendChild(el("span", { text: nightsText(isNumber(cfg.nights) ? cfg.nights : 2) }));
     meta.appendChild(el("span", { text: adultsText(isNumber(cfg.adults) ? cfg.adults : 2) }));
-    meta.appendChild(el("span", { text: formatWindow(cfg.from, cfg.to) }));
+    if (showWindow) meta.appendChild(el("span", { text: formatWindow(cfg.from, cfg.to) }));
     if (Array.isArray(cfg.must_include) && cfg.must_include.length) {
       var days = cfg.must_include.map(function (d) {
         var key = String(d).toLowerCase();
@@ -2720,7 +2724,7 @@ function encodeConfig(config) {
       fromInput.setAttribute("aria-invalid", check.errors.from ? "true" : "false");
       toInput.setAttribute("aria-invalid", check.errors.to ? "true" : "false");
       alertErrs.forEach(function (node, i) { setErr(node, check.alerts[i]); });
-      nameInput.placeholder = derivedName(d.from, d.to, scanYear()) || "From the dates";
+      nameInput.placeholder = derivedName(d.from, d.to, scanDay()) || "From the dates";
       if (check.errors.from || check.errors.to) {
         preview.textContent = "";
       } else {
@@ -2980,7 +2984,8 @@ function encodeConfig(config) {
   function searchPanel(row) {
     var cfg = row.cfg;
     var live = row.live;
-    var name = displayName(cfg, live, scanYear());
+    var naming = searchName(cfg, live, scanDay());
+    var name = naming.name;
     var editing = state.editing === cfg.id;
     var section = el("section", { class: "search", "aria-label": name, "data-search": cfg.id });
     var editButton = el("button", {
@@ -2997,7 +3002,7 @@ function encodeConfig(config) {
     });
     section.appendChild(el("div", { class: "search-head" }, [
       el("h2", { text: name }),
-      searchMeta(cfg),
+      searchMeta(cfg, naming.custom),
       el("div", { class: "search-actions" }, [editButton])
     ]));
     var status = pendingLine("search|" + cfg.id);
@@ -3116,7 +3121,7 @@ function encodeConfig(config) {
         }
         var seg = el("div", { class: "seg", role: "group", "aria-label": "Searches" });
         rows.forEach(function (row) {
-          var tabName = displayName(row.cfg, row.live, scanYear());
+          var tabName = searchName(row.cfg, row.live, scanDay()).name;
           var tab = el("button", {
             type: "button",
             "aria-pressed": row === current ? "true" : "false",
