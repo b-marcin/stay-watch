@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
@@ -46,9 +47,23 @@ def test_dashboard_is_static_and_does_not_name_a_booking_engine():
     assert "data/history.json" in text
     assert "prefers-color-scheme" in text
     assert "<script src=" not in folded
-    assert "profitroom" not in folded
+    assert "stylesheet" not in folded
     assert "example hotel" not in folded
     assert "examplehotel" not in folded
+    # The booking host is shared by many hotels. A template may name it, but
+    # the slug after /pl/ must be a placeholder, filled from localStorage.
+    for url in re.findall(r"https?://[^\s\"'`<>]+", text, flags=re.IGNORECASE):
+        low = url.casefold()
+        if low.startswith("http://www.w3.org/2000/svg"):
+            continue
+        assert low.startswith("https://booking.profitroom.com/pl/"), url
+        head = url.split("/pl/", 1)[1].split("/", 1)[0]
+        assert not re.fullmatch(r"[A-Za-z0-9_-]+", head), url
+    assert "profitroom" not in folded.replace("booking.profitroom.com", "")
+    fetches = re.findall(r"""fetch\(\s*(["'])(.*?)\1""", text)
+    assert fetches
+    for _quote, target in fetches:
+        assert target.startswith("data/")
 
 
 def test_failed_scan_still_reaches_the_public_check_and_the_commit():
