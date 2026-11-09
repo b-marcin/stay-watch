@@ -15,7 +15,7 @@ Alert keys, one per `[[search.alert]]` block: `below` (total PLN), `per_night_be
 In the repository settings, add these Actions secrets:
 
 - `HOTEL_SLUG` — the hotel's id in the booking URL
-- `HOTEL_NAME_TERMS` — comma-separated words to strip from the public dashboard, such as the hotel name and the town
+- `HOTEL_NAME_TERMS` — comma-separated stems to strip from the public dashboard. Enter the shortest distinctive stem of each name word, not a full grammatical ending. The stem matches the rest of that word, in any case, and a multi-word name still matches when the words are split by an odd space. For Example Hotel in Exampletown, use `Example,Hotel,Examplet`
 - `SMTP_USER` — the Gmail address that sends mail
 - `SMTP_PASSWORD` — a Gmail app password
 - `ALERT_TO` — optional; defaults to `SMTP_USER`
@@ -40,7 +40,7 @@ Windows Command Prompt:
 
 ```
 set HOTEL_SLUG=your-slug
-set HOTEL_NAME_TERMS=Hotel Name,Town
+set HOTEL_NAME_TERMS=Example,Hotel,Examplet
 set SMTP_USER=you@gmail.com
 set SMTP_PASSWORD=app-password
 set DRY_RUN=1
@@ -51,7 +51,7 @@ PowerShell:
 
 ```
 $env:HOTEL_SLUG = "your-slug"
-$env:HOTEL_NAME_TERMS = "Hotel Name,Town"
+$env:HOTEL_NAME_TERMS = "Example,Hotel,Examplet"
 $env:DRY_RUN = "1"
 python -m stay_watch search --from 2026-12-04 --to 2026-12-08
 ```

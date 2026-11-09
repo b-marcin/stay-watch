@@ -14,6 +14,14 @@ def test_redact_replaces_every_configured_term_case_insensitively():
     }
 
 
+def test_redact_stems_cover_inflection_odd_spaces_and_case():
+    assert redact("pokoje w Exampletownach", ["Examplet"]) == "pokoje w the hotel"
+    assert redact("Example\u00a0Hotel", ["Example Hotel"]) == "the hotel"
+    assert redact("eXaMpLe\u202fHoTeLu", ["example hotel"]) == "the hotel"
+    assert redact("Example   Hotel", ["Example Hotel"]) == "the hotel"
+    assert redact("ExampleHotel", ["Example Hotel"]) == "ExampleHotel"
+
+
 def test_store_write_redacts_before_the_file_hits_disk(tmp_path):
     store = Store(tmp_path / "docs", ["Example Hotel", "examplehotel"])
     store.save_latest({"name": "Winter at Example Hotel", "note": "examplehotel"})

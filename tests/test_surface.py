@@ -3,6 +3,28 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 
 
+def test_check_public_catches_an_inflected_name_nbsp_and_mixed_case(tmp_path):
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "inflected.txt").write_text("pokoje w Exampletownach\n", encoding="utf-8")
+    (docs / "nbsp.txt").write_text("at Example\u00a0Hotel today\n", encoding="utf-8")
+    (docs / "case.txt").write_text("eXaMpLeToWnAcH\n", encoding="utf-8")
+    from stay_watch.guard import check_public
+
+    findings = check_public(tmp_path, ["Examplet", "Example Hotel"])
+    text = "\n".join(findings)
+    assert "docs/inflected.txt:1:" in text
+    assert "docs/nbsp.txt:1:" in text
+    assert "docs/case.txt:1:" in text
+
+
+def test_readme_says_to_enter_a_stem():
+    readme = (REPO / "README.md").read_text(encoding="utf-8")
+    folded = readme.casefold()
+    assert "stem" in folded
+    assert "examplet" in folded
+
+
 def test_dashboard_is_static_and_does_not_name_a_booking_engine():
     text = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
     folded = text.casefold()

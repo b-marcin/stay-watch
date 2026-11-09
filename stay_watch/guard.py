@@ -5,24 +5,49 @@ import subprocess
 from collections.abc import Sequence
 from pathlib import Path
 
+from stay_watch.store import term_pattern
+
 SKIP_DIRS = {".git", "__pycache__", ".pytest_cache", ".venv", "node_modules"}
+
+
+class PublicFilesError(Exception):
+    pass
 
 
 def check_public(root: Path, terms: Sequence[str]) -> list[str]:
     root = root.resolve()
-    needles = [term for term in terms if term and term.strip()]
-    findings: list[str] = []
-    if not needles:
+    pattern = term_pattern(terms)
+    if pattern is None:
         return ["no hotel terms configured"]
+    findings: list[str] = []
     for path in _files(root):
-        text = _read(path)
-        if text is None:
-            continue
-        for number, line in enumerate(text.splitlines(), 1):
-            folded = line.casefold()
-            if any(term.casefold() in folded for term in needles):
-                findings.append(f"{path.relative_to(root).as_posix()}:{number}: hotel term found")
-                break
+        findings.extend(_scan_file(path, root, pattern))
+    return findings
+
+
+def check_tree(root: Path, terms: Sequence[str]) -> list[str]:
+    """Scan one directory tree. Used on the docs that were just written."""
+    root = Path(root)
+    pattern = term_pattern(terms)
+    if pattern is None:
+        return ["no hotel terms configured"]
+    if not root.is_dir():
+        return []
+    findings: list[str] = []
+    for path in _walk(root):
+        findings.extend(_scan_file(path, root, pattern))
+    return findings
+
+
+def _scan_file(path: Path, root: Path, pattern) -> list[str]:
+    text = _read(path)
+    if text is None:
+        return []
+    findings: list[str] = []
+    for number, line in enumerate(text.splitlines(), 1):
+        if pattern.search(line):
+            findings.append(f"{path.relative_to(root).as_posix()}:{number}: hotel term found")
+            break
     return findings
 
 

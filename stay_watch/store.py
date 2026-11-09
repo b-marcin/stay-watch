@@ -17,21 +17,38 @@ class StoreError(Exception):
     pass
 
 
+def term_pattern(terms: Sequence[str]) -> re.Pattern[str] | None:
+    """Each term is a stem. It matches the word it starts, plus that word's ending.
+
+    Words in a multi-word term may be split by any whitespace, including NBSP.
+    """
+    parts: list[str] = []
+    cleaned = sorted({term.strip() for term in terms if term and term.strip()}, key=len, reverse=True)
+    for term in cleaned:
+        words = [word for word in re.split(r"\s+", term) if word]
+        if not words:
+            continue
+        body = r"\s+".join(re.escape(word) + r"[^\W\d_]*" for word in words)
+        parts.append(r"(?<![\w])" + body)
+    if not parts:
+        return None
+    return re.compile("|".join(parts), re.IGNORECASE)
+
+
 def redact(value: object, terms: Sequence[str]) -> object:
-    cleaned = sorted({term for term in terms if term and term.strip()}, key=len, reverse=True)
-    return _redact(value, tuple(cleaned))
+    pattern = term_pattern(terms)
+    if pattern is None:
+        return value
+    return _redact(value, pattern)
 
 
-def _redact(value: object, terms: tuple[str, ...]) -> object:
+def _redact(value: object, pattern: re.Pattern[str]) -> object:
     if isinstance(value, str):
-        text = value
-        for term in terms:
-            text = re.sub(re.escape(term), "the hotel", text, flags=re.IGNORECASE)
-        return text
+        return pattern.sub("the hotel", value)
     if isinstance(value, list):
-        return [_redact(item, terms) for item in value]
+        return [_redact(item, pattern) for item in value]
     if isinstance(value, dict):
-        return {_redact(key, terms): _redact(item, terms) for key, item in value.items()}
+        return {_redact(key, pattern): _redact(item, pattern) for key, item in value.items()}
     return value
 
 
