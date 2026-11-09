@@ -1,0 +1,103 @@
+{
+  "scanned_at": "2026-11-09T13:20:00+01:00",
+  "searches": [
+    {
+      "id": "winter-weekends",
+      "name": "Winter weekends",
+      "window_start": "2026-12-01",
+      "window_end": "2027-03-01",
+      "nights": 2,
+      "must_include": [
+        "sat"
+      ],
+      "adults": 2,
+      "top": 3,
+      "codes": [],
+      "history_key": "adults=2;codes=;offers=;rooms=",
+      "alerts": [
+        {
+          "kind": "below",
+          "amount": 130000
+        }
+      ],
+      "stays": [
+        {
+          "key": "2026-12-05_2026-12-07",
+          "check_in": "2026-12-05",
+          "check_out": "2026-12-07",
+          "nights": 2,
+          "sold_out": true,
+          "offer_count": 0,
+          "previous_price": null,
+          "matched_rules": [],
+          "price": null,
+          "per_night": null,
+          "recent_lowest": null,
+          "original": null,
+          "rooms_left": null,
+          "offer_name": null,
+          "room_name": null,
+          "meal_plan": null,
+          "cancel": null
+        },
+        {
+          "key": "2026-12-11_2026-12-13",
+          "check_in": "2026-12-11",
+          "check_out": "2026-12-13",
+          "nights": 2,
+          "sold_out": true,
+          "offer_count": 0,
+          "previous_price": null,
+          "matched_rules": [],
+          "price": null,
+          "per_night": null,
+          "recent_lowest": null,
+          "original": null,
+          "rooms_left": null,
+          "offer_name": null,
+          "room_name": null,
+          "meal_plan": null,
+          "cancel": null
+        },
+        {
+          "key": "2026-12-18_2026-12-20",
+          "check_in": "2026-12-18",
+          "check_out": "2026-12-20",
+          "nights": 2,
+          "sold_out": true,
+          "offer_count": 0,
+          "previous_price": null,
+          "matched_rules": [],
+          "price": null,
+          "per_night": null,
+          "recent_lowest": null,
+          "original": null,
+          "rooms_left": null,
+          "offer_name": null,
+          "room_name": null,
+          "meal_plan": null,
+          "cancel": null
+        },
+        {
+          "key": "2026-12-26_2026-12-28",
+          "check_in": "2026-12-26",
+          "check_out": "2026-12-28",
+          "nights": 2,
+          "sold_out": true,
+          "offer_count": 0,
+          "previous_price": null,
+          "matched_rules": [],
+          "price": null,
+          "per_night": null,
+          "recent_lowest": null,
+          "original": null,
+          "rooms_left": null,
+          "offer_name": null,
+          "room_name": null,
+          "meal_plan": null,
+          "cancel": null
+        }
+      ]
+    }
+  ]
+}

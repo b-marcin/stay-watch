@@ -1,0 +1,48 @@
+{
+  "scanned_at": "2026-11-09T13:20:00+01:00",
+  "searches": [
+    {
+      "id": "winter-weekends",
+      "name": "Winter weekends",
+      "window_start": "2026-12-01",
+      "window_end": "2027-03-01",
+      "nights": 2,
+      "must_include": [
+        "sat"
+      ],
+      "adults": 2,
+      "top": 3,
+      "codes": [],
+      "history_key": "adults=2;codes=;offers=;rooms=",
+      "alerts": [
+        {
+          "kind": "below",
+          "amount": 130000
+        }
+      ],
+      "stays": [
+        {
+          "key": "2026-12-19_2026-12-21",
+          "check_in": "2026-12-19",
+          "check_out": "2026-12-21",
+          "nights": 2,
+          "sold_out": false,
+          "offer_count": 3,
+          "previous_price": null,
+          "matched_rules": [
+            "below:130000"
+          ],
+          "price": 99300,
+          "per_night": 49650,
+          "recent_lowest": 94200,
+          "original": null,
+          "rooms_left": 30,
+          "offer_name": "Oferta bezzwrotna",
+          "room_name": "Standard Room",
+          "meal_plan": "breakfast",
+          "cancel": "non-refundable"
+        }
+      ]
+    }
+  ]
+}

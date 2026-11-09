@@ -5,425 +5,1658 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Stay Watch</title>
 <style>
+  /* Tokens: one name, a light and a dark value. Dark follows the system unless data-theme pins it. */
   :root {
     color-scheme: light;
-    --bg: #f3f0e8;
-    --surface: #fffcf7;
-    --ink: #1f1a14;
-    --muted: #5c564e;
-    --line: #e3dcd0;
-    --accent: #1b6546;
-    --accent-soft: #e5f2eb;
-    --warm: #8a4b12;
-    --warm-soft: #fff1d6;
-    --down: #1b6546;
-    --up: #8d2c2c;
-    --sold: #8f877c;
-    --chip: #efeae1;
-    --focus: #1b6546;
+    --page: #f8f8f6;
+    --card: #ffffff;
+    --soft: #f1f1ef;
+    --ink: #17171a;
+    --ink-2: #48484d;
+    --muted: #66666d;
+    --line: rgb(0 0 0 / .075);
+    --line-strong: rgb(0 0 0 / .14);
+    --accent: #3e63dd;
+    --on-accent: #ffffff;
+    --money: #0f7f57;
+    --down: #d23f45;
+    --warn: #c98a00;
+    --tip: #1f2530;
+    --live: #12a150;
+    --shadow-card: 0 1px 2px rgb(0 0 0 / .04), 0 1px 1px rgb(0 0 0 / .02);
+    --shadow-pop: 0 12px 32px -8px rgb(0 0 0 / .18), 0 0 0 1px rgb(0 0 0 / .06);
   }
   @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
       color-scheme: dark;
-      --bg: #12110f;
-      --surface: #1c1b18;
-      --ink: #f4efe6;
-      --muted: #c4b8a8;
-      --line: #34302a;
-      --accent: #8fd4b0;
-      --accent-soft: #1a2e24;
-      --warm: #e4b86a;
-      --warm-soft: #2e2618;
-      --down: #8fd4b0;
-      --up: #f0a8a0;
-      --sold: #8a8378;
-      --chip: #2a2723;
-      --focus: #8fd4b0;
+      --page: #0b0b0d;
+      --card: #141417;
+      --soft: #1c1c20;
+      --ink: #f3f3f5;
+      --ink-2: #c4c4ca;
+      --muted: #8c8c95;
+      --line: rgb(255 255 255 / .08);
+      --line-strong: rgb(255 255 255 / .16);
+      --accent: #7b96ff;
+      --on-accent: #0b0b0d;
+      --money: #34c48b;
+      --down: #ff6b70;
+      --warn: #f6b100;
+      --tip: #2a3548;
+      --live: #34c48b;
+      --shadow-card: none;
+      --shadow-pop: 0 12px 32px -8px rgb(0 0 0 / .6), 0 0 0 1px rgb(255 255 255 / .08);
     }
   }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0b0b0d;
+    --card: #141417;
+    --soft: #1c1c20;
+    --ink: #f3f3f5;
+    --ink-2: #c4c4ca;
+    --muted: #8c8c95;
+    --line: rgb(255 255 255 / .08);
+    --line-strong: rgb(255 255 255 / .16);
+    --accent: #7b96ff;
+    --on-accent: #0b0b0d;
+    --money: #34c48b;
+    --down: #ff6b70;
+    --warn: #f6b100;
+    --tip: #2a3548;
+    --live: #34c48b;
+    --shadow-card: none;
+    --shadow-pop: 0 12px 32px -8px rgb(0 0 0 / .6), 0 0 0 1px rgb(255 255 255 / .08);
+  }
+
   * { box-sizing: border-box; }
-  html, body { margin: 0; overflow-x: hidden; background: var(--bg); color: var(--ink); }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
-    font-family: "Segoe UI", "Avenir Next", "Helvetica Neue", sans-serif;
-    font-size: 16px;
-    line-height: 1.4;
-  }
-  .page { max-width: 1120px; margin: 0 auto; padding: 16px; }
-  h1 {
-    font-family: Palatino, "Iowan Old Style", Georgia, serif;
-    font-size: 2rem;
-    font-weight: 600;
-    letter-spacing: -0.03em;
     margin: 0;
-  }
-  h2 { font-size: 1.25rem; margin: 0; letter-spacing: -0.02em; }
-  .top { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; margin-bottom: 16px; }
-  .when { color: var(--muted); margin: 0; font-variant-numeric: tabular-nums; }
-  .empty {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 24px 16px;
-  }
-  .search { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-  .search-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
-  .rules { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
-  .chip, .badge {
-    display: inline-flex;
-    align-items: center;
-    border-radius: 999px;
-    padding: 2px 8px;
-    background: var(--chip);
+    background: var(--page);
     color: var(--ink);
-    font-size: 0.82rem;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input { font: inherit; color: inherit; }
+  button:focus-visible, a:focus-visible, input:focus-visible, .chart:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 16px 16px 40px; }
+  @media (min-width: 720px) { .wrap { padding: 24px 28px 56px; } }
+
+  /* Header */
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 36px; }
+  h1 { margin: 0; font-size: 22px; font-weight: 650; letter-spacing: -.02em; }
+  .tools { display: flex; align-items: center; gap: 8px; position: relative; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px;
+    border-radius: 999px; background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-card);
+    color: var(--ink-2); font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums;
+  }
+  .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--live); flex: none; }
+  .pill.stale {
+    background: color-mix(in srgb, var(--warn) 16%, var(--card));
+    border-color: color-mix(in srgb, var(--warn) 45%, transparent);
+    color: var(--ink);
+  }
+  .pill.stale .dot { background: var(--warn); }
+  .icon-btn {
+    position: relative; width: 32px; height: 32px; padding: 0; display: grid; place-items: center;
+    border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink-2); cursor: pointer;
+  }
+  .icon-btn:hover { background: var(--soft); }
+  .icon-btn.has-slug::after {
+    content: ""; position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 0 2px var(--card);
+  }
+  .pop {
+    position: absolute; right: 0; top: calc(100% + 8px); z-index: 30;
+    width: min(320px, calc(100vw - 32px)); padding: 14px; border-radius: 14px;
+    background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-pop);
+  }
+  .pop label { display: block; margin-bottom: 6px; font-size: 12px; color: var(--muted); font-weight: 500; }
+  .pop input {
+    width: 100%; height: 36px; padding: 0 10px; border-radius: 10px; background: var(--card);
+    border: 1px solid var(--line-strong); font-size: 14px;
+  }
+  .pop input[aria-invalid="true"] { border-color: var(--warn); }
+  .pop .hint { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+  .pop .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; height: 32px; padding: 0 12px;
+    border-radius: 10px; border: 1px solid var(--line-strong); background: var(--card); color: var(--ink);
+    font-size: 13px; font-weight: 500; white-space: nowrap; text-decoration: none; cursor: pointer;
+  }
+  .btn:hover { background: var(--soft); }
+  .btn.primary { background: var(--accent); border-color: transparent; color: var(--on-accent); }
+  .btn.primary:hover { background: var(--accent); filter: brightness(1.08); }
+  .link {
+    background: none; border: 0; padding: 4px 0; color: var(--accent); font-size: 13px; font-weight: 500; cursor: pointer;
+  }
+
+  .banner {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px;
+    margin-top: 14px; padding: 8px 12px; border-radius: 12px; font-size: 13px; color: var(--ink-2);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    border: 1px dashed color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+  .banner b { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink); margin-right: 6px; }
+  .banner a { color: var(--accent); font-weight: 500; }
+
+  .note {
+    margin-top: 14px; padding: 9px 12px; border-radius: 12px; background: var(--soft);
+    font-size: 13px; color: var(--ink-2);
+  }
+
+  /* Segmented tabs: they shrink and truncate, never scroll */
+  .seg {
+    display: flex; gap: 2px; padding: 3px; margin-top: 18px; max-width: 100%;
+    background: var(--soft); border-radius: 12px;
+  }
+  .seg button {
+    flex: 1 1 0; min-width: 0; height: 30px; padding: 0 10px; border: 0; border-radius: 9px;
+    background: transparent; color: var(--ink-2); font-size: 13px; cursor: pointer;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .seg button[aria-pressed="true"] {
+    background: var(--card); color: var(--ink); box-shadow: var(--shadow-card), 0 0 0 1px var(--line);
+  }
+
+  /* Search */
+  .search { margin-top: 22px; }
+  .search-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin: 0 0 12px; }
+  .search h2 { margin: 0; min-width: 0; font-size: 17px; font-weight: 650; letter-spacing: -.01em; overflow-wrap: anywhere; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px; }
+  .meta span {
+    padding: 2px 9px; border-radius: 999px; background: var(--soft); color: var(--ink-2);
+    font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums;
+  }
+
+  /* KPI strip: one card, hairlines drawn by the 1px grid gap */
+  .kpis {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px;
+    background: var(--line); border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+  .kpi { min-width: 0; padding: 14px 16px 15px; background: var(--card); }
+  .kpi:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  @media (min-width: 720px) {
+    .kpis { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .kpi:last-child:nth-child(odd) { grid-column: auto; }
+  }
+  .kpi-label { font-size: 12.5px; font-weight: 500; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .kpi-value {
+    margin-top: 4px; font-size: 26px; font-weight: 650; letter-spacing: -.02em; line-height: 1.15;
+    white-space: nowrap; font-variant-numeric: tabular-nums;
+  }
+  @media (min-width: 720px) { .kpi-value { font-size: 28px; } }
+  .kpi-sub { margin-top: 4px; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .kpi-value.good { color: var(--money); }
+
+  /* Cards and split */
+  .split { display: grid; gap: 16px; margin-top: 16px; align-items: start; }
+  @media (min-width: 1080px) { .split.has-heat { grid-template-columns: minmax(0, 1fr) 360px; } }
+  .card {
+    min-width: 0; overflow: hidden; background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; box-shadow: var(--shadow-card);
+  }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px 10px; }
+  .card-head h3 { margin: 0; font-size: 14px; font-weight: 600; }
+
+  /* Stays table: real ARIA table on grid rows; phones reflow each row into three lines */
+  .tbl { font-variant-numeric: tabular-nums; }
+  .tr {
+    display: grid; align-items: center; gap: 12px; padding: 10px 16px; border-top: 1px solid var(--line);
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, .8fr) minmax(0, .7fr) minmax(0, 1.55fr) auto;
+  }
+  .tr.head { border-top: 0; padding-top: 4px; padding-bottom: 6px; font-size: 12px; font-weight: 500; color: var(--muted); }
+  .tr:not(.head) { cursor: pointer; }
+  .tr:not(.head):hover { background: color-mix(in srgb, var(--soft) 70%, transparent); }
+  .tr.open { background: color-mix(in srgb, var(--accent) 6%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent); }
+  .tr.sold { color: var(--muted); }
+  .tr .num { justify-self: end; text-align: right; }
+  .stay-btn {
+    display: inline-flex; align-items: center; gap: 8px; min-width: 0; max-width: 100%; padding: 0; border: 0;
+    background: none; text-align: left; cursor: pointer; font-weight: 500;
+  }
+  .stay-btn svg { flex: none; color: var(--muted); transition: transform .15s ease; }
+  .stay-btn[aria-expanded="true"] svg { transform: rotate(90deg); }
+  .price { font-size: 15px; font-weight: 650; }
+  .was { display: block; font-size: 12px; color: var(--muted); text-decoration: line-through; }
+  .unit { display: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px; border-radius: 999px;
+    background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--ink);
+    font-size: 12px; font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums;
+  }
+  .chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--warn); }
+  .chip.drop::before { content: none; }
+  .tfoot {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px 12px;
+    border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted);
+  }
+  .cell-note { padding: 14px 16px; color: var(--muted); }
+  .tr.empty-row { cursor: default; }
+  .tr.empty-row:hover { background: none; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);
     white-space: nowrap;
   }
-  .badge.low { background: var(--accent-soft); color: var(--accent); }
-  .badge.left, .badge.alert { background: var(--warm-soft); color: var(--warm); }
-  .glance {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 16px;
-    align-items: baseline;
-    margin: 0 0 16px;
-    font-variant-numeric: tabular-nums;
+
+  .chart-box { min-width: 0; }
+  .tr-detail { display: block; padding: 2px 16px 16px; }
+  .chart { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
+  .chart .grid { stroke: var(--line-strong); stroke-width: 1; opacity: .55; }
+  .chart .ax { font-size: 11px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+  .chart .ref-alert { stroke: var(--ink-2); stroke-width: 1.2; stroke-dasharray: 4 4; }
+  .chart .ref-low { stroke: var(--muted); stroke-width: 1; }
+  .chart .ref-label { font-size: 11px; fill: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .chart .ref-label.low { fill: var(--muted); }
+  .chart .step { fill: none; stroke: var(--money); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .chart .dot { fill: var(--card); stroke: var(--money); stroke-width: 2; }
+  .chart .dot.gone { fill: none; stroke: var(--muted); stroke-width: 1.2; }
+  .chart .hl { fill: var(--money); stroke: var(--card); stroke-width: 2; }
+  .chart .cursor { stroke: var(--ink-2); stroke-width: 1; opacity: .45; }
+
+  /* Heatmap: check-in calendar, weeks as columns */
+  .cal-wrap { padding: 2px 16px 16px; overflow-x: auto; }
+  .cal {
+    --cell: 22px;
+    display: grid; width: max-content; gap: 3px;
+    grid-template-columns: 14px repeat(var(--cols, 1), var(--cell));
+    grid-template-rows: 16px repeat(7, var(--cell));
+    font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums;
   }
-  .glance strong { font-size: 1.75rem; letter-spacing: -0.03em; }
-  .glance span { color: var(--muted); }
-  button.toggle, button.stay {
-    font: inherit;
-    color: inherit;
-    background: transparent;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 6px 12px;
-    cursor: pointer;
-  }
-  button.stay { border: 0; border-radius: 0; padding: 0; text-align: left; }
-  button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-  .table-scroll { overflow-x: auto; max-width: 100%; }
-  table { border-collapse: collapse; width: 100%; min-width: 760px; font-variant-numeric: tabular-nums; }
-  th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
-  th { color: var(--muted); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
-  td.num, th.num { text-align: right; }
-  tr.hit { background: var(--warm-soft); }
-  tr.sold { color: var(--sold); }
-  tr.open { box-shadow: inset 3px 0 0 var(--accent); }
-  .trend.down { color: var(--down); }
-  .trend.up { color: var(--up); }
-  .chart-row td { background: var(--bg); }
-  svg.chart { width: 100%; height: 140px; display: block; }
-  .heat { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0 12px; }
+  @media (max-width: 719px) { .cal { --cell: 20px; } }
+  .cal .mon { align-self: end; white-space: nowrap; font-size: 11px; color: var(--muted); }
+  .cal .wd { display: grid; place-items: center; font-size: 10px; color: var(--muted); }
   .cell {
-    width: 14px;
-    height: 14px;
-    border-radius: 3px;
-    background: var(--accent);
-    border: 1px solid transparent;
+    width: var(--cell); height: var(--cell); padding: 0; border: 0; border-radius: 7px;
+    display: grid; place-items: center; background: transparent; color: var(--ink);
+    font-size: 10px; font-weight: 500; cursor: pointer; font-variant-numeric: tabular-nums;
   }
-  .cell.sold { background: var(--sold); opacity: 0.45; }
-  .cell.hit { outline: 2px solid var(--warm); }
-  .month { width: 100%; color: var(--muted); font-size: 0.75rem; margin-top: 4px; }
-  .muted { color: var(--muted); }
-  @media (prefers-reduced-motion: reduce) {
-    * { transition: none !important; }
+  .cell.far { background: color-mix(in srgb, var(--money) 7%, transparent); }
+  .cell.mid { background: color-mix(in srgb, var(--money) 15%, transparent); }
+  .cell.near { background: color-mix(in srgb, var(--money) 26%, transparent); }
+  .cell.under {
+    background: color-mix(in srgb, var(--warn) 34%, transparent); font-weight: 700;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--warn) 75%, transparent);
   }
+  .cell.sold { border: 1px dashed var(--line-strong); color: var(--muted); }
+  .cell[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--accent); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 12px; padding: 0 16px 12px; font-size: 12px; color: var(--ink-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; cursor: default; }
+  .legend .cell { width: 12px; height: 12px; border-radius: 4px; cursor: default; }
+  .legend .cell.sold { border-width: 1px; }
+
+  /* KPI and table on phones */
+  @media (max-width: 719px) {
+    .tr.head { display: none; }
+    .tr {
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas: "stay total" "night act" "flags flags";
+      gap: 6px 12px; padding: 12px 14px;
+    }
+    .tr .c-stay { grid-area: stay; }
+    .tr .c-total { grid-area: total; }
+    .tr .c-night { grid-area: night; }
+    .tr .c-act { grid-area: act; justify-self: end; }
+    .tr .c-flags { grid-area: flags; }
+    .tr .num { justify-self: end; }
+    .tr .c-flags:empty { display: none; }
+    .tr .c-night { justify-self: start; text-align: left; }
+    .tr .unit { display: inline; color: var(--muted); }
+    .tr-detail { padding: 2px 14px 14px; }
+    .tfoot, .cell-note { padding-left: 14px; padding-right: 14px; }
+  }
+
+  /* Empty, loading, error */
+  .empty { margin-top: 22px; padding: 30px 20px; text-align: center; }
+  .empty h2 { margin: 0; font-size: 17px; font-weight: 650; }
+  .empty p { margin: 6px 0 0; color: var(--muted); }
+  .empty .btn { margin-top: 14px; }
+  .skel {
+    border-radius: 16px; background: linear-gradient(90deg, var(--soft) 25%, color-mix(in srgb, var(--soft) 55%, var(--card)) 37%, var(--soft) 63%);
+    background-size: 400% 100%; animation: shimmer 1.4s ease infinite;
+  }
+  .skel.kpi-skel { margin-top: 22px; height: 96px; }
+  .skel.table-skel { margin-top: 16px; height: 260px; }
+  @keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+  @media (prefers-reduced-motion: reduce) { .skel { animation: none; } .stay-btn svg { transition: none; } }
+
+  /* Tooltip: one system for the whole page */
+  .tip {
+    position: fixed; z-index: 60; left: 0; top: 0; pointer-events: none;
+    max-width: min(280px, calc(100vw - 16px)); padding: 8px 10px; border-radius: 10px;
+    background: var(--tip); color: #ffffff; box-shadow: var(--shadow-pop);
+    font-size: 12px; line-height: 1.35; font-variant-numeric: tabular-nums;
+  }
+  .tip-main { display: block; font-size: 16px; font-weight: 650; letter-spacing: -.01em; }
+  .tip-main:empty { display: none; }
+  .tip-sub { display: block; color: rgb(255 255 255 / .78); }
+  .tip-sub:empty { display: none; }
 </style>
 </head>
 <body>
-<main class="page">
+<div class="wrap">
   <header class="top">
     <h1>Stay Watch</h1>
-    <p class="when" id="when"></p>
+    <div class="tools">
+      <span class="pill" id="fresh" hidden><span class="dot" aria-hidden="true"></span><span id="freshText"></span></span>
+      <button class="icon-btn" id="gear" type="button" aria-label="Booking link" aria-haspopup="dialog" aria-expanded="false" aria-controls="pop" data-tip="Booking link">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+      </button>
+      <div class="pop" id="pop" role="dialog" aria-label="Booking link" hidden>
+        <label for="slug">Booking slug</label>
+        <input id="slug" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="80" aria-describedby="slugHint">
+        <p class="hint" id="slugHint">Letters, digits, - or _</p>
+        <div class="actions">
+          <button class="btn" id="slugClear" type="button" hidden>Remove</button>
+          <button class="btn primary" id="slugSave" type="button">Save</button>
+        </div>
+      </div>
+    </div>
   </header>
-  <p class="glance" id="glance" hidden></p>
-  <p class="empty" id="empty">No scans yet. Prices show up here after the first run.</p>
-  <div id="app"></div>
-</main>
-<script>
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const MONTH_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  <div class="banner" id="banner" hidden></div>
+  <div id="notes"></div>
+  <main id="app" aria-busy="true"></main>
+</div>
+<div class="tip" id="tip" role="tooltip" hidden><span class="tip-main" id="tipMain"></span><span class="tip-sub" id="tipSub"></span></div>
 
-function parseDay(iso) {
-  const [year, month, day] = iso.split("-").map(Number);
-  return new Date(Date.UTC(year, month - 1, day));
+<script id="pure">
+/* Pure functions: no DOM access. Extracted and tested by out/test_page_totals.mjs. */
+var STALE_AFTER_HOURS = 7;
+var SLUG_PATTERN = /^[A-Za-z0-9_-]{1,80}$/;
+var NNBSP = " ";
+var NBSP = " ";
+var MINUS = "−";
+var ARROW = "→";
+var DASH = "—";
+var DAY_MS = 86400000;
+var HEAT_NEAR = 1.10;
+var HEAT_MID = 1.25;
+var CHART_STEPS = [5000, 10000, 20000, 25000, 50000, 100000];
+var WEEKDAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+var MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function isNumber(value) {
+  return typeof value === "number" && isFinite(value);
 }
 
-function formatDay(iso) {
-  const day = parseDay(iso);
-  return WEEKDAYS[day.getUTCDay()] + " " + day.getUTCDate() + " " + MONTHS[day.getUTCMonth()];
+function roundHalfUp(value) {
+  return (value < 0 ? -1 : 1) * Math.round(Math.abs(value));
 }
 
-function formatStay(checkIn, checkOut) {
-  return formatDay(checkIn) + " → " + formatDay(checkOut);
+function pad2(n) {
+  return (n < 10 ? "0" : "") + n;
 }
 
+function groupDigits(n) {
+  return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, NNBSP);
+}
+
+/* 1270 -> "1 270 zł"; cents only when present, "123,45 zł". */
 function formatPln(grosze) {
-  if (grosze == null) return "—";
-  const sign = grosze < 0 ? "-" : "";
-  const abs = Math.abs(grosze);
-  const whole = Math.floor(abs / 100);
-  const rest = abs % 100;
-  const text = String(whole).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-  if (rest === 0) return sign + text + " zł";
-  return sign + text + "," + String(rest).padStart(2, "0") + " zł";
+  if (!isNumber(grosze)) return DASH;
+  var sign = grosze < 0 ? MINUS : "";
+  var abs = Math.round(Math.abs(grosze));
+  var whole = Math.floor(abs / 100);
+  var rest = abs % 100;
+  return sign + groupDigits(whole) + (rest ? "," + pad2(rest) : "") + NBSP + "zł";
 }
 
-function scannedLabel(iso) {
-  const then = new Date(iso).getTime();
-  if (!Number.isFinite(then)) return "scanned";
-  const minutes = Math.round((Date.now() - then) / 60000);
-  if (minutes < 1) return "scanned just now";
-  if (minutes < 60) return "scanned " + minutes + " min ago";
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) return "scanned " + hours + " h ago";
-  const days = Math.round(hours / 24);
-  return "scanned " + days + " d ago";
-}
-
-function ruleText(rule) {
-  if (rule.kind === "below") return "under " + formatPln(rule.amount);
-  if (rule.kind === "per_night_below") return "under " + formatPln(rule.amount) + " / night";
-  if (rule.kind === "drop_pct") return "drop " + rule.pct + "%";
-  if (rule.kind === "below_recent_lowest") return "under 30-day low";
-  if (rule.kind === "discounted") return "discounted";
-  return rule.kind;
-}
-
-function el(tag, attrs, children) {
-  const node = document.createElement(tag);
-  Object.entries(attrs || {}).forEach(function (pair) {
-    const key = pair[0];
-    const value = pair[1];
-    if (value == null) return;
-    if (key === "class") node.className = value;
-    else if (key === "text") node.textContent = value;
-    else node.setAttribute(key, value);
-  });
-  (children || []).forEach(function (child) {
-    if (child) node.append(child);
-  });
-  return node;
-}
-
-function trend(stay) {
-  if (stay.price == null || stay.previous_price == null || stay.price === stay.previous_price) return null;
-  const down = stay.price < stay.previous_price;
-  return el("span", {
-    class: "trend " + (down ? "down" : "up"),
-    title: down ? "Lower than the previous recorded price" : "Higher than the previous recorded price",
-    text: down ? "↓" : "↑"
-  });
-}
-
-function badges(stay) {
-  const wrap = el("div", { class: "rules" });
-  if (stay.recent_lowest != null && stay.price != null && stay.price < stay.recent_lowest) {
-    wrap.append(el("span", { class: "badge low", text: "30-day low" }));
+/* Axis labels: 1200 -> "1,2k", 950 -> "950". */
+function formatAxisPln(grosze) {
+  var pln = grosze / 100;
+  if (Math.abs(pln) >= 1000) {
+    return (Math.round(pln / 100) / 10).toString().replace(".", ",") + "k";
   }
-  if (stay.original != null) wrap.append(el("span", { class: "badge low", text: "discount" }));
-  if (!stay.sold_out && stay.rooms_left != null && stay.rooms_left <= 2) {
-    wrap.append(el("span", { class: "badge left", text: stay.rooms_left + " left" }));
-  }
-  if (stay.matched_rules && stay.matched_rules.length) {
-    wrap.append(el("span", { class: "badge alert", text: "alert" }));
-  }
-  return wrap.childNodes.length ? wrap : null;
+  return groupDigits(Math.round(pln));
 }
 
-function chart(points) {
-  const priced = (points || []).filter(function (point) { return point[1] != null; });
-  if (!priced.length) return el("p", { class: "muted", text: "No prices yet" });
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", "0 0 320 140");
-  svg.setAttribute("class", "chart");
-  svg.setAttribute("role", "img");
-  const min = Math.min.apply(null, priced.map(function (point) { return point[1]; }));
-  const max = Math.max.apply(null, priced.map(function (point) { return point[1]; }));
-  const span = max - min || 1;
-  const coords = priced.map(function (point, index) {
-    const x = priced.length === 1 ? 160 : 16 + index * (288 / (priced.length - 1));
-    const y = 16 + 100 * (1 - (point[1] - min) / span);
-    return [x, y];
-  });
-  const poly = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
-  poly.setAttribute("fill", "none");
-  poly.setAttribute("stroke", "currentColor");
-  poly.setAttribute("stroke-width", "2");
-  poly.setAttribute("points", coords.map(function (pair) { return pair.join(","); }).join(" "));
-  svg.append(poly);
-  coords.forEach(function (pair) {
-    const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    dot.setAttribute("cx", pair[0]);
-    dot.setAttribute("cy", pair[1]);
-    dot.setAttribute("r", "3");
-    dot.setAttribute("fill", "currentColor");
-    svg.append(dot);
-  });
-  svg.setAttribute("aria-label", formatPln(priced[0][1]) + " to " + formatPln(priced[priced.length - 1][1]));
-  const caption = el("p", {
-    class: "muted",
-    text: formatPln(min) + " – " + formatPln(max)
-  });
-  return el("div", {}, [svg, caption]);
+/* Signed whole percent with a real minus; zero reads ±0%. */
+function formatSignedPct(value) {
+  if (!isNumber(value)) return DASH;
+  var r = roundHalfUp(value);
+  if (r === 0) return "±0%";
+  return (r > 0 ? "+" : MINUS) + Math.abs(r) + "%";
 }
 
-function heatmap(stays) {
-  const wrap = el("div", { class: "heat" });
-  const priced = stays.filter(function (stay) { return stay.price != null; });
-  const min = priced.length ? Math.min.apply(null, priced.map(function (stay) { return stay.price; })) : 0;
-  const max = priced.length ? Math.max.apply(null, priced.map(function (stay) { return stay.price; })) : 1;
-  const span = max - min || 1;
-  let month = "";
-  stays.forEach(function (stay) {
-    const day = parseDay(stay.check_in);
-    const label = MONTH_LONG[day.getUTCMonth()] + " " + day.getUTCFullYear();
-    if (label !== month) {
-      month = label;
-      wrap.append(el("div", { class: "month", text: label }));
+/* Price drop label: "▼ 13%", "▼ <1%" under half a percent. */
+function formatDrop(pct) {
+  var r = roundHalfUp(pct);
+  return r < 1 ? "▼ <1%" : "▼ " + r + "%";
+}
+
+function parseIsoDay(iso) {
+  if (typeof iso !== "string") return null;
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  if (!m) return null;
+  return Date.UTC(+m[1], +m[2] - 1, +m[3]);
+}
+
+/* "Fri 5 Dec" */
+function formatDay(iso) {
+  var t = parseIsoDay(iso);
+  if (t === null) return DASH;
+  var d = new Date(t);
+  return WEEKDAY_SHORT[d.getUTCDay()] + NBSP + d.getUTCDate() + NBSP + MONTH_SHORT[d.getUTCMonth()];
+}
+
+/* "Fri 5 Dec → Sun 7 Dec" */
+function formatStay(checkIn, checkOut) {
+  return formatDay(checkIn) + " " + ARROW + " " + formatDay(checkOut);
+}
+
+/* "1 Dec 2026 – 1 Mar 2027" */
+function formatWindow(start, end) {
+  function part(iso) {
+    var t = parseIsoDay(iso);
+    if (t === null) return DASH;
+    var d = new Date(t);
+    return d.getUTCDate() + NBSP + MONTH_SHORT[d.getUTCMonth()] + NBSP + d.getUTCFullYear();
+  }
+  return part(start) + " – " + part(end);
+}
+
+function isoOffsetMinutes(iso) {
+  if (typeof iso !== "string") return 0;
+  if (/Z$/.test(iso)) return 0;
+  var m = /([+-])(\d{2}):?(\d{2})$/.exec(iso);
+  if (!m) return 0;
+  var minutes = (+m[2]) * 60 + (+m[3]);
+  return m[1] === "-" ? -minutes : minutes;
+}
+
+/* Wall-clock parts of an instant in the scanner's own offset (Warsaw in production). */
+function wallParts(ms, offsetMinutes) {
+  var d = new Date(ms + offsetMinutes * 60000);
+  return { day: d.getUTCDate(), month: d.getUTCMonth(), year: d.getUTCFullYear(), hh: d.getUTCHours(), mm: d.getUTCMinutes() };
+}
+
+function formatDayMonth(ms, offsetMinutes) {
+  var p = wallParts(ms, offsetMinutes);
+  return p.day + NBSP + MONTH_SHORT[p.month];
+}
+
+function formatDayMonthTime(ms, offsetMinutes) {
+  var p = wallParts(ms, offsetMinutes);
+  return p.day + NBSP + MONTH_SHORT[p.month] + NBSP + pad2(p.hh) + ":" + pad2(p.mm);
+}
+
+/* Freshness pill. Floors minutes and hours; stale when older than 7 hours. */
+function freshness(scannedAt, nowMs) {
+  var then = Date.parse(scannedAt);
+  if (!isNumber(then)) return { known: false, stale: false, label: "updated " + DASH, ageMinutes: null };
+  var age = Math.max(0, nowMs - then);
+  var minutes = Math.floor(age / 60000);
+  var hours = Math.floor(age / 3600000);
+  var days = Math.floor(age / DAY_MS);
+  var label;
+  if (minutes < 1) label = "updated just now";
+  else if (minutes < 60) label = "updated " + minutes + " min ago";
+  else if (hours < 24) label = "updated " + hours + " h ago";
+  else label = "updated " + days + " d ago";
+  return { known: true, stale: age > STALE_AFTER_HOURS * 3600000, label: label, ageMinutes: minutes };
+}
+
+function isPriced(stay) {
+  return !!stay && !stay.sold_out && isNumber(stay.price);
+}
+
+function isUnderRule(rule) {
+  return rule.indexOf("below:") === 0 || rule.indexOf("per_night_below:") === 0;
+}
+
+/* Under a configured threshold. Trusts matched_rules, as the store wrote them. */
+function isUnder(stay) {
+  return isPriced(stay) && (stay.matched_rules || []).some(isUnderRule);
+}
+
+/* Cheaper than the hotel's own 30-day lowest: the store's below_recent_lowest condition. */
+function isBelowLowest(stay) {
+  return isPriced(stay) && isNumber(stay.recent_lowest) && stay.price < stay.recent_lowest;
+}
+
+function isDropped(stay) {
+  return isPriced(stay) && isNumber(stay.previous_price) && stay.previous_price > stay.price;
+}
+
+function hasFewRooms(stay) {
+  return isPriced(stay) && isNumber(stay.rooms_left) && stay.rooms_left <= 2;
+}
+
+/* Attention flags for one stay, in display order. Each has a short label and a tooltip. */
+function stayFlags(stay) {
+  var out = [];
+  if (isUnder(stay)) {
+    out.push({ kind: "under", label: "Under alert", tip: "Under the alert threshold for this search" });
+  }
+  if (isBelowLowest(stay)) {
+    out.push({ kind: "low", label: "30-day low", tip: "Below the hotel's lowest price of the last 30 days, " + formatPln(stay.recent_lowest) });
+  }
+  if (isDropped(stay)) {
+    var pct = (stay.previous_price - stay.price) / stay.previous_price * 100;
+    out.push({ kind: "drop", label: formatDrop(pct), tip: "Was " + formatPln(stay.previous_price) + " at the previous recorded price" });
+  }
+  if (hasFewRooms(stay)) {
+    out.push({ kind: "rooms", label: stay.rooms_left + " left", tip: "Rooms left for this stay: " + stay.rooms_left });
+  }
+  return out;
+}
+
+function compareText(a, b) {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+/* Priced stays by price, then sold-out stays by date (greyed, at the bottom). */
+function orderStays(stays) {
+  var list = Array.isArray(stays) ? stays : [];
+  var priced = list.filter(isPriced).sort(function (a, b) {
+    return (a.price - b.price) || compareText(a.check_in, b.check_in) || compareText(a.check_out, b.check_out);
+  });
+  var sold = list.filter(function (s) { return !isPriced(s); }).sort(function (a, b) {
+    return compareText(a.check_in, b.check_in) || compareText(a.check_out, b.check_out);
+  });
+  return priced.concat(sold);
+}
+
+/* Threshold for the search: first below rule, else per_night_below times nights. */
+function thresholdOf(search) {
+  var alerts = search.alerts || [];
+  for (var i = 0; i < alerts.length; i++) {
+    var a = alerts[i];
+    if (a && a.kind === "below" && isNumber(a.amount)) return { kind: "below", amount: a.amount, total: a.amount };
+    if (a && a.kind === "per_night_below" && isNumber(a.amount)) {
+      return { kind: "per_night", amount: a.amount, total: a.amount * search.nights };
     }
-    const cell = el("span", { class: "cell" + (stay.sold_out ? " sold" : "") + (stay.matched_rules && stay.matched_rules.length ? " hit" : "") });
-    if (!stay.sold_out && stay.price != null) {
-      const faded = (stay.price - min) / span;
-      cell.style.opacity = String(0.35 + (1 - faded) * 0.65);
-    }
-    cell.title = formatStay(stay.check_in, stay.check_out) + " · " + (stay.sold_out ? "sold out" : formatPln(stay.price));
-    wrap.append(cell);
-  });
-  return wrap;
+  }
+  return null;
 }
 
-function renderSearch(search, history, showAll) {
-  const section = el("section", { class: "search" });
-  const rules = el("div", { class: "rules" });
-  rules.append(el("span", { class: "chip", text: search.nights + " nights" }));
-  rules.append(el("span", { class: "chip", text: search.adults + " adults" }));
-  const must = (search.must_include || []).join(", ");
-  if (must) rules.append(el("span", { class: "chip", text: "includes " + must }));
-  rules.append(el("span", { class: "chip", text: formatDay(search.window_start) + " – " + formatDay(search.window_end) }));
-  (search.alerts || []).forEach(function (rule) {
-    rules.append(el("span", { class: "chip", text: ruleText(rule) }));
+function summarize(search) {
+  var stays = Array.isArray(search.stays) ? search.stays : [];
+  var priced = stays.filter(isPriced);
+  var cheapest = null;
+  priced.forEach(function (s) {
+    if (!cheapest || s.price < cheapest.price || (s.price === cheapest.price && s.check_in < cheapest.check_in)) {
+      cheapest = s;
+    }
   });
-  const visible = showAll || search.top == null
-    ? search.stays
-    : search.stays.filter(function (stay) { return !stay.sold_out; }).slice(0, search.top);
-  let toggle = null;
-  if (search.top != null) {
-    toggle = el("button", { class: "toggle", type: "button", text: showAll ? "Show top " + search.top : "Show all" });
-    toggle.addEventListener("click", function () {
-      section.replaceWith(renderSearch(search, history, !showAll));
+  var th = thresholdOf(search);
+  var perNight = null;
+  if (cheapest) {
+    perNight = isNumber(cheapest.per_night) ? cheapest.per_night : Math.floor(cheapest.price / cheapest.nights);
+  }
+  return {
+    total: stays.length,
+    priced: priced.length,
+    soldOut: stays.length - priced.length,
+    cheapest: cheapest,
+    perNight: perNight,
+    threshold: th,
+    underCount: priced.filter(isUnder).length,
+    vsAlertPct: cheapest && th ? (cheapest.price - th.total) / th.total * 100 : null,
+    lowest: cheapest && isNumber(cheapest.recent_lowest) ? cheapest.recent_lowest : null,
+    vsLowPct: cheapest && isNumber(cheapest.recent_lowest) ? (cheapest.price - cheapest.recent_lowest) / cheapest.recent_lowest * 100 : null
+  };
+}
+
+/* Heat reference: the alert total, else the cheapest priced stay. */
+function heatReference(summary) {
+  if (summary.threshold) return summary.threshold.total;
+  return summary.cheapest ? summary.cheapest.price : null;
+}
+
+function heatTier(stay, ref) {
+  if (!isPriced(stay)) return "sold";
+  if (isUnder(stay)) return "under";
+  if (!isNumber(ref) || ref <= 0) return "far";
+  var ratio = stay.price / ref;
+  if (ratio <= HEAT_NEAR) return "near";
+  if (ratio <= HEAT_MID) return "mid";
+  return "far";
+}
+
+/* Rows shown before "Show all": top N priced plus every priced stay with a flag. Everything when top is null
+   or nothing is priced. Sold-out rows stay hidden until "Show all". */
+function defaultRows(search) {
+  var ordered = orderStays(search.stays);
+  var anyPriced = ordered.some(isPriced);
+  if (search.top === null || search.top === undefined || !anyPriced) return ordered;
+  var rank = 0;
+  return ordered.filter(function (s) {
+    if (!isPriced(s)) return false;
+    rank += 1;
+    return rank <= search.top || stayFlags(s).length > 0;
+  });
+}
+
+function isValidSlug(value) {
+  return typeof value === "string" && SLUG_PATTERN.test(value);
+}
+
+/* The one allowed booking URL: the slug comes from localStorage at runtime. */
+function bookUrl(slug, stay, adults) {
+  if (!isValidSlug(slug) || !isPriced(stay)) return null;
+  return "https://booking.profitroom.com/pl/" + encodeURIComponent(slug) +
+    "/pricelist/rooms?check-in=" + encodeURIComponent(stay.check_in) +
+    "&check-out=" + encodeURIComponent(stay.check_out) +
+    "&r1_adults=" + encodeURIComponent(String(adults)) + "&currency=PLN";
+}
+
+function copyText(stay, adults) {
+  return stay.check_in + " to " + stay.check_out + ", " + adults + (adults === 1 ? " adult" : " adults");
+}
+
+/* Price history for one stay: points sorted by time, end at the latest scan. */
+function historySeries(rows, scannedAt) {
+  var offset = isoOffsetMinutes(scannedAt);
+  var points = [];
+  (Array.isArray(rows) ? rows : []).forEach(function (row) {
+    if (!Array.isArray(row) || typeof row[0] !== "string") return;
+    var t = Date.parse(row[0]);
+    if (!isNumber(t)) return;
+    points.push({
+      t: t,
+      price: isNumber(row[1]) ? row[1] : null,
+      offer: typeof row[2] === "string" ? row[2] : null,
+      room: typeof row[3] === "string" ? row[3] : null
     });
-  }
-  const byDate = search.stays.slice().sort(function (a, b) {
-    return a.check_in < b.check_in ? -1 : a.check_in > b.check_in ? 1 : 0;
   });
-  section.append(
-    el("div", { class: "search-head" }, [
-      el("h2", { text: search.name }),
-      toggle
-    ]),
-    rules,
-    heatmap(byDate)
-  );
-  const table = el("table");
-  table.append(el("thead", {}, [
-    el("tr", {}, ["Stay", "Nights", "Total", "A night", "Room", "Meal", "Offer", "Cancel"].map(function (label, index) {
-      return el("th", { class: index > 0 && index < 4 ? "num" : "", text: label, scope: "col" });
-    }))
-  ]));
-  const body = el("tbody");
-  const series = (history[search.history_key] || {});
-  visible.forEach(function (stay) {
-    const open = { value: false };
-    const row = el("tr", { class: (stay.sold_out ? "sold" : "") + (stay.matched_rules && stay.matched_rules.length ? " hit" : "") });
-    const button = el("button", { class: "stay", type: "button", text: formatStay(stay.check_in, stay.check_out) });
-    const stayCell = el("td", {}, [button, badges(stay)].filter(Boolean));
-    const arrow = trend(stay);
-    const total = el("td", { class: "num" }, [
-      document.createTextNode(stay.sold_out ? "Sold out" : formatPln(stay.price)),
-      arrow ? document.createTextNode(" ") : null,
-      arrow
-    ]);
-    row.append(
-      stayCell,
-      el("td", { class: "num", text: String(stay.nights) }),
-      total,
-      el("td", { class: "num", text: stay.sold_out ? "—" : formatPln(stay.per_night) }),
-      el("td", { text: stay.room_name || "—" }),
-      el("td", { text: stay.meal_plan || "—" }),
-      el("td", { text: stay.offer_name || "—" }),
-      el("td", { text: stay.cancel || "—" })
-    );
-    const detail = el("tr", { class: "chart-row" });
-    const detailCell = el("td", { colspan: "8" });
-    detail.hidden = true;
-    detail.append(detailCell);
-    button.addEventListener("click", function () {
-      open.value = !open.value;
-      detail.hidden = !open.value;
-      row.classList.toggle("open", open.value);
-      if (open.value && !detailCell.childNodes.length) {
-        detailCell.append(chart(series[stay.key] || []));
+  points.sort(function (a, b) { return a.t - b.t; });
+  var end = Date.parse(scannedAt);
+  var last = points.length ? points[points.length - 1].t : null;
+  if (!isNumber(end)) end = last;
+  if (end !== null && last !== null && end < last) end = last;
+  return { points: points, end: end, offset: offset };
+}
+
+function pickStep(range) {
+  for (var i = 0; i < CHART_STEPS.length; i++) {
+    if (range / CHART_STEPS[i] <= 4) return CHART_STEPS[i];
+  }
+  return CHART_STEPS[CHART_STEPS.length - 1];
+}
+
+/* Geometry for the step chart. Returns null when there is no price to draw. */
+function chartGeometry(series, opts) {
+  var pts = series.points || [];
+  if (!pts.length || series.end === null) return null;
+  var prices = pts.filter(function (p) { return p.price !== null; }).map(function (p) { return p.price; });
+  if (!prices.length) return null;
+  var W = opts.width;
+  var H = opts.height;
+  var plot = { left: 46, right: W - 12, top: 14, bottom: H - 26 };
+  var refs = [opts.threshold, opts.low].filter(isNumber);
+  var values = prices.concat(refs);
+  var lo = Math.min.apply(null, values);
+  var hi = Math.max.apply(null, values);
+  var span = hi - lo;
+  if (span <= 0) span = Math.max(hi, 1) * 0.1;
+  var pad = span * 0.12;
+  var step = pickStep(hi - lo + 2 * pad);
+  var yMin = Math.floor((lo - pad) / step) * step;
+  var yMax = Math.ceil((hi + pad) / step) * step;
+  if (yMax <= yMin) yMax = yMin + step;
+  var t0 = pts[0].t;
+  var t1 = series.end;
+  if (t1 <= t0) t1 = t0 + 3600000;
+  function xOf(t) { return plot.left + (t - t0) / (t1 - t0) * (plot.right - plot.left); }
+  function yOf(v) { return plot.bottom - (v - yMin) / (yMax - yMin) * (plot.bottom - plot.top); }
+
+  var steps = [];
+  var dots = [];
+  pts.forEach(function (p, i) {
+    var x1 = xOf(p.t);
+    var x2 = xOf(i + 1 < pts.length ? pts[i + 1].t : t1);
+    steps.push({ x1: x1, x2: x2, price: p.price, y: p.price === null ? null : yOf(p.price) });
+    dots.push({ x: x1, y: p.price === null ? plot.bottom - 5 : yOf(p.price), idx: i, price: p.price, t: p.t, offer: p.offer });
+  });
+
+  var yTicks = [];
+  for (var v = yMin; v <= yMax; v += step) {
+    yTicks.push({ y: yOf(v), label: formatAxisPln(v) });
+  }
+
+  var xTicks = [];
+  var n = W < 420 ? 3 : 4;
+  for (var k = 0; k < n; k++) {
+    var t = t0 + (t1 - t0) * k / (n - 1);
+    xTicks.push({ x: xOf(t), label: formatDayMonth(t, series.offset), anchor: k === 0 ? "start" : k === n - 1 ? "end" : "middle" });
+  }
+
+  return {
+    width: W,
+    height: H,
+    plot: plot,
+    yMin: yMin,
+    yMax: yMax,
+    t0: t0,
+    t1: t1,
+    steps: steps,
+    dots: dots,
+    yTicks: yTicks,
+    xTicks: xTicks,
+    alertY: isNumber(opts.threshold) ? yOf(opts.threshold) : null,
+    alertValue: isNumber(opts.threshold) ? opts.threshold : null,
+    lowY: isNumber(opts.low) ? yOf(opts.low) : null,
+    lowValue: isNumber(opts.low) ? opts.low : null
+  };
+}
+
+/* Check-in calendar: weeks as columns (Monday first), weekdays as rows. */
+function calendarLayout(stays, ref) {
+  var items = [];
+  var mondays = [];
+  (Array.isArray(stays) ? stays : []).forEach(function (stay) {
+    var t = parseIsoDay(stay.check_in);
+    if (t === null) return;
+    var index = (new Date(t).getUTCDay() + 6) % 7;
+    var monday = t - index * DAY_MS;
+    items.push({ stay: stay, t: t, row: index, monday: monday });
+    mondays.push(monday);
+  });
+  if (!items.length) return { cols: 0, cells: [], months: [] };
+  var first = Math.min.apply(null, mondays);
+  var last = Math.max.apply(null, mondays);
+  var cols = Math.round((last - first) / (7 * DAY_MS)) + 1;
+  var cells = items.map(function (item) {
+    return {
+      stay: item.stay,
+      col: Math.round((item.monday - first) / (7 * DAY_MS)),
+      row: item.row,
+      day: new Date(item.t).getUTCDate(),
+      tier: heatTier(item.stay, ref)
+    };
+  });
+  var months = [];
+  var previous = -1;
+  for (var c = 0; c < cols; c++) {
+    /* A week belongs to the month of its Thursday, the majority day of a Monday-first week. */
+    var month = new Date(first + c * 7 * DAY_MS + 3 * DAY_MS).getUTCMonth();
+    if (month !== previous) {
+      months.push({ col: c, label: MONTH_SHORT[month] });
+      previous = month;
+    }
+  }
+  return { cols: cols, cells: cells, months: months };
+}
+</script>
+
+<script>
+(function () {
+  "use strict";
+
+  var SVG_NS = "http://www.w3.org/2000/svg";
+  var SLUG_KEY = "stayWatch.bookingSlug";
+  var params = new URLSearchParams(window.location.search);
+  var sampleName = params.get("sample");
+  if (sampleName !== null && !/^[a-z0-9-]{1,40}$/.test(sampleName)) sampleName = null;
+  var LATEST_URL = sampleName ? "data-samples/" + sampleName + "/latest.json" : "data/latest.json";
+  var HISTORY_URL = sampleName ? "data-samples/" + sampleName + "/history.json" : "data/history.json";
+  var nowParam = params.get("now");
+
+  var state = {
+    loading: true,
+    error: false,
+    latest: null,
+    history: {},
+    historyFailed: false,
+    active: null,
+    slug: "",
+    open: {},
+    showAll: {}
+  };
+  var observers = [];
+  var copyTimers = [];
+
+  function $(id) { return document.getElementById(id); }
+
+  function nowMs() {
+    var t = nowParam ? Date.parse(nowParam) : NaN;
+    return isNumber(t) ? t : Date.now();
+  }
+
+  function el(tag, attrs, kids) {
+    var node = document.createElement(tag);
+    if (attrs) {
+      Object.keys(attrs).forEach(function (key) {
+        var value = attrs[key];
+        if (value === null || value === undefined || value === false) return;
+        if (key === "text") node.textContent = String(value);
+        else if (key === "class") node.className = value;
+        else node.setAttribute(key, value === true ? "" : String(value));
+      });
+    }
+    (kids || []).forEach(function (kid) {
+      if (kid === null || kid === undefined || kid === false) return;
+      node.appendChild(typeof kid === "string" ? document.createTextNode(kid) : kid);
+    });
+    return node;
+  }
+
+  function svgEl(tag, attrs) {
+    var node = document.createElementNS(SVG_NS, tag);
+    Object.keys(attrs || {}).forEach(function (key) {
+      node.setAttribute(key, String(attrs[key]));
+    });
+    return node;
+  }
+
+  function findByAttr(attr, value) {
+    var nodes = document.querySelectorAll("[" + attr + "]");
+    for (var i = 0; i < nodes.length; i++) {
+      if (nodes[i].getAttribute(attr) === value) return nodes[i];
+    }
+    return null;
+  }
+
+  /* Slug: localStorage only, every access wrapped. */
+  function readSlug() {
+    try {
+      var value = window.localStorage.getItem(SLUG_KEY);
+      return isValidSlug(value) ? value : "";
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function saveSlug(value) {
+    state.slug = value;
+    try {
+      if (value) window.localStorage.setItem(SLUG_KEY, value);
+      else window.localStorage.removeItem(SLUG_KEY);
+    } catch (e) {
+      /* Storage blocked: the slug still works for this page view. */
+    }
+  }
+
+  /* Tooltip */
+  var tipEl = $("tip");
+  var tipMain = $("tipMain");
+  var tipSub = $("tipSub");
+
+  function showTip(rect, main, sub) {
+    tipMain.textContent = main || "";
+    tipSub.textContent = sub || "";
+    tipEl.hidden = false;
+    var w = tipEl.offsetWidth;
+    var h = tipEl.offsetHeight;
+    var cx = (rect.left + rect.right) / 2;
+    var top = rect.top - h - 8;
+    if (top < 8) top = rect.bottom + 8;
+    var left = Math.min(Math.max(8, cx - w / 2), window.innerWidth - w - 8);
+    tipEl.style.left = left + "px";
+    tipEl.style.top = top + "px";
+  }
+
+  function hideTip() {
+    tipEl.hidden = true;
+  }
+
+  function tipTarget(node) {
+    return node && node.closest ? node.closest("[data-tip]") : null;
+  }
+
+  document.addEventListener("pointerover", function (event) {
+    if (event.pointerType && event.pointerType !== "mouse") return;
+    var target = tipTarget(event.target);
+    if (target) showTip(target.getBoundingClientRect(), target.getAttribute("data-tip"), "");
+  });
+  document.addEventListener("pointerout", function (event) {
+    var target = tipTarget(event.target);
+    if (target && !target.contains(event.relatedTarget)) hideTip();
+  });
+  document.addEventListener("pointerdown", function (event) {
+    var target = tipTarget(event.target);
+    if (target && event.pointerType === "touch") showTip(target.getBoundingClientRect(), target.getAttribute("data-tip"), "");
+    else if (!target) hideTip();
+  }, true);
+  document.addEventListener("focusin", function (event) {
+    var target = tipTarget(event.target);
+    if (target && event.target.matches(":focus-visible")) showTip(target.getBoundingClientRect(), target.getAttribute("data-tip"), "");
+  });
+  document.addEventListener("focusout", hideTip);
+  window.addEventListener("scroll", hideTip, { passive: true });
+
+  /* Pill */
+  function updatePill() {
+    var pill = $("fresh");
+    if (!state.latest) {
+      pill.hidden = true;
+      return;
+    }
+    var f = freshness(state.latest.scanned_at, nowMs());
+    pill.hidden = false;
+    pill.className = "pill" + (f.stale ? " stale" : "");
+    $("freshText").textContent = f.label;
+    var scanned = Date.parse(state.latest.scanned_at);
+    var tip = f.stale
+      ? "Last scan more than 7 hours ago. The scan runs every 3 hours."
+      : "Last scan " + (isNumber(scanned) ? formatDayMonthTime(scanned, isoOffsetMinutes(state.latest.scanned_at)) : DASH);
+    pill.setAttribute("data-tip", tip);
+  }
+
+  /* Booking settings popover */
+  var gear = $("gear");
+  var pop = $("pop");
+  var slugInput = $("slug");
+  var slugClear = $("slugClear");
+
+  function openPop() {
+    pop.hidden = false;
+    gear.setAttribute("aria-expanded", "true");
+    slugInput.value = state.slug;
+    slugInput.removeAttribute("aria-invalid");
+    slugClear.hidden = !state.slug;
+    slugInput.focus();
+  }
+
+  function closePop(returnFocus) {
+    pop.hidden = true;
+    gear.setAttribute("aria-expanded", "false");
+    if (returnFocus) gear.focus();
+  }
+
+  function saveFromPop() {
+    var value = slugInput.value.trim();
+    if (!isValidSlug(value)) {
+      slugInput.setAttribute("aria-invalid", "true");
+      slugInput.focus();
+      return;
+    }
+    saveSlug(value);
+    closePop(true);
+    renderApp();
+  }
+
+  function clearFromPop() {
+    saveSlug("");
+    closePop(true);
+    renderApp();
+  }
+
+  gear.addEventListener("click", function (event) {
+    event.stopPropagation();
+    if (pop.hidden) openPop();
+    else closePop(false);
+  });
+  $("slugSave").addEventListener("click", saveFromPop);
+  slugClear.addEventListener("click", clearFromPop);
+  slugInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      saveFromPop();
+    }
+  });
+  document.addEventListener("pointerdown", function (event) {
+    if (pop.hidden) return;
+    if (pop.contains(event.target) || gear.contains(event.target)) return;
+    closePop(false);
+  }, true);
+  document.addEventListener("keydown", function (event) {
+    if (event.key !== "Escape") return;
+    hideTip();
+    if (!pop.hidden) closePop(true);
+  });
+
+  /* Charts and observers */
+  function disconnectObservers() {
+    observers.forEach(function (observer) { observer.disconnect(); });
+    observers = [];
+  }
+
+  function attachChart(box, draw, owner) {
+    var lastWidth = -1;
+    function run() {
+      var width = Math.round(box.clientWidth);
+      if (width > 0 && width !== lastWidth) {
+        lastWidth = width;
+        draw(Math.max(width, 260));
       }
-    });
-    body.append(row, detail);
-  });
-  table.append(body);
-  section.append(el("div", { class: "table-scroll" }, [table]));
-  return section;
-}
-
-function cheapest(latest) {
-  let best = null;
-  (latest.searches || []).forEach(function (search) {
-    (search.stays || []).forEach(function (stay) {
-      if (stay.price == null) return;
-      if (!best || stay.price < best.price) best = stay;
-    });
-  });
-  return best;
-}
-
-function show(latest, history) {
-  document.getElementById("empty").hidden = true;
-  const when = scannedLabel(latest.scanned_at);
-  const whenNode = document.getElementById("when");
-  whenNode.textContent = when;
-  whenNode.title = latest.scanned_at || "";
-  const best = cheapest(latest);
-  const glance = document.getElementById("glance");
-  glance.hidden = false;
-  glance.replaceChildren();
-  if (best) {
-    glance.append(
-      el("span", { text: "Cheapest" }),
-      el("strong", { text: formatPln(best.price) }),
-      el("span", { text: formatStay(best.check_in, best.check_out) })
-    );
-  } else {
-    glance.append(el("span", { text: "No prices in the last scan" }));
+    }
+    run();
+    if (typeof ResizeObserver !== "undefined") {
+      var observer = new ResizeObserver(run);
+      observer.observe(box);
+      observers.push(observer);
+      owner._ro = observer;
+    }
   }
-  const app = document.getElementById("app");
-  app.replaceChildren();
-  (latest.searches || []).forEach(function (search) {
-    app.append(renderSearch(search, history, false));
-  });
-}
 
-fetch("data/latest.json")
-  .then(function (response) {
-    if (!response.ok) throw new Error("missing");
-    return response.json();
-  })
-  .then(function (latest) {
-    if (!latest.searches || !latest.searches.length) return;
-    return fetch("data/history.json")
-      .then(function (response) { return response.ok ? response.json() : {}; })
-      .catch(function () { return {}; })
-      .then(function (history) { show(latest, history || {}); });
-  })
-  .catch(function () {});
+  function historyRows(search, stay) {
+    var bucket = state.history[search.history_key];
+    if (!bucket || typeof bucket !== "object") return [];
+    var rows = bucket[stay.key];
+    return Array.isArray(rows) ? rows : [];
+  }
+
+  function buildHistorySvg(geo, series) {
+    var svg = svgEl("svg", {
+      class: "chart",
+      viewBox: "0 0 " + geo.width + " " + geo.height,
+      width: geo.width,
+      height: geo.height,
+      role: "img",
+      tabindex: "0"
+    });
+    var lastPriced = null;
+    series.points.forEach(function (p) { if (p.price !== null) lastPriced = p; });
+    var lowest = null;
+    series.points.forEach(function (p) { if (p.price !== null && (lowest === null || p.price < lowest)) lowest = p.price; });
+    svg.setAttribute("aria-label", "Price history: " + series.points.length + " records, lowest " +
+      formatPln(lowest) + (lastPriced ? ", latest " + formatPln(lastPriced.price) : ", none priced now"));
+
+    geo.yTicks.forEach(function (tick) {
+      svg.appendChild(svgEl("line", { class: "grid", x1: geo.plot.left, x2: geo.plot.right, y1: tick.y, y2: tick.y }));
+      var label = svgEl("text", { class: "ax", x: geo.plot.left - 6, y: tick.y + 4, "text-anchor": "end" });
+      label.textContent = tick.label;
+      svg.appendChild(label);
+    });
+
+    if (geo.alertY !== null) {
+      svg.appendChild(svgEl("line", { class: "ref-alert", x1: geo.plot.left, x2: geo.plot.right, y1: geo.alertY, y2: geo.alertY }));
+      var alertLabel = svgEl("text", { class: "ref-label", x: geo.plot.right, y: geo.alertY - 5, "text-anchor": "end" });
+      alertLabel.textContent = "alert " + formatPln(geo.alertValue);
+      svg.appendChild(alertLabel);
+    }
+    if (geo.lowY !== null) {
+      svg.appendChild(svgEl("line", { class: "ref-low", x1: geo.plot.left, x2: geo.plot.right, y1: geo.lowY, y2: geo.lowY }));
+      var lowLabel = svgEl("text", { class: "ref-label low", x: geo.plot.right, y: geo.lowY + 13, "text-anchor": "end" });
+      lowLabel.textContent = "30-day low " + formatPln(geo.lowValue);
+      svg.appendChild(lowLabel);
+    }
+
+    var d = "";
+    var open = false;
+    geo.steps.forEach(function (seg) {
+      if (seg.price === null) {
+        open = false;
+        return;
+      }
+      if (!open) {
+        d += "M" + seg.x1.toFixed(1) + " " + seg.y.toFixed(1);
+        open = true;
+      } else {
+        d += "V" + seg.y.toFixed(1);
+      }
+      d += "H" + seg.x2.toFixed(1);
+    });
+    if (d) svg.appendChild(svgEl("path", { class: "step", d: d }));
+
+    geo.dots.forEach(function (dot) {
+      var node = svgEl("circle", { class: dot.price === null ? "dot gone" : "dot", cx: dot.x.toFixed(1), cy: dot.y.toFixed(1), r: dot.price === null ? 3 : 3.5 });
+      svg.appendChild(node);
+    });
+
+    geo.xTicks.forEach(function (tick) {
+      var label = svgEl("text", { class: "ax", x: tick.x.toFixed(1), y: geo.height - 6, "text-anchor": tick.anchor });
+      label.textContent = tick.label;
+      svg.appendChild(label);
+    });
+
+    var cursor = svgEl("line", { class: "cursor", x1: 0, x2: 0, y1: geo.plot.top, y2: geo.plot.bottom, visibility: "hidden" });
+    var hl = svgEl("circle", { class: "hl", cx: 0, cy: 0, r: 5, visibility: "hidden" });
+    svg.appendChild(cursor);
+    svg.appendChild(hl);
+
+    var index = geo.dots.length - 1;
+
+    function describe(i) {
+      var dot = geo.dots[i];
+      var sub = formatDayMonthTime(dot.t, series.offset) + (dot.offer ? " · " + dot.offer : "");
+      return { main: dot.price === null ? "Sold out" : formatPln(dot.price), sub: sub };
+    }
+
+    function select(i, rect) {
+      index = i;
+      var dot = geo.dots[i];
+      cursor.setAttribute("x1", dot.x.toFixed(1));
+      cursor.setAttribute("x2", dot.x.toFixed(1));
+      cursor.setAttribute("visibility", "visible");
+      hl.setAttribute("cx", dot.x.toFixed(1));
+      hl.setAttribute("cy", dot.y.toFixed(1));
+      hl.setAttribute("visibility", "visible");
+      var text = describe(i);
+      showTip(rect, text.main, text.sub);
+    }
+
+    function nearest(clientX) {
+      var box = svg.getBoundingClientRect();
+      var px = (clientX - box.left) * (geo.width / box.width);
+      var best = 0;
+      geo.dots.forEach(function (dot, i) {
+        if (Math.abs(dot.x - px) < Math.abs(geo.dots[best].x - px)) best = i;
+      });
+      return best;
+    }
+
+    function clear() {
+      cursor.setAttribute("visibility", "hidden");
+      hl.setAttribute("visibility", "hidden");
+      hideTip();
+    }
+
+    svg.addEventListener("pointermove", function (event) {
+      if (event.pointerType && event.pointerType !== "mouse") return;
+      var i = nearest(event.clientX);
+      select(i, { left: event.clientX, right: event.clientX, top: event.clientY - 6, bottom: event.clientY + 6 });
+    });
+    svg.addEventListener("pointerleave", clear);
+    svg.addEventListener("focus", function () {
+      var box = svg.getBoundingClientRect();
+      var dot = geo.dots[index];
+      var x = box.left + dot.x * (box.width / geo.width);
+      var y = box.top + dot.y * (box.height / geo.height);
+      select(index, { left: x, right: x, top: y - 6, bottom: y + 6 });
+    });
+    svg.addEventListener("blur", clear);
+    svg.addEventListener("keydown", function (event) {
+      var next = null;
+      if (event.key === "ArrowLeft") next = Math.max(0, index - 1);
+      else if (event.key === "ArrowRight") next = Math.min(geo.dots.length - 1, index + 1);
+      else if (event.key === "Home") next = 0;
+      else if (event.key === "End") next = geo.dots.length - 1;
+      else if (event.key === "Escape") { clear(); return; }
+      if (next === null) return;
+      event.preventDefault();
+      var box = svg.getBoundingClientRect();
+      var dot = geo.dots[next];
+      var x = box.left + dot.x * (box.width / geo.width);
+      var y = box.top + dot.y * (box.height / geo.height);
+      select(next, { left: x, right: x, top: y - 6, bottom: y + 6 });
+    });
+    return svg;
+  }
+
+  function drawHistory(box, series, threshold, low, width) {
+    box.textContent = "";
+    var geo = chartGeometry(series, {
+      width: width,
+      height: width < 480 ? 184 : 212,
+      threshold: threshold,
+      low: low
+    });
+    if (!geo) {
+      box.appendChild(el("p", { class: "cell-note", text: "No prices recorded" }));
+      return;
+    }
+    box.appendChild(buildHistorySvg(geo, series));
+  }
+
+  function buildDetail(search, stay, key) {
+    var detail = el("div", { class: "tr-detail", role: "row", "data-detail": key });
+    var box = el("div", { class: "chart-box", role: "cell" });
+    detail.appendChild(box);
+    var series = historySeries(historyRows(search, stay), state.latest.scanned_at);
+    var th = thresholdOf(search);
+    var low = isNumber(stay.recent_lowest) ? stay.recent_lowest : null;
+    attachChart(box, function (width) {
+      drawHistory(box, series, th ? th.total : null, low, width);
+    }, detail);
+    return detail;
+  }
+
+  function findDetail(key) {
+    var nodes = document.querySelectorAll("[data-detail]");
+    for (var i = 0; i < nodes.length; i++) {
+      if (nodes[i].getAttribute("data-detail") === key) return nodes[i];
+    }
+    return null;
+  }
+
+  function setPressed(key, pressed) {
+    var cells = document.querySelectorAll("[data-heat]");
+    for (var i = 0; i < cells.length; i++) {
+      if (cells[i].getAttribute("data-heat") === key) cells[i].setAttribute("aria-pressed", pressed ? "true" : "false");
+    }
+  }
+
+  function toggleRow(search, stay, row) {
+    var key = search.id + "|" + stay.key;
+    var wasOpen = !!state.open[key];
+    var button = row.querySelector(".stay-btn");
+    if (wasOpen) {
+      delete state.open[key];
+      row.classList.remove("open");
+      button.setAttribute("aria-expanded", "false");
+      var old = findDetail(key);
+      if (old) {
+        if (old._ro) old._ro.disconnect();
+        old.remove();
+      }
+    } else {
+      state.open[key] = true;
+      row.classList.add("open");
+      button.setAttribute("aria-expanded", "true");
+      row.insertAdjacentElement("afterend", buildDetail(search, stay, key));
+    }
+    setPressed(key, !wasOpen);
+  }
+
+  function heatClick(search, stay) {
+    var key = search.id + "|" + stay.key;
+    var row = findByAttr("data-row", key);
+    if (row) {
+      toggleRow(search, stay, row);
+      row.scrollIntoView({ block: "nearest" });
+      return;
+    }
+    state.showAll[search.id] = true;
+    state.open[key] = true;
+    renderApp();
+  }
+
+  function copyDates(button, stay, adults) {
+    var text = copyText(stay, adults);
+    function done(label) {
+      button.textContent = label;
+      copyTimers.push(window.setTimeout(function () { button.textContent = "Copy dates"; }, 1600));
+    }
+    try {
+      if (!navigator.clipboard || !navigator.clipboard.writeText) {
+        done("Copy failed");
+        return;
+      }
+      navigator.clipboard.writeText(text).then(function () { done("Copied"); }, function () { done("Copy failed"); });
+    } catch (e) {
+      done("Copy failed");
+    }
+  }
+
+  function chipsFor(stay) {
+    var wrap = el("div", { class: "chips" });
+    stayFlags(stay).forEach(function (flag) {
+      wrap.appendChild(el("span", { class: "chip " + flag.kind, text: flag.label, "data-tip": flag.tip }));
+    });
+    return wrap;
+  }
+
+  function stayRow(search, stay) {
+    var key = search.id + "|" + stay.key;
+    var priced = isPriced(stay);
+    var isOpen = !!state.open[key];
+    var row = el("div", {
+      class: "tr" + (priced ? "" : " sold") + (isOpen ? " open" : ""),
+      role: "row",
+      "data-row": key
+    });
+    var button = el("button", {
+      type: "button",
+      class: "stay-btn",
+      "aria-expanded": isOpen ? "true" : "false",
+      "aria-label": formatStay(stay.check_in, stay.check_out) + (priced ? "" : ", sold out"),
+      "data-focus": "stay|" + key
+    });
+    button.appendChild(document.createTextNode(formatStay(stay.check_in, stay.check_out)));
+    button.appendChild(svgIcon());
+
+    var total;
+    if (priced) {
+      var kids = [];
+      if (isNumber(stay.original) && stay.original > stay.price) {
+        kids.push(el("span", { class: "was", text: formatPln(stay.original) }));
+      }
+      kids.push(el("span", { class: "price", text: formatPln(stay.price) }));
+      total = el("div", { class: "num c-total", role: "cell" }, kids);
+    } else {
+      total = el("div", { class: "num c-total", role: "cell", text: "Sold out" });
+    }
+
+    var night = priced
+      ? el("div", { class: "num c-night", role: "cell" }, [
+          el("span", { text: formatPln(stay.per_night) }),
+          el("span", { class: "unit", text: " a night" })
+        ])
+      : el("div", { class: "c-night num", role: "cell", text: DASH });
+
+    var action = el("div", { class: "c-act", role: "cell" });
+    if (priced) {
+      var url = bookUrl(state.slug, stay, search.adults);
+      if (url) {
+        action.appendChild(el("a", {
+          class: "btn primary",
+          href: url,
+          target: "_blank",
+          rel: "noopener noreferrer",
+          text: "Book",
+          "aria-label": "Book " + formatStay(stay.check_in, stay.check_out) + " on the booking site"
+        }));
+      } else {
+        var copy = el("button", { type: "button", class: "btn copy", text: "Copy dates" });
+        copy.addEventListener("click", function (event) {
+          event.stopPropagation();
+          copyDates(copy, stay, search.adults);
+        });
+        action.appendChild(copy);
+      }
+    }
+
+    row.appendChild(el("div", { class: "c-stay", role: "cell" }, [button]));
+    row.appendChild(total);
+    row.appendChild(night);
+    row.appendChild(el("div", { class: "c-flags", role: "cell" }, [priced ? chipsFor(stay) : null]));
+    row.appendChild(action);
+
+    row.addEventListener("click", function (event) {
+      if (event.target.closest && event.target.closest("a, button.copy")) return;
+      toggleRow(search, stay, row);
+    });
+    return row;
+  }
+
+  function svgIcon() {
+    var svg = svgEl("svg", { viewBox: "0 0 12 12", width: 10, height: 10, fill: "none", stroke: "currentColor", "stroke-width": 1.6, "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true" });
+    svg.appendChild(svgEl("path", { d: "M4 2.5 8 6 4 9.5" }));
+    return svg;
+  }
+
+  function staysCard(search, summary) {
+    var all = orderStays(search.stays);
+    var shown = state.showAll[search.id] ? all : defaultRows(search);
+    var card = el("section", { class: "card stays" });
+    card.appendChild(el("div", { class: "card-head" }, [el("h3", { text: "Stays" })]));
+    var table = el("div", { class: "tbl", role: "table", "aria-label": "Stays for " + search.name });
+    table.appendChild(el("div", { class: "tr head", role: "row" }, [
+      el("div", { role: "columnheader", text: "Stay" }),
+      el("div", { class: "num", role: "columnheader", text: "Total" }),
+      el("div", { class: "num c-night", role: "columnheader", text: "A night" }),
+      el("div", { role: "columnheader", text: "Flags" }),
+      el("div", { role: "columnheader", class: "sr-only", text: "Action" })
+    ]));
+    var body = el("div", { role: "rowgroup" });
+    if (!all.length) {
+      body.appendChild(el("div", { class: "tr empty-row", role: "row" }, [
+        el("div", { class: "cell-note", role: "cell", text: "No stays in this window" })
+      ]));
+    }
+    shown.forEach(function (stay) {
+      body.appendChild(stayRow(search, stay));
+    });
+    table.appendChild(body);
+    card.appendChild(table);
+
+    var hidden = all.length - shown.length;
+    if (state.showAll[search.id] && search.top !== null && search.top !== undefined && summary.priced > 0) {
+      card.appendChild(footer("Show top " + search.top, "showall|" + search.id, search.id));
+    } else if (hidden > 0) {
+      card.appendChild(footer("Show all " + all.length, "showall|" + search.id, search.id));
+    }
+    return card;
+  }
+
+  function footer(label, focusKey, searchId) {
+    var bar = el("div", { class: "tfoot" });
+    var button = el("button", { type: "button", class: "link", text: label, "data-focus": focusKey });
+    button.addEventListener("click", function () {
+      state.showAll[searchId] = !state.showAll[searchId];
+      renderApp();
+    });
+    bar.appendChild(button);
+    return bar;
+  }
+
+  function heatCard(search, ref) {
+    var card = el("section", { class: "card heat" });
+    card.appendChild(el("div", { class: "card-head" }, [el("h3", { text: "By check-in" })]));
+    var th = thresholdOf(search);
+    var nearText = th ? "Within 10% above the alert" : "Within 10% above the cheapest";
+    var midText = th ? "10 to 25% above the alert" : "10 to 25% above the cheapest";
+    var farText = th ? "More than 25% above the alert" : "More than 25% above the cheapest";
+    card.appendChild(el("div", { class: "legend" }, [
+      el("span", { "data-tip": "Priced below the alert threshold" }, [el("i", { class: "cell under", "aria-hidden": "true" }), "Under alert"]),
+      el("span", { "data-tip": nearText }, [el("i", { class: "cell near", "aria-hidden": "true" }), "Near"]),
+      el("span", { "data-tip": midText }, [el("i", { class: "cell mid", "aria-hidden": "true" }), "Mid"]),
+      el("span", { "data-tip": farText }, [el("i", { class: "cell far", "aria-hidden": "true" }), "Far"]),
+      el("span", { "data-tip": "No price for these dates" }, [el("i", { class: "cell sold", "aria-hidden": "true" }), "Sold out"])
+    ]));
+    var layout = calendarLayout(search.stays, ref);
+    var grid = el("div", { class: "cal", role: "group", "aria-label": "Prices by check-in for " + search.name });
+    grid.style.setProperty("--cols", String(Math.max(layout.cols, 1)));
+    layout.months.forEach(function (m) {
+      var node = el("div", { class: "mon", text: m.label, "aria-hidden": "true" });
+      node.style.gridColumn = String(m.col + 2);
+      node.style.gridRow = "1";
+      grid.appendChild(node);
+    });
+    ["M", "T", "W", "T", "F", "S", "S"].forEach(function (letter, i) {
+      var node = el("div", { class: "wd", text: letter, "aria-hidden": "true" });
+      node.style.gridColumn = "1";
+      node.style.gridRow = String(i + 2);
+      grid.appendChild(node);
+    });
+    layout.cells.forEach(function (c) {
+      var key = search.id + "|" + c.stay.key;
+      var label = (isPriced(c.stay) ? formatPln(c.stay.price) : "Sold out") + " · " + formatStay(c.stay.check_in, c.stay.check_out);
+      var cell = el("button", {
+        type: "button",
+        class: "cell " + c.tier,
+        text: String(c.day),
+        "aria-label": label,
+        "aria-pressed": state.open[key] ? "true" : "false",
+        "data-heat": key,
+        "data-focus": "heat|" + key,
+        "data-tip": label
+      });
+      cell.style.gridColumn = String(c.col + 2);
+      cell.style.gridRow = String(c.row + 2);
+      cell.addEventListener("click", function () { heatClick(search, c.stay); });
+      grid.appendChild(cell);
+    });
+    card.appendChild(el("div", { class: "cal-wrap" }, [grid]));
+    return card;
+  }
+
+  function kpi(label, value, sub, tip, extraClass) {
+    return el("div", { class: "kpi", "data-tip": tip }, [
+      el("div", { class: "kpi-label", text: label }),
+      el("div", { class: "kpi-value" + (extraClass ? " " + extraClass : ""), text: value }),
+      el("div", { class: "kpi-sub", text: sub || " " })
+    ]);
+  }
+
+  function kpiRow(search, summary) {
+    var c = summary.cheapest;
+    var th = summary.threshold;
+    var thText = th ? (th.kind === "per_night" ? formatPln(th.amount) + " a night" : formatPln(th.amount)) : "no alert set";
+    var underValue = th && summary.priced > 0 ? String(summary.underCount) : DASH;
+    var underSub = !th ? "no alert set" : summary.priced > 0 ? "of " + summary.priced + " priced" : "no prices";
+    var alertValue = th && c ? formatSignedPct(summary.vsAlertPct) : DASH;
+    var alertGood = th && c && roundHalfUp(summary.vsAlertPct) < 0;
+    var lowValue = c && summary.vsLowPct !== null ? formatSignedPct(summary.vsLowPct) : DASH;
+    var lowGood = c && summary.vsLowPct !== null && roundHalfUp(summary.vsLowPct) < 0;
+    var cheapSub = c ? formatStay(c.check_in, c.check_out) : (summary.total ? "All sold out" : "No stays");
+    return el("div", { class: "kpis" }, [
+      kpi("Cheapest", c ? formatPln(c.price) : DASH, cheapSub, "Cheapest priced stay in this search, total for the whole stay"),
+      kpi("Per night", c ? formatPln(summary.perNight) : DASH, c ? search.nights + (search.nights === 1 ? " night" : " nights") : "", "Cheapest stay's price per night"),
+      kpi("Under alert", underValue, underSub, "Priced stays under the alert threshold"),
+      kpi("vs alert", alertValue, th ? thText : "no alert set", "Cheapest stay against the alert threshold", alertGood ? "good" : ""),
+      kpi("vs 30-day low", lowValue, summary.lowest !== null ? formatPln(summary.lowest) : "no 30-day low", "Cheapest stay against the hotel's lowest price of the last 30 days", lowGood ? "good" : "")
+    ]);
+  }
+
+  function renderPanel(search) {
+    var summary = summarize(search);
+    var ref = heatReference(summary);
+    var hasHeat = Array.isArray(search.stays) && search.stays.length >= 3;
+    var meta = el("div", { class: "meta" }, [
+      el("span", { text: search.nights + (search.nights === 1 ? " night" : " nights") }),
+      el("span", { text: search.adults + (search.adults === 1 ? " adult" : " adults") }),
+      el("span", { text: formatWindow(search.window_start, search.window_end) })
+    ]);
+    if (Array.isArray(search.must_include) && search.must_include.length) {
+      var days = search.must_include.map(function (d) {
+        var key = String(d).toLowerCase();
+        return key.charAt(0).toUpperCase() + key.slice(1);
+      });
+      meta.appendChild(el("span", { text: "Covers " + days.join(", ") }));
+    }
+    if (Array.isArray(search.codes) && search.codes.length) {
+      meta.appendChild(el("span", { text: "Code " + search.codes.join(", ") }));
+    }
+    var section = el("section", { class: "search", "aria-label": search.name });
+    section.appendChild(el("div", { class: "search-head" }, [el("h2", { text: search.name }), meta]));
+    section.appendChild(kpiRow(search, summary));
+    var split = el("div", { class: "split" + (hasHeat ? " has-heat" : "") });
+    split.appendChild(staysCard(search, summary));
+    if (hasHeat) split.appendChild(heatCard(search, ref));
+    section.appendChild(split);
+    return section;
+  }
+
+  function skeleton() {
+    return el("div", { "aria-hidden": "true" }, [
+      el("div", { class: "skel kpi-skel" }),
+      el("div", { class: "skel table-skel" })
+    ]);
+  }
+
+  function emptyCard(title, body, action) {
+    return el("section", { class: "card empty" }, [
+      el("h2", { text: title }),
+      body ? el("p", { text: body }) : null,
+      action || null
+    ]);
+  }
+
+  function retryButton() {
+    var button = el("button", { type: "button", class: "btn", text: "Try again" });
+    button.addEventListener("click", load);
+    return button;
+  }
+
+  function renderBanner() {
+    var banner = $("banner");
+    if (!sampleName) {
+      banner.hidden = true;
+      banner.textContent = "";
+      return;
+    }
+    banner.hidden = false;
+    banner.textContent = "";
+    banner.appendChild(el("span", {}, [el("b", { text: "Sample" }), sampleName]));
+    banner.appendChild(el("a", { href: window.location.pathname, text: "Hide sample" }));
+  }
+
+  function renderNotes() {
+    var notes = $("notes");
+    notes.textContent = "";
+    if (state.historyFailed) {
+      notes.appendChild(el("p", { class: "note", text: "Price history didn't load." }));
+    }
+  }
+
+  function renderApp() {
+    disconnectObservers();
+    gear.classList.toggle("has-slug", !!state.slug);
+    var focusKey = document.activeElement && document.activeElement.getAttribute ? document.activeElement.getAttribute("data-focus") : null;
+    renderBanner();
+    renderNotes();
+    var app = $("app");
+    app.textContent = "";
+    app.setAttribute("aria-busy", state.loading ? "true" : "false");
+
+    if (state.loading) {
+      app.appendChild(skeleton());
+    } else if (state.error) {
+      app.appendChild(emptyCard("Couldn't load the latest data.", "Check the connection, then try again.", retryButton()));
+    } else if (!state.latest) {
+      app.appendChild(emptyCard("No scans yet", "Prices appear here after the first scan."));
+    } else {
+      var searches = Array.isArray(state.latest.searches) ? state.latest.searches : [];
+      if (!searches.length) {
+        app.appendChild(emptyCard("No searches", "The watch file has no searches yet."));
+      } else {
+        var current = searches[0];
+        if (state.active) {
+          for (var i = 0; i < searches.length; i++) {
+            if (searches[i].id === state.active) current = searches[i];
+          }
+        }
+        if (searches.length > 2) {
+          var seg = el("div", { class: "seg", role: "group", "aria-label": "Searches" });
+          searches.forEach(function (s) {
+            var tab = el("button", {
+              type: "button",
+              "aria-pressed": s === current ? "true" : "false",
+              text: s.name,
+              "data-tip": s.name,
+              "data-focus": "tab|" + s.id
+            });
+            tab.addEventListener("click", function () {
+              state.active = s.id;
+              renderApp();
+            });
+            seg.appendChild(tab);
+          });
+          app.appendChild(seg);
+          app.appendChild(renderPanel(current));
+        } else {
+          searches.forEach(function (s) { app.appendChild(renderPanel(s)); });
+        }
+      }
+    }
+    updatePill();
+    if (focusKey) {
+      var target = findByAttr("data-focus", focusKey);
+      if (target) target.focus({ preventScroll: true });
+    }
+  }
+
+  function load() {
+    state.loading = true;
+    state.error = false;
+    state.historyFailed = false;
+    renderApp();
+    fetch(LATEST_URL, { cache: "no-cache" })
+      .then(function (res) {
+        if (res.status === 404) return null;
+        if (!res.ok) throw new Error("latest " + res.status);
+        return res.json();
+      })
+      .then(function (latest) {
+        if (latest === null) {
+          state.latest = null;
+          return;
+        }
+        if (!latest || typeof latest !== "object" || !Array.isArray(latest.searches)) {
+          throw new Error("latest has no searches");
+        }
+        state.latest = latest;
+        return fetch(HISTORY_URL, { cache: "no-cache" })
+          .then(function (res) { return res.ok ? res.json() : {}; })
+          .then(function (history) {
+            state.history = history && typeof history === "object" ? history : {};
+          })
+          .catch(function () {
+            state.history = {};
+            state.historyFailed = true;
+          });
+      })
+      .catch(function () {
+        state.latest = null;
+        state.error = true;
+      })
+      .then(function () {
+        state.loading = false;
+        renderApp();
+      });
+  }
+
+  saveSlug(readSlug());
+  window.setInterval(updatePill, 60000);
+  renderApp();
+  load();
+})();
 </script>
 </body>
 </html>
