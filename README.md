@@ -6,7 +6,7 @@ Stay Watch checks one hotel's prices on a schedule, emails you when a stay match
 
 Searches and tracked trips are edited on the dashboard. One-time setup is a fine-grained GitHub token with **Contents: read and write** on this repository only, pasted into the dashboard's settings.
 
-Hand-editing `docs/config.json` is the fallback. Saving, from the dashboard or by committing that file on `main`, starts a scan in about 2 minutes. The scheduled scan still runs at minute 17 of every third hour.
+Hand-editing `docs/config.json` is the fallback. Saving, from the dashboard or by committing that file on `main`, starts a scan within a minute. The dashboard shows the new results to you about 3 minutes after you save; the public page catches up a few minutes later. The scheduled scan still runs at minute 17 of every third hour.
 
 A search name is optional. Leave it null and the scan names the search from its dates, for example `1 Dec – 8 Dec`.
 
