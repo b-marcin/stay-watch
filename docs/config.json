@@ -45,7 +45,7 @@
       "check_out": "2027-01-04",
       "adults": 2,
       "codes": [],
-      "notify": "any",
+      "notify": "drop",
       "below": null,
       "added": "2026-11-09"
     }
