@@ -129,6 +129,8 @@ def test_config_push_queues_behind_the_same_scan_group():
     assert "- docs/config.json" in push
     assert "group: stay-watch" in text
     assert "cancel-in-progress: false" in text
+    checkout = text.split("uses: actions/checkout@v4", 1)[1].split("uses: actions/setup-python@v5", 1)[0]
+    assert "ref: ${{ github.ref_name }}" in checkout
 
 
 def test_scan_workflow_is_scheduled_and_does_not_print_secrets():
