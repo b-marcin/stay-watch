@@ -90,7 +90,7 @@ def _search(args: argparse.Namespace) -> int:
     )
     client = _client(args.fixtures, secrets)
     try:
-        execute_search(search, secrets, client, args.email)
+        execute_search(search, secrets, client, args.email, now_warsaw().date())
     except Exception as exc:
         print(f"search failed: {public_error(exc, secrets.slug)}", file=sys.stderr)
         return 1

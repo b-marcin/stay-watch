@@ -3,12 +3,14 @@ import os
 import shutil
 import subprocess
 import sys
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from stay_watch.config import load_secrets
+from stay_watch.config import load_secrets, load_watch
+from stay_watch.model import Catalog
 from stay_watch.profitroom import FixtureClient
-from stay_watch.service import execute_search
+from stay_watch.service import execute_scan, execute_search
+from stay_watch.store import Store
 from tests.support import make_search
 
 REPO = Path(__file__).resolve().parents[1]
@@ -240,3 +242,80 @@ def test_search_prints_a_table_and_does_not_touch_the_store(tmp_path):
     assert "Oferta bezzwrotna" in proc.stdout
     assert "booking.profitroom.com/pl/examplehotel/" in proc.stdout
     assert not (tmp_path / "docs").exists()
+
+
+PAST_TOML = """
+[defaults]
+adults = 2
+nights = 2
+must_include = ["sat"]
+top = 3
+codes = []
+
+[digest]
+weekday = "off"
+
+[[search]]
+id = "old"
+name = "Old weekends"
+from = "2026-01-01"
+to = "2026-02-01"
+  [[search.alert]]
+  below = 1300
+"""
+
+
+def test_past_window_finishes_with_no_stays_and_is_not_a_failure(tmp_path, capsys):
+    write_watch(tmp_path, PAST_TOML)
+    data = tmp_path / "docs" / "data"
+    data.mkdir(parents=True)
+    (data / "latest.json").write_text(
+        json.dumps({"searches": [{"stays": [{"price": 100}]}]}),
+        encoding="utf-8",
+    )
+    secrets = load_secrets(
+        {
+            "HOTEL_SLUG": "examplehotel",
+            "HOTEL_NAME_TERMS": "Example Hotel",
+            "DRY_RUN": "1",
+            "ALERT_TO": "guest@example.com",
+        }
+    )
+    fetched = []
+
+    class Client:
+        def catalog(self):
+            return Catalog({}, {})
+
+        def quotes(self, stay, adults, codes):
+            fetched.append(stay.key)
+            raise AssertionError("a past stay was fetched")
+
+    now = datetime(2026, 11, 9, 10, 0, tzinfo=timezone(timedelta(hours=1)))
+    execute_scan(load_watch(tmp_path / "watch.toml"), secrets, Store(tmp_path / "docs", secrets.terms), Client(), now)
+    assert fetched == []
+    assert "scan failed" not in capsys.readouterr().out
+    state = json.loads((data / "state.json").read_text(encoding="utf-8"))
+    assert state["consecutive_failures"] == 0
+    latest = json.loads((data / "latest.json").read_text(encoding="utf-8"))
+    assert latest["searches"][0]["stays"] == []
+
+
+def test_search_of_a_past_window_prints_no_stays(capsys):
+    secrets = load_secrets({"HOTEL_SLUG": "examplehotel", "DRY_RUN": "1", "ALERT_TO": "guest@example.com"})
+
+    class Client:
+        def catalog(self):
+            return Catalog({}, {})
+
+        def quotes(self, stay, adults, codes):
+            raise AssertionError("a past stay was fetched")
+
+    execute_search(
+        make_search(window_start=date(2026, 1, 1), window_end=date(2026, 2, 1)),
+        secrets,
+        Client(),
+        False,
+        date(2026, 11, 9),
+    )
+    assert capsys.readouterr().out == "No stays in this window.\n"

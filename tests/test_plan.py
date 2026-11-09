@@ -52,6 +52,24 @@ def test_window_edges_drop_stays_that_start_too_early_or_end_too_late():
     assert keys(only_friday) == ["2026-12-04_2026-12-06"]
 
 
+def test_today_keeps_that_check_in_and_drops_earlier_ones():
+    search = make_search(
+        window_start=date(2026, 12, 1),
+        window_end=date(2026, 12, 8),
+        nights=2,
+        must_include=frozenset(),
+    )
+    found = [stay.check_in for stay in candidate_stays(search, date(2026, 12, 4))]
+    assert found[0] == date(2026, 12, 4)
+    assert date(2026, 12, 3) not in found
+    assert found[-1] == date(2026, 12, 6)
+
+
+def test_a_window_that_is_already_over_has_no_stays():
+    search = make_search(window_start=date(2026, 12, 1), window_end=date(2026, 12, 8))
+    assert candidate_stays(search, date(2026, 12, 20)) == []
+
+
 def test_empty_must_include_keeps_every_check_in():
     search = make_search(
         window_start=date(2026, 12, 4),

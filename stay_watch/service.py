@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import re
-from datetime import datetime
+from datetime import date, datetime
 
 from stay_watch.alerts import evaluate
 from stay_watch.config import Secrets, WatchConfig
@@ -37,8 +37,9 @@ def execute_scan(
     client: ProfitroomClient | FixtureClient,
     now: datetime,
 ) -> None:
+    today = now.date()
     catalog = client.catalog()
-    jobs = _jobs(config.searches)
+    jobs = _jobs(config.searches, today)
     fetched: dict[tuple[str, int, tuple[str, ...]], list] = {}
     any_quote = False
     for stay, adults, codes in jobs:
@@ -57,7 +58,7 @@ def execute_scan(
     hits = []
     observations: dict[str, list] = {}
     for search in config.searches:
-        stays = candidate_stays(search)
+        stays = candidate_stays(search, today)
         quotes_by_key = {
             stay.key: fetched[(stay.key, search.adults, search.codes)]
             for stay in stays
@@ -116,9 +117,15 @@ def execute_scan(
     print(f"scan ok: {len(config.searches)} searches, {stay_count} stays, {len(hits)} alerts")
 
 
-def execute_search(search: Search, secrets: Secrets, client: ProfitroomClient | FixtureClient, email: bool) -> None:
+def execute_search(
+    search: Search,
+    secrets: Secrets,
+    client: ProfitroomClient | FixtureClient,
+    email: bool,
+    today: date | None = None,
+) -> None:
     catalog = client.catalog()
-    stays = candidate_stays(search)
+    stays = candidate_stays(search, today)
     quotes_by_key = {stay.key: client.quotes(stay, search.adults, search.codes) for stay in stays}
     ranked = rank_search(search, stays, quotes_by_key, catalog)
     # Actions logs are public. Offer names contain the hotel name, and GitHub
@@ -162,11 +169,11 @@ def public_error(exc: BaseException, slug: str) -> str:
     return text[:500]
 
 
-def _jobs(searches: tuple[Search, ...]) -> list[tuple[Stay, int, tuple[str, ...]]]:
+def _jobs(searches: tuple[Search, ...], today: date | None = None) -> list[tuple[Stay, int, tuple[str, ...]]]:
     jobs: list[tuple[Stay, int, tuple[str, ...]]] = []
     seen: set[tuple[str, int, tuple[str, ...]]] = set()
     for search in searches:
-        for stay in candidate_stays(search):
+        for stay in candidate_stays(search, today):
             key = (stay.key, search.adults, search.codes)
             if key in seen:
                 continue
