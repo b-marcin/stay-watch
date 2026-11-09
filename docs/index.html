@@ -193,8 +193,8 @@
   .seg button[aria-pressed="true"] {
     background: var(--card); color: var(--ink); box-shadow: var(--shadow-card), 0 0 0 1px var(--line);
   }
-  .seg.mini { margin: 0; height: 30px; padding: 2px; }
-  .seg.mini button { height: 26px; padding: 0 8px; font-size: 12.5px; }
+  .seg.mini { margin: 0; height: 30px; padding: 2px; flex: none; }
+  .seg.mini button { flex: 0 0 auto; height: 26px; padding: 0 9px; font-size: 12.5px; white-space: nowrap; }
 
   /* Tracked trips */
   .sec-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; margin: 0 0 10px; }
@@ -545,10 +545,10 @@
             <button class="btn primary" id="slugSave" type="button">Save</button>
           </div>
         </div>
-        <div class="pop-sec">
+        <form class="pop-sec" id="ghForm" autocomplete="off">
           <h4>GitHub</h4>
           <label for="repo">Repository</label>
-          <input id="repo" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="201" placeholder="owner/repo" aria-describedby="repoHint">
+          <input id="repo" name="repo" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="201" placeholder="owner/repo" aria-describedby="repoHint">
           <p class="hint" id="repoHint">Filled from the page address</p>
           <div id="tokenOn" hidden>
             <p class="lbl">Token</p>
@@ -556,11 +556,11 @@
           </div>
           <div id="tokenOff">
             <label for="token">Fine-grained token</label>
-            <input id="token" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="200" placeholder="github_pat_…">
+            <input id="token" name="token" type="password" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="200" placeholder="github_pat_…">
           </div>
           <div class="actions">
             <button class="btn" id="ghTest" type="button">Test</button>
-            <button class="btn primary" id="ghSave" type="button">Connect</button>
+            <button class="btn primary" id="ghSave" type="submit">Connect</button>
           </div>
           <p class="form-status" id="ghStatus" role="status" hidden></p>
           <ol class="howto">
@@ -568,7 +568,7 @@
             <li>Repository access: this repository only.</li>
             <li>Permissions: Contents, Read and write.</li>
           </ol>
-        </div>
+        </form>
       </div>
     </div>
   </header>
@@ -1860,6 +1860,10 @@ function encodeConfig(config) {
     renderApp();
   });
 
+  $("ghForm").addEventListener("submit", function (event) {
+    event.preventDefault();
+  });
+
   ghTest.addEventListener("click", async function () {
     var repo = repoInput.value.trim();
     if (!isValidRepo(repo)) {
@@ -2554,6 +2558,7 @@ function encodeConfig(config) {
 
     var belowInput = el("input", {
       type: "number",
+      name: "below-" + cfg.id,
       inputmode: "numeric",
       min: "1",
       step: "1",
@@ -2726,6 +2731,7 @@ function encodeConfig(config) {
 
     nameInput = el("input", {
       type: "text",
+      name: "name",
       maxlength: "60",
       autocomplete: "off",
       spellcheck: "false",
@@ -2736,7 +2742,7 @@ function encodeConfig(config) {
     nameInput.addEventListener("input", function () { d.name = nameInput.value; });
 
     function dateInput(key, label, errNode) {
-      var input = el("input", { type: "date", min: today, "data-focus": "ed|" + key, "aria-label": label });
+      var input = el("input", { type: "date", name: key, min: today, "data-focus": "ed|" + key, "aria-label": label });
       input.value = d[key];
       function changed() {
         d[key] = input.value;
@@ -2804,7 +2810,7 @@ function encodeConfig(config) {
     topWrap.appendChild(el("span", { class: "field-label", text: "Stays to list" }));
     topWrap.appendChild(topSeg);
     if (!d.topAll) {
-      var topInput = el("input", { type: "number", inputmode: "numeric", min: "1", step: "1", max: String(MAX_TOP), "aria-label": "Stays to list, number", "data-focus": "ed|top|value" });
+      var topInput = el("input", { type: "number", name: "top", inputmode: "numeric", min: "1", step: "1", max: String(MAX_TOP), "aria-label": "Stays to list, number", "data-focus": "ed|top|value" });
       topInput.value = d.top;
       topInput.addEventListener("input", function () { d.top = topInput.value; refresh(); });
       topWrap.appendChild(topInput);
@@ -2813,7 +2819,7 @@ function encodeConfig(config) {
 
     var alertsBox = el("div", { class: "alerts" });
     d.alerts.forEach(function (row, index) {
-      var select = el("select", { "aria-label": "Alert " + (index + 1) + " kind", "data-focus": "ed|kind|" + index });
+      var select = el("select", { name: "kind-" + index, "aria-label": "Alert " + (index + 1) + " kind", "data-focus": "ed|kind|" + index });
       ALERT_KINDS.forEach(function (kind) {
         var opt = el("option", { value: kind, text: ALERT_LABEL[kind] });
         if (kind === row.kind) opt.selected = true;
@@ -2829,6 +2835,7 @@ function encodeConfig(config) {
         var isPercent = row.kind === "drop_pct";
         var valueInput = el("input", {
           type: "number",
+          name: "value-" + index,
           inputmode: "numeric",
           min: "1",
           step: "1",
