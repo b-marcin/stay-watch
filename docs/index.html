@@ -440,11 +440,11 @@ function formatCompactPln(grosze) {
   return groupDigits(Math.round(grosze / 100));
 }
 
-/* Axis labels: 1200 -> "1,2k", 950 -> "950". */
-function formatAxisPln(grosze) {
+/* Axis labels: 1200 -> "1,2k" and 950 -> "950" when compact; with compact off, 1200 -> "1 200". Compact applies
+   only to whole hundreds, and pickAxis allows it only on whole-hundred steps, so neighbours never round together. */
+function formatAxisPln(grosze, compact) {
   var pln = Math.round(grosze / 100);
-  /* Compact only on whole hundreds, so 1 250 and 1 300 never both read "1,3k". */
-  if (Math.abs(pln) >= 1000 && pln % 100 === 0) {
+  if (compact !== false && Math.abs(pln) >= 1000 && pln % 100 === 0) {
     return (pln / 1000).toString().replace(".", ",") + "k";
   }
   return groupDigits(pln);
@@ -715,6 +715,16 @@ function pickStep(range) {
   return CHART_STEPS[CHART_STEPS.length - 1];
 }
 
+/* Tick step and label style for one y axis. The style follows the step: whole-hundred steps (100 zł and up) may
+   read "1,3k"; finer steps (50 zł, 250 zł) read "1 250", "1 300", so every tick reads differently. */
+function pickAxis(lo, hi, pad) {
+  var step = pickStep(hi - lo + 2 * pad);
+  var yMin = Math.floor((lo - pad) / step) * step;
+  var yMax = Math.ceil((hi + pad) / step) * step;
+  if (yMax <= yMin) yMax = yMin + step;
+  return { step: step, yMin: yMin, yMax: yMax, compact: step % 10000 === 0 };
+}
+
 /* Geometry for the step chart. Returns null when there is no price to draw. */
 function chartGeometry(series, opts) {
   var pts = series.points || [];
@@ -731,10 +741,10 @@ function chartGeometry(series, opts) {
   var span = hi - lo;
   if (span <= 0) span = Math.max(hi, 1) * 0.1;
   var pad = span * 0.12;
-  var step = pickStep(hi - lo + 2 * pad);
-  var yMin = Math.floor((lo - pad) / step) * step;
-  var yMax = Math.ceil((hi + pad) / step) * step;
-  if (yMax <= yMin) yMax = yMin + step;
+  var axis = pickAxis(lo, hi, pad);
+  var step = axis.step;
+  var yMin = axis.yMin;
+  var yMax = axis.yMax;
   var t0 = pts[0].t;
   var t1 = series.end;
   if (t1 <= t0) t1 = t0 + 3600000;
@@ -752,7 +762,7 @@ function chartGeometry(series, opts) {
 
   var yTicks = [];
   for (var v = yMin; v <= yMax; v += step) {
-    yTicks.push({ y: yOf(v), label: formatAxisPln(v) });
+    yTicks.push({ y: yOf(v), label: formatAxisPln(v, axis.compact) });
   }
 
   var xTicks = [];
