@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "defaults": {
+    "adults": 2,
+    "nights": 2,
+    "must_include": [
+      "sat"
+    ],
+    "top": 3,
+    "codes": []
+  },
+  "digest": {
+    "weekday": "mon"
+  },
+  "searches": [
+    {
+      "id": "winter-weekends",
+      "name": null,
+      "from": "2026-12-01",
+      "to": "2027-03-01",
+      "nights": 2,
+      "must_include": [
+        "sat"
+      ],
+      "adults": 2,
+      "top": 3,
+      "codes": [],
+      "offers": [],
+      "rooms": [],
+      "alerts": [
+        {
+          "kind": "below",
+          "amount": 1300
+        },
+        {
+          "kind": "below_recent_lowest"
+        }
+      ]
+    },
+    {
+      "id": "late-january",
+      "name": "Late January",
+      "from": "2027-01-15",
+      "to": "2027-02-20",
+      "nights": 2,
+      "must_include": [
+        "fri",
+        "sat"
+      ],
+      "adults": 2,
+      "top": 3,
+      "codes": [],
+      "offers": [],
+      "rooms": [],
+      "alerts": [
+        {
+          "kind": "per_night_below",
+          "amount": 700
+        }
+      ]
+    }
+  ],
+  "tracked": [
+    {
+      "id": "2026-12-19_2026-12-21_a2",
+      "check_in": "2026-12-19",
+      "check_out": "2026-12-21",
+      "adults": 2,
+      "codes": [],
+      "notify": "any",
+      "below": null,
+      "added": "2026-11-09"
+    }
+  ]
+}

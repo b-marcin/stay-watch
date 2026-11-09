@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "defaults": {
+    "adults": 2,
+    "nights": 2,
+    "must_include": [
+      "sat"
+    ],
+    "top": 3,
+    "codes": []
+  },
+  "digest": {
+    "weekday": "mon"
+  },
+  "searches": [
+    {
+      "id": "winter-weekends",
+      "name": null,
+      "from": "2026-12-01",
+      "to": "2027-03-01",
+      "nights": 2,
+      "must_include": [
+        "sat"
+      ],
+      "adults": 2,
+      "top": 3,
+      "codes": [],
+      "offers": [],
+      "rooms": [],
+      "alerts": [
+        {
+          "kind": "below",
+          "amount": 1300
+        },
+        {
+          "kind": "per_night_below",
+          "amount": 600
+        },
+        {
+          "kind": "drop_pct",
+          "pct": 10
+        },
+        {
+          "kind": "below_recent_lowest"
+        },
+        {
+          "kind": "discounted"
+        }
+      ]
+    }
+  ],
+  "tracked": []
+}

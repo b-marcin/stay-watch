@@ -3,7 +3,8 @@
   "searches": [
     {
       "id": "winter-weekends",
-      "name": "Winter weekends",
+      "name": "1 Dec 2026 – 1 Mar 2027",
+      "custom_name": false,
       "window_start": "2026-12-01",
       "window_end": "2027-03-01",
       "nights": 2,
@@ -131,6 +132,7 @@
     {
       "id": "late-december",
       "name": "Late December",
+      "custom_name": true,
       "window_start": "2026-12-27",
       "window_end": "2027-01-02",
       "nights": 3,
@@ -231,6 +233,7 @@
     {
       "id": "long-name",
       "name": "A very long search name, to see how the heading wraps on a phone and on a wide screen",
+      "custom_name": true,
       "window_start": "2027-02-12",
       "window_end": "2027-02-28",
       "nights": 2,
@@ -303,6 +306,7 @@
     {
       "id": "empty-window",
       "name": "Empty window",
+      "custom_name": true,
       "window_start": "2027-04-01",
       "window_end": "2027-04-03",
       "nights": 2,
@@ -322,6 +326,7 @@
     {
       "id": "sold-week",
       "name": "Sold out week",
+      "custom_name": true,
       "window_start": "2027-03-05",
       "window_end": "2027-03-21",
       "nights": 2,
@@ -398,5 +403,6 @@
         }
       ]
     }
-  ]
+  ],
+  "tracked": []
 }

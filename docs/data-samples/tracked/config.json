@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "defaults": {
+    "adults": 2,
+    "nights": 2,
+    "must_include": [
+      "sat"
+    ],
+    "top": 3,
+    "codes": []
+  },
+  "digest": {
+    "weekday": "mon"
+  },
+  "searches": [
+    {
+      "id": "winter-weekends",
+      "name": null,
+      "from": "2026-12-01",
+      "to": "2027-03-01",
+      "nights": 2,
+      "must_include": [
+        "sat"
+      ],
+      "adults": 2,
+      "top": 3,
+      "codes": [],
+      "offers": [],
+      "rooms": [],
+      "alerts": [
+        {
+          "kind": "below",
+          "amount": 1300
+        },
+        {
+          "kind": "below_recent_lowest"
+        }
+      ]
+    }
+  ],
+  "tracked": [
+    {
+      "id": "2026-12-19_2026-12-21_a2",
+      "check_in": "2026-12-19",
+      "check_out": "2026-12-21",
+      "adults": 2,
+      "codes": [],
+      "notify": "any",
+      "below": 950,
+      "added": "2026-11-02"
+    },
+    {
+      "id": "2026-12-18_2026-12-20_a2",
+      "check_in": "2026-12-18",
+      "check_out": "2026-12-20",
+      "adults": 2,
+      "codes": [],
+      "notify": "drop",
+      "below": null,
+      "added": "2026-11-04"
+    },
+    {
+      "id": "2026-12-25_2026-12-27_a2",
+      "check_in": "2026-12-25",
+      "check_out": "2026-12-27",
+      "adults": 2,
+      "codes": [],
+      "notify": "any",
+      "below": null,
+      "added": "2026-11-03"
+    },
+    {
+      "id": "2027-01-16_2027-01-18_a2",
+      "check_in": "2027-01-16",
+      "check_out": "2027-01-18",
+      "adults": 2,
+      "codes": [],
+      "notify": "any",
+      "below": null,
+      "added": "2026-11-09"
+    }
+  ]
+}

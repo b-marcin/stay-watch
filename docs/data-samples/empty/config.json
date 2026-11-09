@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "defaults": {
+    "adults": 2,
+    "nights": 2,
+    "must_include": [
+      "sat"
+    ],
+    "top": 3,
+    "codes": []
+  },
+  "digest": {
+    "weekday": "mon"
+  },
+  "searches": [],
+  "tracked": []
+}

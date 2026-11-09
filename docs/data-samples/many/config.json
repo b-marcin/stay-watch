@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "defaults": {
+    "adults": 2,
+    "nights": 2,
+    "must_include": [
+      "sat"
+    ],
+    "top": 3,
+    "codes": []
+  },
+  "digest": {
+    "weekday": "mon"
+  },
+  "searches": [
+    {
+      "id": "winter-weekends",
+      "name": null,
+      "from": "2026-12-01",
+      "to": "2027-03-01",
+      "nights": 2,
+      "must_include": [
+        "sat"
+      ],
+      "adults": 2,
+      "top": 3,
+      "codes": [],
+      "offers": [],
+      "rooms": [],
+      "alerts": [
+        {
+          "kind": "below",
+          "amount": 1300
+        },
+        {
+          "kind": "below_recent_lowest"
+        }
+      ]
+    },
+    {
+      "id": "late-december",
+      "name": "Late December",
+      "from": "2026-12-27",
+      "to": "2027-01-02",
+      "nights": 3,
+      "must_include": [],
+      "adults": 2,
+      "top": 2,
+      "codes": [],
+      "offers": [],
+      "rooms": [],
+      "alerts": [
+        {
+          "kind": "per_night_below",
+          "amount": 500
+        }
+      ]
+    },
+    {
+      "id": "long-name",
+      "name": "A very long search name, to see how the heading wraps on a phone and on a wide screen",
+      "from": "2027-02-12",
+      "to": "2027-02-28",
+      "nights": 2,
+      "must_include": [],
+      "adults": 2,
+      "top": null,
+      "codes": [],
+      "offers": [],
+      "rooms": [],
+      "alerts": []
+    },
+    {
+      "id": "empty-window",
+      "name": "Empty window",
+      "from": "2027-04-01",
+      "to": "2027-04-03",
+      "nights": 2,
+      "must_include": [],
+      "adults": 2,
+      "top": 3,
+      "codes": [],
+      "offers": [],
+      "rooms": [],
+      "alerts": [
+        {
+          "kind": "below",
+          "amount": 1000
+        }
+      ]
+    },
+    {
+      "id": "sold-week",
+      "name": "Sold out week",
+      "from": "2027-03-05",
+      "to": "2027-03-21",
+      "nights": 2,
+      "must_include": [
+        "sat"
+      ],
+      "adults": 2,
+      "top": 3,
+      "codes": [],
+      "offers": [],
+      "rooms": [],
+      "alerts": [
+        {
+          "kind": "below",
+          "amount": 1200
+        }
+      ]
+    }
+  ],
+  "tracked": []
+}

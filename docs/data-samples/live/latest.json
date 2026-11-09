@@ -3,7 +3,8 @@
   "searches": [
     {
       "id": "winter-weekends",
-      "name": "Winter weekends",
+      "name": "1 Dec 2026 – 1 Mar 2027",
+      "custom_name": false,
       "window_start": "2026-12-01",
       "window_end": "2027-03-01",
       "nights": 2,
@@ -537,6 +538,36 @@
           "cancel": null
         }
       ]
+    }
+  ],
+  "tracked": [
+    {
+      "id": "2026-12-19_2026-12-21_a2",
+      "key": "2026-12-19_2026-12-21",
+      "check_in": "2026-12-19",
+      "check_out": "2026-12-21",
+      "nights": 2,
+      "adults": 2,
+      "codes": [],
+      "notify": "any",
+      "below": null,
+      "added": "2026-11-09",
+      "history_key": "adults=2;codes=;offers=;rooms=",
+      "sold_out": false,
+      "offer_count": 3,
+      "price": 99300,
+      "per_night": 49650,
+      "recent_lowest": 94200,
+      "original": null,
+      "rooms_left": 30,
+      "offer_name": "Oferta bezzwrotna",
+      "room_name": "Standard Room",
+      "meal_plan": "breakfast",
+      "cancel": "non-refundable",
+      "previous_price": null,
+      "first_price": 99300,
+      "lowest_seen": 99300,
+      "last_notified_price": 99300
     }
   ]
 }

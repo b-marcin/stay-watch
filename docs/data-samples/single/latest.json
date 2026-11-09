@@ -3,7 +3,8 @@
   "searches": [
     {
       "id": "winter-weekends",
-      "name": "Winter weekends",
+      "name": "1 Dec 2026 – 1 Mar 2027",
+      "custom_name": false,
       "window_start": "2026-12-01",
       "window_end": "2027-03-01",
       "nights": 2,
@@ -44,5 +45,6 @@
         }
       ]
     }
-  ]
+  ],
+  "tracked": []
 }
