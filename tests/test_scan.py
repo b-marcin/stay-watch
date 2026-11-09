@@ -3,11 +3,15 @@ import os
 import shutil
 import subprocess
 import sys
+
+import pytest
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from stay_watch.config import load_secrets, load_watch
+from stay_watch.guard import PublicFilesError
 from stay_watch.model import Catalog
+from stay_watch.notify import MailError
 from stay_watch.profitroom import FixtureClient
 from stay_watch.service import execute_scan, execute_search
 from stay_watch.store import Store
@@ -319,3 +323,47 @@ def test_search_of_a_past_window_prints_no_stays(capsys):
         date(2026, 11, 9),
     )
     assert capsys.readouterr().out == "No stays in this window.\n"
+
+
+def _secrets():
+    return load_secrets(
+        {
+            "HOTEL_SLUG": "examplehotel",
+            "HOTEL_NAME_TERMS": "Example Hotel",
+            "DRY_RUN": "1",
+            "ALERT_TO": "guest@example.com",
+        }
+    )
+
+
+def _monday():
+    return datetime(2026, 11, 9, 10, 0, tzinfo=timezone(timedelta(hours=1)))
+
+
+def test_a_public_name_blocks_email(tmp_path, monkeypatch):
+    write_watch(tmp_path, ALERT_TOML)
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "leak.txt").write_text("Example Hotel\n", encoding="utf-8")
+    calls = []
+    monkeypatch.setattr("stay_watch.service.deliver", lambda *args, **kwargs: calls.append("sent"))
+    with pytest.raises(PublicFilesError):
+        execute_scan(load_watch(tmp_path / "watch.toml"), _secrets(), Store(tmp_path / "docs", _secrets().terms), FixtureClient(FIXTURES), _monday())
+    assert calls == []
+
+
+def test_alert_state_survives_a_later_mail_failure(tmp_path, monkeypatch):
+    write_watch(tmp_path, ALERT_TOML.replace('weekday = "off"', 'weekday = "mon"'))
+    calls = []
+
+    def deliver(secrets, message):
+        calls.append(str(message["Subject"]))
+        if len(calls) == 2:
+            raise MailError("digest failed")
+
+    monkeypatch.setattr("stay_watch.service.deliver", deliver)
+    with pytest.raises(MailError):
+        execute_scan(load_watch(tmp_path / "watch.toml"), _secrets(), Store(tmp_path / "docs", _secrets().terms), FixtureClient(FIXTURES), _monday())
+    state = json.loads((tmp_path / "docs" / "data" / "state.json").read_text(encoding="utf-8"))
+    assert "2026-12-04_2026-12-06" in json.dumps(state["alerts_sent"])
+    assert state.get("last_digest_date") is None

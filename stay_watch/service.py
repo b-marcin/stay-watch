@@ -6,6 +6,7 @@ from datetime import date, datetime
 
 from stay_watch.alerts import evaluate
 from stay_watch.config import Secrets, WatchConfig
+from stay_watch.guard import PublicFilesError, check_tree
 from stay_watch.model import Search, Stay
 from stay_watch.notify import (
     MailError,
@@ -95,23 +96,27 @@ def execute_scan(
     for group, rows in observations.items():
         new_history = update_history(new_history, group, rows, now.isoformat(timespec="seconds"), now.date())
 
+    store.save_latest(latest)
+    store.save_history(new_history)
+    findings = check_tree(store.docs, secrets.terms)
+    if findings:
+        raise PublicFilesError(findings[0])
+
     searches = {search.id: search for search in config.searches}
     if hits:
         deliver(secrets, build_alert_message(secrets, hits, searches, catalog))
-    digest_sent = False
+        state["alerts_sent"] = sent
+        store.save_state(state)
     if _digest_due(config, state, now) and config.searches:
         sections = [(search, priced_results(ranked, search.top)) for search, ranked in ranked_by_search]
         deliver(secrets, build_digest_message(secrets, sections, catalog))
-        digest_sent = True
+        state["last_digest_date"] = now.date().isoformat()
+        store.save_state(state)
     if old_failures >= 3:
         deliver(secrets, build_recovered_message(secrets))
 
     state["alerts_sent"] = sent
     state["consecutive_failures"] = 0
-    if digest_sent:
-        state["last_digest_date"] = now.date().isoformat()
-    store.save_latest(latest)
-    store.save_history(new_history)
     store.save_state(state)
     stay_count = sum(len(ranked) for _, ranked in ranked_by_search)
     print(f"scan ok: {len(config.searches)} searches, {stay_count} stays, {len(hits)} alerts")
