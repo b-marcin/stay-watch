@@ -22,7 +22,7 @@ def main(argv: list[str] | None = None) -> int:
 
     scan = sub.add_parser("scan", help="fetch prices, update the dashboard, send alerts")
     scan.add_argument("--fixtures", type=Path)
-    scan.add_argument("--config", type=Path, default=Path("watch.toml"))
+    scan.add_argument("--config", type=Path, default=Path("docs/config.json"))
     scan.add_argument("--docs", type=Path, default=Path("docs"))
     scan.add_argument("--now", default=None, help=argparse.SUPPRESS)
 

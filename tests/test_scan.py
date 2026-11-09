@@ -45,6 +45,8 @@ def run_cli(tmp_path, args, extra_env=None):
     command = list(args)
     if command and command[0] in {"scan", "search"} and "--now" not in command:
         command = [command[0], "--now", "2026-11-09T10:00:00+01:00", *command[1:]]
+    if command and command[0] == "scan" and "--config" not in command:
+        command.extend(["--config", "config.json"])
     return subprocess.run(
         [PY, "-m", "stay_watch", *command],
         cwd=tmp_path,
@@ -56,47 +58,39 @@ def run_cli(tmp_path, args, extra_env=None):
 
 
 def write_watch(tmp_path, text):
-    (tmp_path / "watch.toml").write_text(text, encoding="utf-8")
+    (tmp_path / "config.json").write_text(text, encoding="utf-8")
 
 
 ALERT_TOML = """
-[defaults]
-adults = 2
-nights = 2
-must_include = ["sat"]
-top = 3
-codes = []
-
-[digest]
-weekday = "off"
-
-[[search]]
-id = "winter-weekends"
-name = "Winter at Example Hotel"
-from = "2026-12-01"
-to = "2026-12-08"
-  [[search.alert]]
-  below = 1300
+{
+  "version": 1,
+  "digest": {"weekday": "off"},
+  "searches": [
+    {
+      "id": "winter-weekends",
+      "name": "Winter at Example Hotel",
+      "from": "2026-12-01",
+      "to": "2026-12-08",
+      "alerts": [{"kind": "below", "amount": 1300}]
+    }
+  ]
+}
 """
 
 QUIET_TOML = """
-[defaults]
-adults = 2
-nights = 2
-must_include = ["sat"]
-top = 3
-codes = []
-
-[digest]
-weekday = "mon"
-
-[[search]]
-id = "winter-weekends"
-name = "Winter weekends"
-from = "2026-12-01"
-to = "2026-12-08"
-  [[search.alert]]
-  below = 1
+{
+  "version": 1,
+  "digest": {"weekday": "mon"},
+  "searches": [
+    {
+      "id": "winter-weekends",
+      "name": "Winter weekends",
+      "from": "2026-12-01",
+      "to": "2026-12-08",
+      "alerts": [{"kind": "below", "amount": 1}]
+    }
+  ]
+}
 """
 
 
@@ -213,7 +207,7 @@ def _empty_fixtures(tmp_path):
 
 
 def test_small_sellout_is_written_and_is_not_a_failure(tmp_path):
-    write_watch(tmp_path, QUIET_TOML.replace('weekday = "mon"', 'weekday = "off"'))
+    write_watch(tmp_path, QUIET_TOML.replace('"weekday": "mon"', '"weekday": "off"'))
     empty, docs = _empty_fixtures(tmp_path)
     proc = run_cli(tmp_path, ["scan", "--fixtures", str(empty)])
     assert proc.returncode == 0, proc.stderr
@@ -229,7 +223,7 @@ def test_small_sellout_is_written_and_is_not_a_failure(tmp_path):
 def test_wide_empty_feed_counts_a_failure_and_still_writes(tmp_path):
     write_watch(
         tmp_path,
-        QUIET_TOML.replace('weekday = "mon"', 'weekday = "off"').replace('to = "2026-12-08"', 'to = "2027-02-01"'),
+        QUIET_TOML.replace('"weekday": "mon"', '"weekday": "off"').replace('"to": "2026-12-08"', '"to": "2027-02-01"'),
     )
     empty, docs = _empty_fixtures(tmp_path)
     outputs = []
@@ -312,23 +306,19 @@ def test_search_prints_a_table_and_does_not_touch_the_store(tmp_path):
 
 
 PAST_TOML = """
-[defaults]
-adults = 2
-nights = 2
-must_include = ["sat"]
-top = 3
-codes = []
-
-[digest]
-weekday = "off"
-
-[[search]]
-id = "old"
-name = "Old weekends"
-from = "2026-01-01"
-to = "2026-02-01"
-  [[search.alert]]
-  below = 1300
+{
+  "version": 1,
+  "digest": {"weekday": "off"},
+  "searches": [
+    {
+      "id": "old",
+      "name": "Old weekends",
+      "from": "2026-01-01",
+      "to": "2026-02-01",
+      "alerts": [{"kind": "below", "amount": 1300}]
+    }
+  ]
+}
 """
 
 
@@ -359,7 +349,7 @@ def test_past_window_finishes_with_no_stays_and_is_not_a_failure(tmp_path, capsy
             raise AssertionError("a past stay was fetched")
 
     now = datetime(2026, 11, 9, 10, 0, tzinfo=timezone(timedelta(hours=1)))
-    execute_scan(load_watch(tmp_path / "watch.toml"), secrets, Store(tmp_path / "docs", secrets.terms), Client(), now)
+    execute_scan(load_watch(tmp_path / "config.json"), secrets, Store(tmp_path / "docs", secrets.terms), Client(), now)
     assert fetched == []
     assert "scan failed" not in capsys.readouterr().out
     state = json.loads((data / "state.json").read_text(encoding="utf-8"))
@@ -411,12 +401,12 @@ def test_a_public_name_blocks_email(tmp_path, monkeypatch):
     calls = []
     monkeypatch.setattr("stay_watch.service.deliver", lambda *args, **kwargs: calls.append("sent"))
     with pytest.raises(PublicFilesError):
-        execute_scan(load_watch(tmp_path / "watch.toml"), _secrets(), Store(tmp_path / "docs", _secrets().terms), FixtureClient(FIXTURES), _monday())
+        execute_scan(load_watch(tmp_path / "config.json"), _secrets(), Store(tmp_path / "docs", _secrets().terms), FixtureClient(FIXTURES), _monday())
     assert calls == []
 
 
 def test_alert_state_survives_a_later_mail_failure(tmp_path, monkeypatch):
-    write_watch(tmp_path, ALERT_TOML.replace('weekday = "off"', 'weekday = "mon"'))
+    write_watch(tmp_path, ALERT_TOML.replace('"weekday": "off"', '"weekday": "mon"'))
     calls = []
 
     def deliver(secrets, message):
@@ -426,7 +416,7 @@ def test_alert_state_survives_a_later_mail_failure(tmp_path, monkeypatch):
 
     monkeypatch.setattr("stay_watch.service.deliver", deliver)
     with pytest.raises(MailError):
-        execute_scan(load_watch(tmp_path / "watch.toml"), _secrets(), Store(tmp_path / "docs", _secrets().terms), FixtureClient(FIXTURES), _monday())
+        execute_scan(load_watch(tmp_path / "config.json"), _secrets(), Store(tmp_path / "docs", _secrets().terms), FixtureClient(FIXTURES), _monday())
     state = json.loads((tmp_path / "docs" / "data" / "state.json").read_text(encoding="utf-8"))
     assert "2026-12-04_2026-12-06" in json.dumps(state["alerts_sent"])
     assert state.get("last_digest_date") is None

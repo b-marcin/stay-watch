@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date, timedelta
+from typing import Literal
 
 
 @dataclass(frozen=True)
@@ -88,11 +89,32 @@ class Discounted:
 
 AlertRule = Below | PerNightBelow | DropPct | BelowRecentLowest | Discounted
 
+NotifyMode = Literal["any", "drop"]
+
+
+def tracked_id(check_in: date, check_out: date, adults: int, codes: tuple[str, ...]) -> str:
+    """Id is the stay, the party, and any promo codes, so a trip is tracked once."""
+    base = f"{check_in.isoformat()}_{check_out.isoformat()}_a{adults}"
+    if codes:
+        return f"{base}_c{'-'.join(codes)}"
+    return base
+
+
+@dataclass(frozen=True)
+class TrackedTrip:
+    id: str
+    stay: Stay
+    adults: int
+    codes: tuple[str, ...]
+    notify: NotifyMode
+    below: int | None
+    added: date
+
 
 @dataclass(frozen=True)
 class Search:
     id: str
-    name: str
+    name: str | None
     window_start: date
     window_end: date
     nights: int

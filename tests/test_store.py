@@ -1,9 +1,20 @@
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 
 from stay_watch.model import Below, Catalog, StayResult
 from stay_watch.render import describe
-from stay_watch.store import Store, describe_quote, redact, update_history
+from stay_watch.store import Store, build_latest, describe_quote, redact, update_history
 from tests.support import make_quote, make_search, stay
+
+
+def test_latest_writes_a_derived_name_and_a_custom_name_flag():
+    when = datetime(2026, 11, 9, 10, 0, tzinfo=timezone(timedelta(hours=1)))
+    derived = make_search(name=None, window_start=date(2026, 12, 28), window_end=date(2027, 1, 3))
+    payload = build_latest([(derived, [])], Catalog({}, {}), {}, when)
+    assert payload["searches"][0]["name"] == "28 Dec 2026 – 3 Jan 2027"
+    assert payload["searches"][0]["custom_name"] is False
+    custom = build_latest([(make_search(name="Weekends"), [])], Catalog({}, {}), {}, when)
+    assert custom["searches"][0]["name"] == "Weekends"
+    assert custom["searches"][0]["custom_name"] is True
 
 
 def test_unknown_offer_and_room_use_fallback_labels():

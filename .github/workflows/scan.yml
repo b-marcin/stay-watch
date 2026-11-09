@@ -3,6 +3,11 @@ name: scan
 on:
   schedule:
     - cron: "17 */3 * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - docs/config.json
   workflow_dispatch:
     inputs:
       mode:

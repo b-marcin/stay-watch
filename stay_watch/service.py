@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import re
+from dataclasses import replace
 from datetime import date, datetime
 
 from stay_watch.alerts import evaluate
@@ -28,7 +29,7 @@ EMPTY_FEED_MIN = 5
 class RecordedFailure(Exception):
     """Failure count is already saved. The caller must not count it again."""
 from stay_watch.rank import priced_results, rank_search
-from stay_watch.render import describe, render_table
+from stay_watch.render import describe, display_name, render_table
 from stay_watch.store import (
     Store,
     build_latest,
@@ -110,7 +111,7 @@ def execute_scan(
     if findings:
         raise PublicFilesError(findings[0])
 
-    searches = {search.id: search for search in config.searches}
+    searches = {search.id: replace(search, name=display_name(search, today)) for search in config.searches}
     if suspected:
         count = old_failures + 1
         state["seen_prices"] = True
@@ -128,7 +129,7 @@ def execute_scan(
         state["alerts_sent"] = sent
         store.save_state(state, today=today, searches=config.searches)
     if _digest_due(config, state, now) and config.searches:
-        sections = [(search, priced_results(ranked, search.top)) for search, ranked in ranked_by_search]
+        sections = [(searches[search.id], priced_results(ranked, search.top)) for search, ranked in ranked_by_search]
         deliver(secrets, build_digest_message(secrets, sections, catalog))
         state["last_digest_date"] = now.date().isoformat()
         store.save_state(state, today=today, searches=config.searches)

@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+import json
 import os
-import tomllib
+import re
 from dataclasses import dataclass
 from datetime import date
-from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 
 from stay_watch.model import (
@@ -13,8 +13,12 @@ from stay_watch.model import (
     BelowRecentLowest,
     Discounted,
     DropPct,
+    NotifyMode,
     PerNightBelow,
     Search,
+    Stay,
+    TrackedTrip,
+    tracked_id,
 )
 
 WEEKDAYS = {
@@ -43,24 +47,19 @@ WEEKDAYS = {
 
 WEEKDAY_NAMES = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 
-TOP_LEVEL_KEYS = {"defaults", "digest", "search"}
-DEFAULT_KEYS = {"adults", "nights", "must_include", "top", "codes", "offers", "rooms"}
-DIGEST_KEYS = {"weekday"}
-SEARCH_KEYS = {
-    "id",
-    "name",
-    "from",
-    "to",
-    "adults",
-    "nights",
-    "must_include",
-    "top",
-    "codes",
-    "offers",
-    "rooms",
-    "alert",
+CONFIG_WEEKDAYS = {name: index for index, name in enumerate(WEEKDAY_NAMES)}
+
+_SEARCH_ID = re.compile(r"[a-z0-9-]{1,40}")
+
+BUILTIN_DEFAULTS = {
+    "adults": 2,
+    "nights": 2,
+    "must_include": ["sat"],
+    "top": 3,
+    "codes": [],
+    "offers": [],
+    "rooms": [],
 }
-ALERT_KEYS = {"below", "per_night_below", "drop_pct", "below_recent_lowest", "discounted"}
 
 
 class ConfigError(Exception):
@@ -82,6 +81,7 @@ class Secrets:
 @dataclass(frozen=True)
 class WatchConfig:
     searches: tuple[Search, ...]
+    tracked: tuple[TrackedTrip, ...]
     digest_weekday: int | None
 
 
@@ -138,188 +138,236 @@ def load_watch(path: Path) -> WatchConfig:
         raise ConfigError(f"missing config file {path}")
     text = path.read_text(encoding="utf-8")
     try:
-        data = tomllib.loads(text)
-    except tomllib.TOMLDecodeError as exc:
-        lineno = getattr(exc, "lineno", None)
-        where = f"{path.name}:{lineno}" if lineno else path.name
-        raise ConfigError(f"{where}: {exc}") from exc
+        data = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise ConfigError(f"{path.name}: not valid JSON") from exc
     if not isinstance(data, dict):
-        raise ConfigError(f"{path.name}: config must be a table")
-    unknown = [key for key in data if key not in TOP_LEVEL_KEYS]
-    if unknown:
-        raise ConfigError(f"{path.name}:{_line(text, unknown[0])}: unknown section {unknown[0]!r}")
-    defaults = data.get("defaults") or {}
-    digest = data.get("digest") or {}
-    searches = data.get("search") or []
-    if not isinstance(defaults, dict):
-        raise ConfigError(f"{path.name}: [defaults] must be a table")
-    if not isinstance(digest, dict):
-        raise ConfigError(f"{path.name}: [digest] must be a table")
-    if not isinstance(searches, list):
-        raise ConfigError(f"{path.name}: [[search]] entries must be tables")
-    _reject_unknown(defaults, DEFAULT_KEYS, text, "defaults")
-    _reject_unknown(digest, DIGEST_KEYS, text, "digest")
-    parsed = tuple(_parse_search(item, defaults, text, path.name) for item in searches)
-    ids = [item.id for item in parsed]
-    if len(ids) != len(set(ids)):
-        raise ConfigError(f"{path.name}: two searches share an id")
-    weekday_raw = digest.get("weekday", "off")
-    return WatchConfig(parsed, _parse_digest_weekday(weekday_raw, text, path.name))
+        raise ConfigError(f"{path.name}: must be an object")
+    if not isinstance(data.get("version"), int) or isinstance(data.get("version"), bool) or data.get("version") != 1:
+        _fail("version", "must be 1")
+    defaults = _object(data.get("defaults", {}), "defaults")
+    digest = _object(data.get("digest", {}), "digest")
+    searches = _list(data.get("searches", []), "searches")
+    tracked = _list(data.get("tracked", []), "tracked")
+    parsed_defaults = _parse_defaults(defaults)
+    parsed_searches = tuple(
+        _parse_search(item, parsed_defaults, f"searches[{index}]") for index, item in enumerate(searches)
+    )
+    seen: set[str] = set()
+    for index, search in enumerate(parsed_searches):
+        if search.id in seen:
+            _fail(f"searches[{index}].id", "already used")
+        seen.add(search.id)
+    parsed_tracked = tuple(_parse_tracked(item, f"tracked[{index}]") for index, item in enumerate(tracked))
+    seen_trips: set[str] = set()
+    for index, trip in enumerate(parsed_tracked):
+        if trip.id in seen_trips:
+            _fail(f"tracked[{index}].id", "already used")
+        seen_trips.add(trip.id)
+    return WatchConfig(parsed_searches, parsed_tracked, _parse_digest(digest))
 
 
-def _parse_search(item: object, defaults: dict, text: str, filename: str) -> Search:
-    if not isinstance(item, dict):
-        raise ConfigError(f"{filename}: a search entry is not a table")
-    _reject_unknown(item, SEARCH_KEYS, text, "search")
-    search_id = _required_str(item, "id", text, filename)
-    name = _required_str(item, "name", text, filename)
-    start = _parse_date(_pick(item, defaults, "from"), text, filename, "from")
-    end = _parse_date(_pick(item, defaults, "to"), text, filename, "to")
+def _parse_defaults(raw: dict) -> dict:
+    nights = _positive_int(raw["nights"], "defaults.nights") if "nights" in raw else BUILTIN_DEFAULTS["nights"]
+    adults = _positive_int(raw["adults"], "defaults.adults") if "adults" in raw else BUILTIN_DEFAULTS["adults"]
+    top = _parse_top(raw["top"], "defaults.top") if "top" in raw else BUILTIN_DEFAULTS["top"]
+    must = _parse_must_include(raw["must_include"], "defaults.must_include") if "must_include" in raw else _parse_must_include(BUILTIN_DEFAULTS["must_include"], "defaults.must_include")
+    codes = tuple(_string_list(raw["codes"], "defaults.codes")) if "codes" in raw else ()
+    offers = tuple(_string_list(raw["offers"], "defaults.offers")) if "offers" in raw else ()
+    rooms = tuple(_string_list(raw["rooms"], "defaults.rooms")) if "rooms" in raw else ()
+    return {
+        "nights": nights,
+        "adults": adults,
+        "top": top,
+        "must_include": must,
+        "codes": codes,
+        "offers": offers,
+        "rooms": rooms,
+    }
+
+
+def _parse_search(item: object, defaults: dict, path: str) -> Search:
+    raw = _object(item, path)
+    search_id = _search_id(raw.get("id"), f"{path}.id")
+    name = _search_name(raw, f"{path}.name")
+    start = _parse_date(raw.get("from"), f"{path}.from")
+    end = _parse_date(raw.get("to"), f"{path}.to")
     if start >= end:
-        raise ConfigError(
-            f"{filename}:{_line(text, start.isoformat())}: check-out {end.isoformat()} is not after check-in {start.isoformat()}"
-        )
-    nights = _positive_int(_pick(item, defaults, "nights", 2), text, filename, "nights")
-    adults = _positive_int(_pick(item, defaults, "adults", 2), text, filename, "adults")
-    top = _parse_top(_pick(item, defaults, "top", 3), text, filename)
-    codes = tuple(_string_list(_pick(item, defaults, "codes", []), text, filename, "codes"))
-    offer_filter = tuple(_string_list(_pick(item, defaults, "offers", []), text, filename, "offers"))
-    room_filter = tuple(_string_list(_pick(item, defaults, "rooms", []), text, filename, "rooms"))
-    must = _pick(item, defaults, "must_include", ["sat"])
-    alerts = tuple(_parse_alert(entry, text, filename) for entry in item.get("alert") or [])
+        _fail(f"{path}.to", "must be after from")
+    nights = _positive_int(raw["nights"], f"{path}.nights") if "nights" in raw else defaults["nights"]
+    adults = _positive_int(raw["adults"], f"{path}.adults") if "adults" in raw else defaults["adults"]
+    top = _parse_top(raw["top"], f"{path}.top") if "top" in raw else defaults["top"]
+    codes = tuple(_string_list(raw["codes"], f"{path}.codes")) if "codes" in raw else defaults["codes"]
+    offers = tuple(_string_list(raw["offers"], f"{path}.offers")) if "offers" in raw else defaults["offers"]
+    rooms = tuple(_string_list(raw["rooms"], f"{path}.rooms")) if "rooms" in raw else defaults["rooms"]
+    must = _parse_must_include(raw["must_include"], f"{path}.must_include") if "must_include" in raw else defaults["must_include"]
+    alerts_raw = raw.get("alerts", [])
+    alerts = tuple(_parse_alert(entry, f"{path}.alerts[{index}]") for index, entry in enumerate(_list(alerts_raw, f"{path}.alerts")))
     return Search(
         id=search_id,
         name=name,
         window_start=start,
         window_end=end,
         nights=nights,
-        must_include=_parse_must_include(must, text, filename),
+        must_include=must,
         adults=adults,
         top=top,
         codes=codes,
-        offer_filter=offer_filter,
-        room_filter=room_filter,
+        offer_filter=offers,
+        room_filter=rooms,
         alerts=alerts,
     )
 
 
-def _parse_alert(entry: object, text: str, filename: str) -> AlertRule:
-    if not isinstance(entry, dict) or len(entry) != 1:
-        raise ConfigError(f"{filename}: each [[search.alert]] needs exactly one key")
-    key = next(iter(entry))
-    if key not in ALERT_KEYS:
-        raise ConfigError(f"{filename}:{_line(text, key)}: unknown alert {key!r}")
-    value = entry[key]
-    if key == "below":
-        return Below(_pln(value, text, filename, key))
-    if key == "per_night_below":
-        return PerNightBelow(_pln(value, text, filename, key))
-    if key == "drop_pct":
+def _parse_tracked(item: object, path: str) -> TrackedTrip:
+    raw = _object(item, path)
+    check_in = _parse_date(raw.get("check_in"), f"{path}.check_in")
+    check_out = _parse_date(raw.get("check_out"), f"{path}.check_out")
+    if check_in >= check_out:
+        _fail(f"{path}.check_out", "must be after check_in")
+    if "adults" not in raw:
+        _fail(f"{path}.adults", "missing")
+    adults = _positive_int(raw.get("adults"), f"{path}.adults")
+    codes = tuple(_string_list(raw["codes"], f"{path}.codes")) if "codes" in raw else ()
+    notify = _notify(raw.get("notify"), f"{path}.notify")
+    below = None
+    if "below" in raw and raw["below"] is not None:
+        below = _pln(raw["below"], f"{path}.below")
+    added = _parse_date(raw.get("added"), f"{path}.added")
+    expected = tracked_id(check_in, check_out, adults, codes)
+    if "id" in raw and raw["id"] != expected:
+        _fail(f"{path}.id", f"expected {expected}")
+    return TrackedTrip(
+        id=expected,
+        stay=Stay(check_in, check_out),
+        adults=adults,
+        codes=codes,
+        notify=notify,
+        below=below,
+        added=added,
+    )
+
+
+def _parse_alert(entry: object, path: str) -> AlertRule:
+    raw = _object(entry, path)
+    kind = raw.get("kind")
+    if "kind" not in raw:
+        _fail(f"{path}.kind", "missing")
+    if kind == "below":
+        return Below(_pln(raw.get("amount"), f"{path}.amount"))
+    if kind == "per_night_below":
+        return PerNightBelow(_pln(raw.get("amount"), f"{path}.amount"))
+    if kind == "drop_pct":
+        value = raw.get("pct")
         if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= 100:
-            raise ConfigError(f"{filename}:{_line(text, key)}: drop_pct must be a whole number from 1 to 100")
+            _fail(f"{path}.pct", "must be a whole number from 1 to 100")
         return DropPct(value)
-    if value is not True:
-        raise ConfigError(f"{filename}:{_line(text, key)}: {key} must be true")
-    if key == "below_recent_lowest":
+    if kind == "below_recent_lowest":
         return BelowRecentLowest()
-    return Discounted()
+    if kind == "discounted":
+        return Discounted()
+    _fail(f"{path}.kind", f"unknown alert {kind!r}")
 
 
-def _parse_must_include(value: object, text: str, filename: str) -> frozenset[int]:
-    if not isinstance(value, list):
-        raise ConfigError(f"{filename}:{_line(text, 'must_include')}: must_include must be a list of weekdays")
-    days: set[int] = set()
-    for item in value:
-        if not isinstance(item, str):
-            raise ConfigError(f"{filename}: must_include entries must be weekday names")
-        try:
-            days.add(parse_weekday_token(item))
-        except ConfigError as exc:
-            raise ConfigError(f"{filename}:{_line(text, item)}: {exc}") from exc
-    return frozenset(days)
-
-
-def _parse_digest_weekday(value: object, text: str, filename: str) -> int | None:
+def _parse_digest(raw: dict) -> int | None:
+    if "weekday" not in raw:
+        return None
+    value = raw["weekday"]
     if value is None or (isinstance(value, str) and value.strip().lower() == "off"):
         return None
     if not isinstance(value, str):
-        raise ConfigError(f"{filename}: digest weekday must be a day name or \"off\"")
-    try:
-        return parse_weekday_token(value)
-    except ConfigError as exc:
-        raise ConfigError(f"{filename}:{_line(text, value)}: {exc}") from exc
+        _fail("digest.weekday", 'must be mon tue wed thu fri sat sun or "off"')
+    key = value.strip().lower()
+    if key not in CONFIG_WEEKDAYS:
+        _fail("digest.weekday", 'must be mon tue wed thu fri sat sun or "off"')
+    return CONFIG_WEEKDAYS[key]
 
 
-def _parse_date(value: object, text: str, filename: str, label: str) -> date:
+def _parse_must_include(value: object, path: str) -> frozenset[int]:
+    items = _list(value, path)
+    days: set[int] = set()
+    for index, item in enumerate(items):
+        if not isinstance(item, str) or item.strip().lower() not in CONFIG_WEEKDAYS:
+            _fail(f"{path}[{index}]", "unknown weekday")
+        days.add(CONFIG_WEEKDAYS[item.strip().lower()])
+    return frozenset(days)
+
+
+def _search_name(raw: dict, path: str) -> str | None:
+    if "name" not in raw or raw["name"] is None:
+        return None
+    value = raw["name"]
     if not isinstance(value, str):
-        raise ConfigError(f"{filename}:{_line(text, label)}: {label} must be a YYYY-MM-DD date")
+        _fail(path, "must be a string or null")
+    stripped = value.strip()
+    if not stripped:
+        _fail(path, "must be a string or null")
+    return stripped
+
+
+def _search_id(value: object, path: str) -> str:
+    if not isinstance(value, str) or _SEARCH_ID.fullmatch(value) is None:
+        _fail(path, "must match [a-z0-9-]{1,40}")
+    return value
+
+
+def _notify(value: object, path: str) -> NotifyMode:
+    if value not in ("any", "drop"):
+        _fail(path, 'must be "any" or "drop"')
+    return value
+
+
+def _parse_date(value: object, path: str) -> date:
+    if not isinstance(value, str):
+        _fail(path, "not a date")
     try:
         return date.fromisoformat(value)
-    except ValueError as exc:
-        raise ConfigError(f"{filename}:{_line(text, value)}: invalid date {value!r}") from exc
+    except ValueError:
+        _fail(path, "not a date")
 
 
-def _parse_top(value: object, text: str, filename: str) -> int | None:
-    if isinstance(value, str) and value.strip().lower() == "all":
+def _parse_top(value: object, path: str) -> int | None:
+    if value is None:
         return None
-    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
-        raise ConfigError(f"{filename}:{_line(text, 'top')}: top must be a number or \"all\"")
-    return value
-
-
-def _pln(value: object, text: str, filename: str, key: str) -> int:
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise ConfigError(f"{filename}:{_line(text, key)}: {key} must be a price in PLN")
-    try:
-        grosze = int((Decimal(str(value)) * 100).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
-    except Exception as exc:
-        raise ConfigError(f"{filename}:{_line(text, key)}: {key} must be a price in PLN") from exc
-    if grosze <= 0:
-        raise ConfigError(f"{filename}:{_line(text, key)}: {key} must be greater than 0")
-    return grosze
-
-
-def _positive_int(value: object, text: str, filename: str, label: str) -> int:
     if isinstance(value, bool) or not isinstance(value, int) or value < 1:
-        raise ConfigError(f"{filename}:{_line(text, label)}: {label} must be a whole number of 1 or more")
+        _fail(path, "must be a positive number or null")
     return value
 
 
-def _required_str(item: dict, key: str, text: str, filename: str) -> str:
-    value = item.get(key)
-    if not isinstance(value, str) or not value.strip():
-        raise ConfigError(f"{filename}:{_line(text, key)}: search {key} is missing")
-    return value.strip()
+def _pln(value: object, path: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+        _fail(path, "must be whole PLN")
+    return value * 100
 
 
-def _string_list(value: object, text: str, filename: str, label: str) -> list[str]:
-    if not isinstance(value, list):
-        raise ConfigError(f"{filename}:{_line(text, label)}: {label} must be a list of text")
-    items: list[str] = []
-    for entry in value:
+def _positive_int(value: object, path: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+        _fail(path, "must be a whole number of 1 or more")
+    return value
+
+
+def _string_list(value: object, path: str) -> list[str]:
+    items = _list(value, path)
+    texts: list[str] = []
+    for index, entry in enumerate(items):
         if not isinstance(entry, str) or not entry.strip():
-            raise ConfigError(f"{filename}:{_line(text, label)}: {label} entries must be text")
-        items.append(entry.strip())
-    return items
+            _fail(f"{path}[{index}]", "must be text")
+        texts.append(entry.strip())
+    return texts
 
 
-def _pick(item: dict, defaults: dict, key: str, fallback: object = None) -> object:
-    if key in item:
-        return item[key]
-    if key in defaults:
-        return defaults[key]
-    return fallback
+def _object(value: object, path: str) -> dict:
+    if not isinstance(value, dict):
+        _fail(path, "must be an object")
+    return value
 
 
-def _reject_unknown(table: dict, allowed: set[str], text: str, label: str) -> None:
-    unknown = [key for key in table if key not in allowed]
-    if unknown:
-        raise ConfigError(f"watch.toml:{_line(text, unknown[0])}: unknown {label} key {unknown[0]!r}")
+def _list(value: object, path: str) -> list:
+    if not isinstance(value, list):
+        _fail(path, "must be a list")
+    return value
 
 
-def _line(text: str, needle: object) -> int:
-    target = str(needle)
-    for number, line in enumerate(text.splitlines(), 1):
-        if target in line:
-            return number
-    return 1
+def _fail(path: str, message: str) -> None:
+    raise ConfigError(f"{path}: {message}")
+

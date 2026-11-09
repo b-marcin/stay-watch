@@ -4,6 +4,16 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 
 
+def test_check_public_reads_docs_config(tmp_path):
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "config.json").write_text('{"name": "Example Hotel"}\n', encoding="utf-8")
+    from stay_watch.guard import check_public
+
+    findings = check_public(tmp_path, ["Example Hotel"])
+    assert any(item.startswith("docs/config.json:") for item in findings)
+
+
 def test_check_public_catches_an_inflected_name_nbsp_and_mixed_case(tmp_path):
     docs = tmp_path / "docs"
     docs.mkdir()
@@ -101,6 +111,17 @@ def test_push_rebases_and_retries_three_times():
     assert "fetch-depth: 0" in text
     assert "git pull --rebase origin" in text
     assert "for attempt in 1 2 3" in text
+
+
+def test_config_push_queues_behind_the_same_scan_group():
+    text = (REPO / ".github" / "workflows" / "scan.yml").read_text(encoding="utf-8")
+    push = text.split("workflow_dispatch:")[0]
+    assert "push:" in push
+    assert "branches:" in push
+    assert "- main" in push
+    assert "- docs/config.json" in push
+    assert "group: stay-watch" in text
+    assert "cancel-in-progress: false" in text
 
 
 def test_scan_workflow_is_scheduled_and_does_not_print_secrets():

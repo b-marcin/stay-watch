@@ -11,7 +11,7 @@ from stay_watch.config import WEEKDAY_NAMES
 from stay_watch.model import AlertRule, Below, BelowRecentLowest, Catalog, Discounted, DropPct, PerNightBelow, Search, StayResult
 from stay_watch.alerts import rule_id, rule_matches
 from stay_watch.rank import per_night
-from stay_watch.render import describe
+from stay_watch.render import describe, display_name
 
 
 class StoreError(Exception):
@@ -244,7 +244,8 @@ def build_latest(
         payload_searches.append(
             {
                 "id": search.id,
-                "name": search.name,
+                "name": display_name(search, scanned_at.date()),
+                "custom_name": search.name is not None,
                 "window_start": search.window_start.isoformat(),
                 "window_end": search.window_end.isoformat(),
                 "nights": search.nights,

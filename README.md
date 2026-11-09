@@ -4,11 +4,17 @@ Stay Watch checks one hotel's prices on a schedule, emails you when a stay match
 
 ## Edit what to watch
 
-Open `watch.toml` on GitHub and use the pencil icon. Change the dates, the number of nights, or the price rules, then commit to the main branch. The next run uses the new file.
+Searches and tracked trips are edited on the dashboard. One-time setup is a fine-grained GitHub token with **Contents: read and write** on this repository only, pasted into the dashboard's settings.
 
-`must_include = ["sat"]` keeps stays that cover Saturday night (Friday to Sunday, and Saturday to Monday, when the stay is 2 nights). `top = 3` lists the three cheapest. `top = "all"` lists every stay. Add `offers` or `rooms` under a search to keep names that contain that text.
+Hand-editing `docs/config.json` is the fallback. Saving, from the dashboard or by committing that file on `main`, starts a scan in about 2 minutes. The scheduled scan still runs at minute 17 of every third hour.
 
-Alert keys, one per `[[search.alert]]` block: `below` (total PLN), `per_night_below`, `drop_pct`, `below_recent_lowest`, `discounted`.
+A search name is optional. Leave it null and the scan names the search from its dates, for example `1 Dec – 8 Dec`.
+
+`must_include` of `["sat"]` keeps stays that cover Saturday night (Friday to Sunday, and Saturday to Monday, when the stay is 2 nights). `top` of `3` lists the three cheapest. `top` of `null` lists every stay. Add `offers` or `rooms` to keep names that contain that text.
+
+Each alert object has a `kind`: `below` (total PLN), `per_night_below`, `drop_pct`, `below_recent_lowest`, or `discounted`.
+
+A tracked trip is one stay. `notify` of `any` emails on every price change. `drop` emails only when the price falls below the last emailed price, or the stay becomes available again. `below` is an optional PLN price that also emails once, and again after the price has gone above the last emailed price under that line.
 
 ## Secrets
 

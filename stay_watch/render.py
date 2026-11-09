@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import date
+
 from stay_watch.model import (
     AlertHit,
     AlertRule,
@@ -9,9 +11,34 @@ from stay_watch.model import (
     Discounted,
     DropPct,
     PerNightBelow,
+    Search,
     Stay,
     StayResult,
 )
+
+_MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+
+def derived_window_name(start: date, end: date, scan_year: int) -> str:
+    """Date span used when a search has no name of its own.
+
+    Years show when the window crosses a year, or when it is not in the scan year.
+    """
+    show_year = start.year != end.year or start.year != scan_year
+
+    def side(day: date) -> str:
+        text = f"{day.day} {_MONTHS[day.month - 1]}"
+        if show_year:
+            return f"{text} {day.year}"
+        return text
+
+    return f"{side(start)} – {side(end)}"
+
+
+def display_name(search: Search, on: date) -> str:
+    if search.name:
+        return search.name
+    return derived_window_name(search.window_start, search.window_end, on.year)
 
 
 def format_pln(grosze: int) -> str:
