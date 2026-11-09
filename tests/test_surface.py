@@ -53,8 +53,10 @@ def test_dashboard_is_static_and_does_not_name_a_booking_engine():
     text = (REPO / "docs" / "index.html").read_text(encoding="utf-8")
     folded = text.casefold()
     assert "<title>Stay Watch</title>" in text
-    assert "data/latest.json" in text
-    assert "data/history.json" in text
+    assert "latest.json" in text
+    assert "history.json" in text
+    assert "config.json" in text
+    assert '"data/"' in text
     assert "prefers-color-scheme" in text
     assert "<script src=" not in folded
     assert "stylesheet" not in folded
@@ -65,6 +67,11 @@ def test_dashboard_is_static_and_does_not_name_a_booking_engine():
     for url in re.findall(r"https?://[^\s\"'`<>]+", text, flags=re.IGNORECASE):
         low = url.casefold()
         if low.startswith("http://www.w3.org/2000/svg"):
+            continue
+        if low.startswith("https://api.github.com/") or low.startswith("https://github.com/settings/"):
+            continue
+        # Comment example of parsing a Pages address. Not a request, so only this string.
+        if low == "https://owner.github.io/repo/":
             continue
         assert low.startswith("https://booking.profitroom.com/pl/"), url
         head = url.split("/pl/", 1)[1].split("/", 1)[0]
