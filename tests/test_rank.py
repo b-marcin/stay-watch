@@ -19,7 +19,7 @@ def catalog():
 
 def dec_quotes():
     stay = Stay(date(2026, 12, 4), date(2026, 12, 6))
-    quotes = parse_availability(
+    quotes, _skipped = parse_availability(
         json.loads((FIXTURES / "availability_2026-12-04_2026-12-06.json").read_text(encoding="utf-8")),
         stay,
     )

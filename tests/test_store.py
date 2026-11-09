@@ -1,6 +1,19 @@
 from datetime import date
 
-from stay_watch.store import Store, redact, update_history
+from stay_watch.model import Catalog, StayResult
+from stay_watch.render import describe
+from stay_watch.store import Store, describe_quote, redact, update_history
+from tests.support import make_quote, stay
+
+
+def test_unknown_offer_and_room_use_fallback_labels():
+    quote = make_quote(1000, offer_id=123, room_id=456)
+    result = StayResult(stay("2026-12-04", "2026-12-06"), quote, 1)
+    catalog = Catalog({}, {})
+    assert describe(result, catalog) == ("Offer 123", "Room 456", "other", "no free cancellation")
+    described = describe_quote(catalog, result)
+    assert described["offer_name"] == "Offer 123"
+    assert described["room_name"] == "Room 456"
 
 
 def test_redact_replaces_every_configured_term_case_insensitively():

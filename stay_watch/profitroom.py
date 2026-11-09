@@ -81,41 +81,81 @@ def _optional_money(value: object, field: str) -> int | None:
     return _money(value, field)
 
 
-def parse_availability(payload: object, stay: Stay) -> list[Quote]:
-    # Request dates win. Captured fixtures replace stay.from/stay.to with a
-    # placeholder, and a quote is for the stay we asked about.
+def _as_int(value: object) -> int | None:
+    if isinstance(value, bool) or value is None:
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(value) if value.is_integer() else None
+    if isinstance(value, str):
+        try:
+            return int(value)
+        except ValueError:
+            return None
+    return None
+
+
+def _parse_quote(item: object, stay: Stay) -> Quote | None:
+    if not isinstance(item, dict):
+        return None
+    proposal = item.get("proposal")
+    if not isinstance(proposal, dict):
+        return None
+    offer_id = _as_int(proposal.get("OfferID"))
+    room_id = _as_int(proposal.get("RoomID"))
+    profile_id = _as_int(proposal.get("profileId"))
+    if offer_id is None or room_id is None or profile_id is None:
+        return None
+    if "price" not in proposal or proposal.get("price") is None:
+        return None
+    try:
+        price = _money(proposal["price"], "price")
+        recent_lowest = _optional_money(proposal.get("recentLowestPrice"), "recentLowestPrice")
+        original = _optional_money(proposal.get("originalPrice"), "originalPrice")
+    except ProfitroomError:
+        return None
+    raw_stay = proposal.get("stay")
+    if isinstance(raw_stay, dict):
+        if raw_stay.get("from") != stay.check_in.isoformat() or raw_stay.get("to") != stay.check_out.isoformat():
+            return None
+    if "roomCount" not in item or item.get("roomCount") is None:
+        rooms_left = None
+    else:
+        rooms_left = _as_int(item.get("roomCount"))
+        if rooms_left is None:
+            return None
+    return Quote(
+        stay=stay,
+        offer_id=offer_id,
+        room_id=room_id,
+        price=price,
+        recent_lowest=recent_lowest,
+        original=original,
+        rooms_left=rooms_left,
+        profile_id=profile_id,
+    )
+
+
+def parse_availability(payload: object, stay: Stay) -> tuple[list[Quote], int]:
     if not isinstance(payload, list):
         raise ProfitroomError("availability response is not a list")
     quotes: list[Quote] = []
+    skipped = 0
+    saw_proposal = False
     for block in payload:
         if not isinstance(block, dict) or not isinstance(block.get("proposals"), list):
             raise ProfitroomError("availability entry has no proposals")
         for item in block["proposals"]:
-            if not isinstance(item, dict) or not isinstance(item.get("proposal"), dict):
-                raise ProfitroomError("proposal is missing")
-            proposal = item["proposal"]
-            try:
-                offer_id = int(proposal["OfferID"])
-                room_id = int(proposal["RoomID"])
-                profile_id = int(proposal["profileId"])
-                rooms_left = int(item["roomCount"])
-            except (KeyError, TypeError, ValueError) as exc:
-                raise ProfitroomError(f"proposal is missing a field ({exc})") from exc
-            if "price" not in proposal:
-                raise ProfitroomError("proposal has no price")
-            quotes.append(
-                Quote(
-                    stay=stay,
-                    offer_id=offer_id,
-                    room_id=room_id,
-                    price=_money(proposal["price"], "price"),
-                    recent_lowest=_optional_money(proposal.get("recentLowestPrice"), "recentLowestPrice"),
-                    original=_optional_money(proposal.get("originalPrice"), "originalPrice"),
-                    rooms_left=rooms_left,
-                    profile_id=profile_id,
-                )
-            )
-    return quotes
+            saw_proposal = True
+            quote = _parse_quote(item, stay)
+            if quote is None:
+                skipped += 1
+            else:
+                quotes.append(quote)
+    if saw_proposal and not quotes:
+        raise ProfitroomError(f"no valid quotes ({skipped} proposals skipped)")
+    return quotes, skipped
 
 
 def _name_from_translations(translations: object) -> str | None:
@@ -224,6 +264,7 @@ class ProfitroomClient:
         self.sleep = sleep or time.sleep
         self._cache: dict[tuple, list[Quote]] = {}
         self._requests = 0
+        self.skipped_proposals = 0
 
     def catalog(self) -> Catalog:
         offers = parse_offers(self._get_json(self._url("offers?status=1&lang=pl")))
@@ -234,7 +275,9 @@ class ProfitroomClient:
         key = (stay.key, adults, tuple(codes))
         if key not in self._cache:
             payload = self._get_json(availability_url(self.slug, stay, adults, codes))
-            self._cache[key] = parse_availability(payload, stay)
+            quotes, skipped = parse_availability(payload, stay)
+            self.skipped_proposals += skipped
+            self._cache[key] = quotes
         return self._cache[key]
 
     def _url(self, path: str) -> str:
@@ -293,6 +336,7 @@ class FixtureClient:
             parse_rooms(json.loads(rooms_path.read_text(encoding="utf-8"))),
         )
         self._cache: dict[tuple, list[Quote]] = {}
+        self.skipped_proposals = 0
 
     def catalog(self) -> Catalog:
         return self._catalog
@@ -303,7 +347,9 @@ class FixtureClient:
             path = self.directory / f"availability_{stay.check_in.isoformat()}_{stay.check_out.isoformat()}.json"
             if path.is_file():
                 payload = json.loads(path.read_text(encoding="utf-8"))
-                self._cache[key] = parse_availability(payload, stay)
+                quotes, skipped = parse_availability(payload, stay)
+                self.skipped_proposals += skipped
+                self._cache[key] = quotes
             else:
                 self._cache[key] = []
         return self._cache[key]

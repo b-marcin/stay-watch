@@ -52,9 +52,9 @@ def describe(result: StayResult, catalog: Catalog) -> tuple[str, str, str, str]:
     if quote is None:
         return ("", "", "", "")
     offer = catalog.offers.get(quote.offer_id)
-    room = catalog.rooms.get(quote.room_id) or f"room {quote.room_id}"
+    room = catalog.rooms.get(quote.room_id) or f"Room {quote.room_id}"
     if offer is None:
-        return (f"offer {quote.offer_id}", room, "other", "no free cancellation")
+        return (f"Offer {quote.offer_id}", room, "other", "no free cancellation")
     return (offer.name, room, offer.meal_plan_label, offer.cancel_for(quote.profile_id))
 
 

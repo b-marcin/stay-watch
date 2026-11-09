@@ -177,9 +177,9 @@ def describe_quote(catalog: Catalog, result: StayResult) -> dict:
             "cancel": None,
         }
     offer = catalog.offers.get(quote.offer_id)
-    room_name = catalog.rooms.get(quote.room_id) or f"room {quote.room_id}"
+    room_name = catalog.rooms.get(quote.room_id) or f"Room {quote.room_id}"
     if offer is None:
-        offer_name = f"offer {quote.offer_id}"
+        offer_name = f"Offer {quote.offer_id}"
         meal = "other"
         cancel = "no free cancellation"
     else:

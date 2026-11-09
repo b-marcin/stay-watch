@@ -29,7 +29,7 @@ def test_fixture_cheapest_price_and_sold_out():
     from stay_watch.model import Catalog
 
     catalog = Catalog(catalog_offers, rooms)
-    dec = parse_availability(
+    dec, _skipped = parse_availability(
         json.loads((FIXTURES / "availability_2026-12-04_2026-12-06.json").read_text(encoding="utf-8")),
         STAY,
     )
@@ -44,18 +44,19 @@ def test_fixture_cheapest_price_and_sold_out():
     assert ranked[0].offer_count == 3
 
     jan_stay = Stay(date(2027, 1, 8), date(2027, 1, 10))
-    jan = parse_availability(
+    jan, _skipped = parse_availability(
         json.loads((FIXTURES / "availability_2027-01-08_2027-01-10.json").read_text(encoding="utf-8")),
         jan_stay,
     )
     jan_ranked = rank_search(make_search(), [jan_stay], {jan_stay.key: jan}, catalog)
     assert jan_ranked[0].best.price == 152_400
 
-    sold = parse_availability(
+    sold, sold_skipped = parse_availability(
         json.loads((FIXTURES / "availability_soldout_2026-12-15_2026-12-17.json").read_text(encoding="utf-8")),
         Stay(date(2026, 12, 15), date(2026, 12, 17)),
     )
     assert sold == []
+    assert sold_skipped == 0
     sold_ranked = rank_search(
         make_search(must_include=frozenset()),
         [Stay(date(2026, 12, 15), date(2026, 12, 17))],
@@ -79,7 +80,7 @@ def test_offer_and_room_labels():
 
 def test_money_and_names_from_minimal_payloads():
     stay = STAY
-    quotes = parse_availability(
+    quotes, skipped = parse_availability(
         [
             {
                 "proposals": [
@@ -99,10 +100,51 @@ def test_money_and_names_from_minimal_payloads():
         ],
         stay,
     )
+    assert skipped == 0
     assert quotes[0].price == 1050
     assert quotes[0].original == 1200
     assert quotes[0].recent_lowest is None
     assert parse_rooms([{"id": 7, "gallery": {"title": "Loft"}, "translations": []}]) == {7: "Loft"}
+
+
+def _item(price=500, rooms=3, profile=9, stay=None):
+    proposal = {
+        "OfferID": 1,
+        "RoomID": 2,
+        "price": None if price is None else {"amount": price, "currency": "PLN"},
+        "profileId": profile,
+        "recentLowestPrice": None,
+        "originalPrice": None,
+    }
+    if stay is not False:
+        proposal["stay"] = {"from": "2026-12-04", "to": "2026-12-06"} if stay is None else stay
+    item = {"proposal": proposal}
+    if rooms is not None:
+        item["roomCount"] = rooms
+    return item
+
+
+def test_bad_proposals_are_skipped_and_a_missing_room_count_is_kept():
+    null_price = _item(price=None)
+    wrong_dates = _item(stay={"from": "2026-01-01", "to": "2026-01-03"})
+    null_profile = _item()
+    null_profile["proposal"]["profileId"] = None
+    missing_rooms = _item(price=400, rooms=None)
+    good = _item(price=500, rooms=2)
+    quotes, skipped = parse_availability(
+        [{"proposals": [null_price, {"proposal": "nope"}, wrong_dates, null_profile, missing_rooms, good]}],
+        STAY,
+    )
+    assert skipped == 4
+    assert [quote.price for quote in quotes] == [40_000, 50_000]
+    assert quotes[0].rooms_left is None
+    assert quotes[1].rooms_left == 2
+    assert quotes[0].stay == STAY
+
+
+def test_no_valid_quotes_from_a_non_empty_list_is_an_error():
+    with pytest.raises(ProfitroomError, match="no valid quotes"):
+        parse_availability([{"proposals": [_item(price=None)]}], STAY)
 
 
 def test_bad_availability_is_a_clear_error():

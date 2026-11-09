@@ -56,7 +56,7 @@ Each stay:
 | `per_night` | number or null | grosze | No quote. Otherwise `price` divided by nights, rounded down. |
 | `recent_lowest` | number or null | grosze | The feed had no 30-day lowest, or there is no quote. |
 | `original` | number or null | grosze | No pre-discount price was shown, or there is no quote. |
-| `rooms_left` | number or null | rooms | No quote. A number is how many rooms of this quote were left. |
+| `rooms_left` | number or null | rooms | No quote, or the quote did not say how many rooms were left. A number is how many rooms of this quote were left. |
 | `offer_name` | string or null | | No quote. |
 | `room_name` | string or null | | No quote. |
 | `meal_plan` | string or null | | No quote. Otherwise `breakfast`, `half board`, or `other (code N)`. |

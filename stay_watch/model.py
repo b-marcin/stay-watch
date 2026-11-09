@@ -37,7 +37,7 @@ class Quote:
     price: int
     recent_lowest: int | None
     original: int | None
-    rooms_left: int
+    rooms_left: int | None
     profile_id: int
 
 
