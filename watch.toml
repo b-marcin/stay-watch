@@ -1,0 +1,32 @@
+# Stay Watch
+# Edit this file on GitHub (the pencil icon on this file), then commit it
+# to the main branch. The next scheduled run picks the change up.
+# Dates are YYYY-MM-DD. Prices are whole PLN for the whole stay.
+
+[defaults]
+adults = 2
+nights = 2
+must_include = ["sat"]        # every stay must include Saturday night -> Fri-Sun or Sat-Mon
+top = 3                       # how many cheapest stays to list; "all" lists every one
+codes = []                    # promo codes to apply, e.g. ["NEWSLETTER10"]
+
+[digest]
+weekday = "mon"               # weekly summary email even when no alert fired; "off" disables it
+
+[[search]]
+id = "winter-weekends"
+name = "Winter weekends"
+from = "2026-12-01"           # earliest check-in
+to = "2027-03-01"             # latest check-out
+# offers = ["bezzwrotna"]     # optional: keep offers whose name contains this text
+# rooms = ["studio"]          # optional: keep rooms whose name contains this text
+  [[search.alert]]
+  below = 1300                # total price for the stay, PLN
+  [[search.alert]]
+  below_recent_lowest = true  # cheaper than the hotel's own lowest price of the last 30 days
+
+# Other alerts, one per block, under a search:
+#   per_night_below = 650     # average per night, PLN
+#   drop_pct = 10             # at least this percent below the previous recorded price
+#   discounted = true         # a crossed-out original price is showing
+# Weekday names: mon tue wed thu fri sat sun, or pon wt sr czw pt sob nd.
