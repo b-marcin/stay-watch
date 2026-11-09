@@ -1,9 +1,10 @@
 {
-  "scanned_at": "2026-11-09T14:38:56+01:00",
+  "scanned_at": "2026-11-09T15:49:51+01:00",
   "searches": [
     {
-      "id": "winter-weekends",
-      "name": "Winter weekends",
+      "id": "s1",
+      "name": "1 Dec – 1 Mar",
+      "custom_name": false,
       "window_start": "2026-12-01",
       "window_end": "2027-03-01",
       "nights": 2,
@@ -538,5 +539,6 @@
         }
       ]
     }
-  ]
+  ],
+  "tracked": []
 }
