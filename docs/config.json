@@ -30,7 +30,7 @@
       "alerts": [
         {
           "kind": "below",
-          "amount": 1300
+          "amount": 1200
         },
         {
           "kind": "below_recent_lowest"
