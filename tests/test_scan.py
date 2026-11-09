@@ -3,7 +3,13 @@ import os
 import shutil
 import subprocess
 import sys
+from datetime import date
 from pathlib import Path
+
+from stay_watch.config import load_secrets
+from stay_watch.profitroom import FixtureClient
+from stay_watch.service import execute_search
+from tests.support import make_search
 
 REPO = Path(__file__).resolve().parents[1]
 FIXTURES = REPO / "tests" / "fixtures"
@@ -181,6 +187,36 @@ def test_repeated_empty_feed_alerts_then_recovers(tmp_path):
     latest = json.loads((docs / "latest.json").read_text(encoding="utf-8"))
     prices = [stay["price"] for stay in latest["searches"][0]["stays"]]
     assert 127_000 in prices
+
+
+def test_actions_search_prints_a_count_and_not_the_names(tmp_path):
+    proc = run_cli(
+        tmp_path,
+        [
+            "search",
+            "--from",
+            "2026-12-01",
+            "--to",
+            "2026-12-08",
+            "--fixtures",
+            str(FIXTURES),
+        ],
+        {"GITHUB_ACTIONS": "true"},
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.strip() == "search ok: 2 stays"
+    assert "Oferta" not in proc.stdout
+    assert "Example" not in proc.stdout
+
+
+def test_actions_search_marks_the_count_when_it_emails(monkeypatch, capsys):
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    sent = []
+    monkeypatch.setattr("stay_watch.service.deliver", lambda secrets, message: sent.append(message["Subject"]))
+    secrets = load_secrets({"HOTEL_SLUG": "examplehotel", "DRY_RUN": "1", "ALERT_TO": "guest@example.com"})
+    execute_search(make_search(window_end=date(2026, 12, 8)), secrets, FixtureClient(FIXTURES), True)
+    assert sent
+    assert capsys.readouterr().out.strip() == "search ok: 2 stays, emailed"
 
 
 def test_search_prints_a_table_and_does_not_touch_the_store(tmp_path):

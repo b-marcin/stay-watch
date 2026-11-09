@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 from datetime import datetime
 
@@ -120,6 +121,14 @@ def execute_search(search: Search, secrets: Secrets, client: ProfitroomClient | 
     stays = candidate_stays(search)
     quotes_by_key = {stay.key: client.quotes(stay, search.adults, search.codes) for stay in stays}
     ranked = rank_search(search, stays, quotes_by_key, catalog)
+    # Actions logs are public. Offer names contain the hotel name, and GitHub
+    # only masks a secret as a whole value, so the table must not be printed.
+    if os.environ.get("GITHUB_ACTIONS"):
+        if email:
+            deliver(secrets, build_search_message(secrets, search, ranked, catalog))
+        mailed = ", emailed" if email else ""
+        print(f"search ok: {len(ranked)} stays{mailed}")
+        return
     print(render_table(ranked, catalog, search.top), end="")
     if email:
         deliver(secrets, build_search_message(secrets, search, ranked, catalog))
