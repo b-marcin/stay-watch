@@ -82,8 +82,10 @@
     line-height: 1.45;
     -webkit-font-smoothing: antialiased;
   }
-  button, input { font: inherit; color: inherit; }
-  button:focus-visible, a:focus-visible, input:focus-visible, .chart:focus-visible {
+  button, input, select { font: inherit; color: inherit; }
+  input::placeholder { color: var(--muted); opacity: .8; }
+  select option { background: var(--card); color: var(--ink); }
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, .chart:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
@@ -108,7 +110,7 @@
   }
   .pill.stale .dot { background: var(--warn); }
   .icon-btn {
-    position: relative; width: 32px; height: 32px; padding: 0; display: grid; place-items: center;
+    position: relative; width: 32px; height: 32px; padding: 0; display: grid; place-items: center; flex: none;
     border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink-2); cursor: pointer;
   }
   .icon-btn:hover { background: var(--soft); }
@@ -118,17 +120,33 @@
   }
   .pop {
     position: absolute; right: 0; top: calc(100% + 8px); z-index: 30;
-    width: min(320px, calc(100vw - 32px)); padding: 14px; border-radius: 14px;
+    width: min(340px, calc(100vw - 32px)); max-height: calc(100vh - 96px); overflow: auto; padding: 14px; border-radius: 14px;
     background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow-pop);
   }
-  .pop label { display: block; margin-bottom: 6px; font-size: 12px; color: var(--muted); font-weight: 500; }
+  .pop h4 { margin: 0 0 8px; font-size: 13px; font-weight: 600; }
+  .pop-sec + .pop-sec { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .pop-hint {
+    margin: 0 0 12px; padding: 8px 10px; border-radius: 10px; font-size: 13px; color: var(--ink);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+  .pop label, .pop .lbl { display: block; margin-bottom: 6px; font-size: 12px; color: var(--muted); font-weight: 500; }
   .pop input {
     width: 100%; height: 36px; padding: 0 10px; border-radius: 10px; background: var(--card);
     border: 1px solid var(--line-strong); font-size: 14px;
   }
-  .pop input[aria-invalid="true"] { border-color: var(--warn); }
+  .pop input[aria-invalid="true"] { border-color: var(--down); }
   .pop .hint { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
-  .pop .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+  .pop .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+  .pop .masked {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 36px;
+    padding: 0 6px 0 10px; border-radius: 10px; border: 1px solid var(--line-strong);
+  }
+  .pop .masked code { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .pop .form-status { margin: 10px 0 0; font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+  .pop .form-status.error { color: var(--down); }
+  .howto { margin: 12px 0 0; padding-left: 18px; font-size: 12.5px; color: var(--muted); }
+  .howto li + li { margin-top: 3px; }
+  .howto a { color: var(--accent); font-weight: 500; }
 
   .btn {
     display: inline-flex; align-items: center; justify-content: center; height: 32px; padding: 0 12px;
@@ -136,11 +154,15 @@
     font-size: 13px; font-weight: 500; white-space: nowrap; text-decoration: none; cursor: pointer;
   }
   .btn:hover { background: var(--soft); }
+  .btn:disabled { opacity: .45; cursor: default; background: var(--card); }
   .btn.primary { background: var(--accent); border-color: transparent; color: var(--on-accent); }
   .btn.primary:hover { background: var(--accent); filter: brightness(1.08); }
+  .btn.primary:disabled { background: var(--accent); }
+  .btn.danger { color: var(--down); }
   .link {
     background: none; border: 0; padding: 4px 0; color: var(--accent); font-size: 13px; font-weight: 500; cursor: pointer;
   }
+  .link:disabled { opacity: .45; cursor: default; }
 
   .banner {
     display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px;
@@ -152,11 +174,13 @@
   .banner a { color: var(--accent); font-weight: 500; }
 
   .note {
-    margin-top: 14px; padding: 9px 12px; border-radius: 12px; background: var(--soft);
+    margin: 14px 0 0; padding: 9px 12px; border-radius: 12px; background: var(--soft);
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px;
     font-size: 13px; color: var(--ink-2);
   }
+  .note.error { background: color-mix(in srgb, var(--down) 12%, var(--soft)); color: var(--ink); }
 
-  /* Segmented tabs: they shrink and truncate, never scroll */
+  /* Segmented controls: they shrink and truncate, never scroll */
   .seg {
     display: flex; gap: 2px; padding: 3px; margin-top: 18px; max-width: 100%;
     background: var(--soft); border-radius: 12px;
@@ -169,22 +193,155 @@
   .seg button[aria-pressed="true"] {
     background: var(--card); color: var(--ink); box-shadow: var(--shadow-card), 0 0 0 1px var(--line);
   }
+  .seg.mini { margin: 0; height: 30px; padding: 2px; }
+  .seg.mini button { height: 26px; padding: 0 8px; font-size: 12.5px; }
+
+  /* Tracked trips */
+  .sec-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; margin: 0 0 10px; }
+  .sec-head h2 { margin: 0; font-size: 17px; font-weight: 650; letter-spacing: -.01em; }
+  .tracked { margin-top: 22px; }
+  .empty-line {
+    margin: 0; padding: 14px 16px; border: 1px dashed var(--line-strong); border-radius: 16px;
+    color: var(--muted); font-size: 13px;
+  }
+  .trips { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+  @media (min-width: 720px) { .trips { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1120px) { .trips { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .trip {
+    min-width: 0; padding: 14px 16px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; box-shadow: var(--shadow-card);
+  }
+  .trip-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+  .trip-title, .trip-title-text { min-width: 0; font-size: 15px; font-weight: 650; overflow-wrap: anywhere; }
+  .trip-nights { font-size: 12px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .trip-price {
+    margin-top: 10px; font-size: 26px; font-weight: 650; letter-spacing: -.02em; line-height: 1.15;
+    white-space: nowrap; font-variant-numeric: tabular-nums;
+  }
+  .trip-price.none { font-size: 18px; font-weight: 600; color: var(--muted); }
+  .trip-sub { margin-top: 2px; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .trip-note { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
+  .facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; margin: 12px 0 0; }
+  .fact { min-width: 0; }
+  .fact dt { font-size: 12px; color: var(--muted); }
+  .fact dd { margin: 2px 0 0; min-width: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .fact .v { font-size: 15px; font-weight: 600; }
+  .fact .s { margin-left: 6px; font-size: 12px; color: var(--muted); }
+  .fact dd.good .v { color: var(--money); }
+  .fact dd.bad .v { color: var(--down); }
+  .trip-detail { margin: 10px 0 0; font-size: 12.5px; color: var(--ink-2); overflow-wrap: anywhere; }
+  .trip .chips { margin-top: 10px; }
+  .trip .chart-box { margin-top: 12px; }
+  .trip-controls {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 14px;
+    padding-top: 12px; border-top: 1px solid var(--line);
+  }
+  .below { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
+  .suffix-field { display: inline-flex; align-items: center; gap: 6px; }
+  .below input, .val input {
+    width: 96px; height: 30px; padding: 0 8px; border-radius: 9px; background: var(--card);
+    border: 1px solid var(--line-strong); font-size: 13.5px; font-variant-numeric: tabular-nums;
+  }
+  .suffix { font-size: 12.5px; color: var(--muted); }
+  .trip-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+  .trip-foot .btn:last-child { margin-left: auto; }
+  .trip.sold .trip-title, .trip.sold .trip-title-text { color: var(--ink-2); }
+  .trip.sold .trip-detail { color: var(--muted); }
 
   /* Search */
   .search { margin-top: 22px; }
   .search-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin: 0 0 12px; }
   .search h2 { margin: 0; min-width: 0; font-size: 17px; font-weight: 650; letter-spacing: -.01em; overflow-wrap: anywhere; }
+  .search-actions { margin-left: auto; }
   .meta { display: flex; flex-wrap: wrap; gap: 6px; }
   .meta span {
     padding: 2px 9px; border-radius: 999px; background: var(--soft); color: var(--ink-2);
     font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums;
   }
+  .pending { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 13px; color: var(--ink-2); }
+  .pending::before {
+    content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex: none;
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { opacity: .25; } }
+  @media (prefers-reduced-motion: reduce) { .pending::before { animation: none; } }
+
+  /* Inline editor */
+  .editor {
+    margin: 0 0 16px; padding: 16px; display: grid; gap: 16px; min-width: 0;
+    background: var(--card); border: 1px solid var(--line-strong); border-radius: 16px; box-shadow: var(--shadow-card);
+  }
+  .ed-grid { display: grid; gap: 14px 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .ed-grid .f-wide { grid-column: 1 / -1; }
+  .field { display: grid; gap: 6px; min-width: 0; align-content: start; }
+  .field-label { font-size: 12.5px; font-weight: 500; color: var(--muted); }
+  .field input[type="text"], .field input[type="date"], .field input[type="number"], .field select {
+    width: 100%; height: 38px; min-width: 0; padding: 0 10px; border-radius: 10px;
+    border: 1px solid var(--line-strong); background: var(--card); color: var(--ink); font-size: 14px;
+  }
+  .field input[type="date"] { font-variant-numeric: tabular-nums; }
+  .field input[aria-invalid="true"], .alert-row select[aria-invalid="true"] { border-color: var(--down); }
+  .field-err { margin: 0; font-size: 12px; color: var(--down); overflow-wrap: anywhere; }
+  .field-err:empty { display: none; }
+  .field-hint { margin: 0; font-size: 12px; color: var(--muted); }
+  .step-row { display: flex; align-items: center; gap: 6px; }
+  .step-btn {
+    width: 36px; height: 36px; padding: 0; border-radius: 10px; border: 1px solid var(--line-strong);
+    background: var(--card); color: var(--ink); font-size: 17px; line-height: 1; cursor: pointer;
+  }
+  .step-btn:hover:not(:disabled) { background: var(--soft); }
+  .step-btn:disabled { opacity: .4; cursor: default; }
+  .step-row output { min-width: 36px; text-align: center; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+  .days button {
+    height: 36px; padding: 0; border-radius: 10px; border: 1px solid var(--line-strong);
+    background: var(--card); color: var(--ink-2); font-size: 12.5px; cursor: pointer;
+  }
+  .days button[aria-pressed="true"] {
+    background: color-mix(in srgb, var(--accent) 16%, var(--card)); color: var(--ink);
+    border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+  .alerts { display: grid; gap: 8px; }
+  .alert-item { display: grid; gap: 4px; }
+  .alert-row { display: grid; grid-template-columns: minmax(0, 1fr) auto 36px; gap: 8px; align-items: center; }
+  .alert-row select {
+    width: 100%; height: 38px; min-width: 0; padding: 0 8px; border-radius: 10px;
+    border: 1px solid var(--line-strong); background: var(--card); color: var(--ink); font-size: 14px;
+  }
+  .val { display: inline-flex; align-items: center; gap: 6px; }
+  .val input { width: 7.5rem; height: 38px; font-size: 14px; }
+  .icon-btn-s {
+    width: 36px; height: 36px; padding: 0; border-radius: 10px; border: 1px solid var(--line-strong);
+    background: var(--card); color: var(--ink-2); font-size: 18px; line-height: 1; cursor: pointer;
+  }
+  .icon-btn-s:hover { background: var(--soft); }
+  .preview { margin: 0; font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .preview:empty { display: none; }
+  .ed-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .ed-actions .spacer { flex: 1 1 auto; }
+  .confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); }
+  .add-row { margin-top: 18px; display: flex; }
+
+  /* Scanning state */
+  .scan { margin-top: 16px; padding: 16px; }
+  .scan-line { margin: 0; color: var(--muted); }
+  .scan-skel { margin-top: 12px; height: 120px; border-radius: 12px; }
+
+  /* Cards and split */
+  .split { display: grid; gap: 16px; margin-top: 16px; }
+  .card {
+    min-width: 0; overflow: hidden; background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; box-shadow: var(--shadow-card);
+  }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px 10px; }
+  .card-head h3 { margin: 0; font-size: 14px; font-weight: 600; }
 
   /* KPI strip: one card, hairlines drawn by the 1px grid gap */
   .kpis {
     display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px;
     background: var(--line); border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
-    box-shadow: var(--shadow-card);
+    box-shadow: var(--shadow-card); margin-top: 16px;
   }
   .kpi { min-width: 0; padding: 14px 16px 15px; background: var(--card); }
   .kpi:last-child:nth-child(odd) { grid-column: 1 / -1; }
@@ -202,20 +359,11 @@
   .kpi-value.good { color: var(--money); }
   .kpi-value.none { color: var(--muted); font-weight: 500; }
 
-  /* Cards and split */
-  .split { display: grid; gap: 16px; margin-top: 16px; }
-  .card {
-    min-width: 0; overflow: hidden; background: var(--card); border: 1px solid var(--line);
-    border-radius: 16px; box-shadow: var(--shadow-card);
-  }
-  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px 10px; }
-  .card-head h3 { margin: 0; font-size: 14px; font-weight: 600; }
-
   /* Stays table: real ARIA table on grid rows; phones reflow each row into three lines */
   .tbl { font-variant-numeric: tabular-nums; }
   .tr {
     display: grid; align-items: center; gap: 12px; padding: 10px 16px; border-top: 1px solid var(--line);
-    grid-template-columns: minmax(0, 1.35fr) minmax(0, .8fr) minmax(0, .7fr) minmax(0, 1.55fr) 112px;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, .8fr) minmax(0, .7fr) minmax(0, 1.55fr) 148px;
   }
   .tr.head { border-top: 0; padding-top: 4px; padding-bottom: 6px; font-size: 12px; font-weight: 500; color: var(--muted); }
   .tr:not(.head) { cursor: pointer; }
@@ -223,6 +371,7 @@
   .tr.open { background: color-mix(in srgb, var(--accent) 6%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent); }
   .tr.sold { color: var(--muted); }
   .tr .num { justify-self: end; text-align: right; }
+  .c-act { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
   .stay-btn {
     display: inline-flex; align-items: center; gap: 8px; min-width: 0; max-width: 100%; padding: 0; border: 0;
     background: none; text-align: left; cursor: pointer; font-weight: 500;
@@ -251,6 +400,13 @@
     position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);
     white-space: nowrap;
   }
+  .icon-btn.track { width: 32px; height: 32px; }
+  .icon-btn.track[aria-pressed="true"] {
+    color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--card));
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+  .icon-btn.track[aria-pressed="true"] svg { fill: currentColor; }
+  .icon-btn.track:hover { background: var(--soft); }
 
   .chart-box { min-width: 0; }
   .tr-detail { display: block; padding: 2px 16px 16px; }
@@ -259,8 +415,12 @@
   .chart .ax { font-size: 11px; fill: var(--muted); font-variant-numeric: tabular-nums; }
   .chart .ref-alert { stroke: var(--ink-2); stroke-width: 1.2; stroke-dasharray: 4 4; }
   .chart .ref-low { stroke: var(--muted); stroke-width: 1; }
+  .chart .ref-first { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 1 3; stroke-linecap: round; }
+  .chart .ref-lowest { stroke: var(--money); stroke-width: 1; stroke-dasharray: 5 3; opacity: .75; }
   .chart .ref-label { font-size: 11px; fill: var(--ink-2); font-variant-numeric: tabular-nums; }
   .chart .ref-label.low { fill: var(--muted); }
+  .chart .ref-label.first { fill: var(--ink-2); }
+  .chart .ref-label.lowest { fill: var(--money); }
   .chart .step { fill: none; stroke: var(--money); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
   .chart .dot { fill: var(--card); stroke: var(--money); stroke-width: 2; }
   .chart .dot.gone { fill: none; stroke: var(--muted); stroke-width: 1.2; }
@@ -327,7 +487,7 @@
     .tr .c-stay { grid-area: stay; }
     .tr .c-total { grid-area: total; }
     .tr .c-night { grid-area: night; }
-    .tr .c-act { grid-area: act; justify-self: end; }
+    .tr .c-act { grid-area: act; }
     .tr .c-flags { grid-area: flags; }
     .tr .num { justify-self: end; }
     .tr .c-flags:empty { display: none; }
@@ -370,16 +530,44 @@
     <h1>Stay Watch</h1>
     <div class="tools">
       <span class="pill" id="fresh" hidden><span class="dot" aria-hidden="true"></span><span id="freshText"></span></span>
-      <button class="icon-btn" id="gear" type="button" aria-label="Booking link" aria-haspopup="dialog" aria-expanded="false" aria-controls="pop" data-tip="Booking link">
+      <button class="icon-btn" id="gear" type="button" aria-label="Booking link and GitHub" aria-haspopup="dialog" aria-expanded="false" aria-controls="pop" data-tip="Booking link and GitHub">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
       </button>
-      <div class="pop" id="pop" role="dialog" aria-label="Booking link" hidden>
-        <label for="slug">Booking slug</label>
-        <input id="slug" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="80" aria-describedby="slugHint">
-        <p class="hint" id="slugHint">Letters, digits, - or _</p>
-        <div class="actions">
-          <button class="btn" id="slugClear" type="button" hidden>Remove</button>
-          <button class="btn primary" id="slugSave" type="button">Save</button>
+      <div class="pop" id="pop" role="dialog" aria-label="Booking link and GitHub" hidden>
+        <p class="pop-hint" id="popHint" hidden></p>
+        <div class="pop-sec">
+          <h4>Booking link</h4>
+          <label for="slug">Booking slug</label>
+          <input id="slug" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="80" aria-describedby="slugHint">
+          <p class="hint" id="slugHint">Letters, digits, - or _</p>
+          <div class="actions">
+            <button class="btn" id="slugClear" type="button" hidden>Remove</button>
+            <button class="btn primary" id="slugSave" type="button">Save</button>
+          </div>
+        </div>
+        <div class="pop-sec">
+          <h4>GitHub</h4>
+          <label for="repo">Repository</label>
+          <input id="repo" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="201" placeholder="owner/repo" aria-describedby="repoHint">
+          <p class="hint" id="repoHint">Filled from the page address</p>
+          <div id="tokenOn" hidden>
+            <p class="lbl">Token</p>
+            <div class="masked"><code id="tokenMask"></code><button class="btn" id="ghDisconnect" type="button">Disconnect</button></div>
+          </div>
+          <div id="tokenOff">
+            <label for="token">Fine-grained token</label>
+            <input id="token" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="200" placeholder="github_pat_…">
+          </div>
+          <div class="actions">
+            <button class="btn" id="ghTest" type="button">Test</button>
+            <button class="btn primary" id="ghSave" type="button">Connect</button>
+          </div>
+          <p class="form-status" id="ghStatus" role="status" hidden></p>
+          <ol class="howto">
+            <li><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">Create a fine-grained token</a></li>
+            <li>Repository access: this repository only.</li>
+            <li>Permissions: Contents, Read and write.</li>
+          </ol>
         </div>
       </div>
     </div>
@@ -456,6 +644,13 @@ function formatSignedPct(value) {
   var r = roundHalfUp(value);
   if (r === 0) return "±0%";
   return (r > 0 ? "+" : MINUS) + Math.abs(r) + "%";
+}
+
+/* Signed złoty change: "−57 zł", "+35 zł", "±0 zł". */
+function formatSignedPln(grosze) {
+  if (!isNumber(grosze)) return DASH;
+  if (grosze === 0) return "±" + formatPln(0);
+  return (grosze > 0 ? "+" : MINUS) + formatPln(Math.abs(grosze));
 }
 
 /* Price drop label: "▼ 13%", "▼ <1%" under half a percent. */
@@ -725,7 +920,11 @@ function pickAxis(lo, hi, pad) {
   return { step: step, yMin: yMin, yMax: yMax, compact: step % 10000 === 0 };
 }
 
-/* Geometry for the step chart. Returns null when there is no price to draw. */
+var REF_LABEL = { alert: "alert", low: "30-day low", first: "first", lowest: "lowest" };
+
+/* Geometry for the step chart. Returns null when there is no price to draw. Reference lines come from
+   opts.threshold (alert) and opts.low (30-day low), plus opts.refs: [{kind, value}] with kind alert, low, first or
+   lowest. */
 function chartGeometry(series, opts) {
   var pts = series.points || [];
   if (!pts.length || series.end === null) return null;
@@ -734,8 +933,13 @@ function chartGeometry(series, opts) {
   var W = opts.width;
   var H = opts.height;
   var plot = { left: 46, right: W - 12, top: 14, bottom: H - 26 };
-  var refs = [opts.threshold, opts.low].filter(isNumber);
-  var values = prices.concat(refs);
+  var refs = [];
+  if (isNumber(opts.threshold)) refs.push({ kind: "alert", value: opts.threshold });
+  if (isNumber(opts.low)) refs.push({ kind: "low", value: opts.low });
+  (opts.refs || []).forEach(function (r) {
+    if (r && isNumber(r.value) && REF_LABEL[r.kind]) refs.push({ kind: r.kind, value: r.value });
+  });
+  var values = prices.concat(refs.map(function (r) { return r.value; }));
   var lo = Math.min.apply(null, values);
   var hi = Math.max.apply(null, values);
   var span = hi - lo;
@@ -772,6 +976,29 @@ function chartGeometry(series, opts) {
     xTicks.push({ x: xOf(t), label: formatDayMonth(t, series.offset), anchor: k === 0 ? "start" : k === n - 1 ? "end" : "middle" });
   }
 
+  /* Reference lines and their labels. Low values sit their label under the line, the rest above it; a label that
+     would touch the one before it is pushed down. */
+  var refLines = refs.map(function (r) {
+    var y = yOf(r.value);
+    var below = r.kind === "low" || r.kind === "lowest";
+    return {
+      kind: r.kind,
+      value: r.value,
+      y: y,
+      label: REF_LABEL[r.kind] + " " + formatPln(r.value),
+      anchor: below ? "start" : "end",
+      labelY: below ? y + 13 : y - 5
+    };
+  });
+  var sorted = refLines.slice().sort(function (a, b) { return a.labelY - b.labelY; });
+  var floor = -Infinity;
+  sorted.forEach(function (r) {
+    if (r.labelY < floor + 12) r.labelY = floor + 12;
+    floor = r.labelY;
+  });
+  var alertRef = refLines.filter(function (r) { return r.kind === "alert"; })[0] || null;
+  var lowRef = refLines.filter(function (r) { return r.kind === "low"; })[0] || null;
+
   return {
     width: W,
     height: H,
@@ -784,10 +1011,11 @@ function chartGeometry(series, opts) {
     dots: dots,
     yTicks: yTicks,
     xTicks: xTicks,
-    alertY: isNumber(opts.threshold) ? yOf(opts.threshold) : null,
-    alertValue: isNumber(opts.threshold) ? opts.threshold : null,
-    lowY: isNumber(opts.low) ? yOf(opts.low) : null,
-    lowValue: isNumber(opts.low) ? opts.low : null
+    refLines: refLines,
+    alertY: alertRef ? alertRef.y : null,
+    alertValue: alertRef ? alertRef.value : null,
+    lowY: lowRef ? lowRef.y : null,
+    lowValue: lowRef ? lowRef.value : null
   };
 }
 
@@ -834,6 +1062,464 @@ function calendarLayout(stays, ref) {
   }
   return { cols: cols, cells: cells, months: months, weekdays: weekdays };
 }
+
+/* ---- Round 2: config, editing, tracking, GitHub, polling ---- */
+
+var DAY_TOKENS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+var DAY_JS = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+var DAY_SHORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+var ALERT_KINDS = ["below", "per_night_below", "drop_pct", "below_recent_lowest", "discounted"];
+var ALERT_LABEL = {
+  below: "Total below",
+  per_night_below: "Per night below",
+  drop_pct: "Drop of at least",
+  below_recent_lowest: "Cheaper than 30-day low",
+  discounted: "Discounted"
+};
+var NOTIFY_MODES = ["any", "drop"];
+var NOTIFY_LABEL = { any: "Any change", drop: "Drops only" };
+var ADD_DAYS = 60;
+var POLL_MS = 20000;
+var GIVE_UP_MS = 6 * 60000;
+var MAX_PLN = 1000000;
+var MAX_TOP = 50;
+var TOKEN_PATTERN = /^github_pat_[A-Za-z0-9_]{20,255}$/;
+var REPO_PATTERN = /^[A-Za-z0-9_.-]{1,100}\/[A-Za-z0-9_.-]{1,100}$/;
+
+function hasOwn(obj, key) {
+  return Object.prototype.hasOwnProperty.call(obj, key);
+}
+
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function sameJson(a, b) {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
+function findById(list, id) {
+  var found = (Array.isArray(list) ? list : []).filter(function (item) { return item && item.id === id; });
+  return found.length ? found[0] : null;
+}
+
+function isoFromTime(t) {
+  var d = new Date(t);
+  return d.getUTCFullYear() + "-" + pad2(d.getUTCMonth() + 1) + "-" + pad2(d.getUTCDate());
+}
+
+/* Calendar day in Warsaw (the scanner's zone) for an instant. Falls back to the local date. */
+function todayIso(nowMs) {
+  try {
+    var parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit"
+    }).formatToParts(new Date(nowMs));
+    var got = {};
+    parts.forEach(function (p) { got[p.type] = p.value; });
+    if (got.year && got.month && got.day) return got.year + "-" + got.month + "-" + got.day;
+    throw new Error("no parts");
+  } catch (e) {
+    var d = new Date(nowMs);
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
+  }
+}
+
+function addDays(iso, n) {
+  var t = parseIsoDay(iso);
+  return t === null ? null : isoFromTime(t + n * DAY_MS);
+}
+
+function nightsBetween(a, b) {
+  var x = parseIsoDay(a);
+  var y = parseIsoDay(b);
+  return x === null || y === null ? null : Math.round((y - x) / DAY_MS);
+}
+
+function nightsText(n) {
+  return n + (n === 1 ? " night" : " nights");
+}
+
+function adultsText(n) {
+  return n + (n === 1 ? " adult" : " adults");
+}
+
+function countLabel(n) {
+  if (n === 0) return "No stays to check";
+  if (n === 1) return "1 stay to check";
+  return n + " stays to check";
+}
+
+/* Scan year for a scan timestamp in its own offset; falls back to the UTC year of nowMs. */
+function scanYearOf(scannedAt, nowMs) {
+  var t = Date.parse(scannedAt);
+  if (!isNumber(t)) return new Date(nowMs).getUTCFullYear();
+  return wallParts(t, isoOffsetMinutes(scannedAt)).year;
+}
+
+function monthDay(t, withYear) {
+  var d = new Date(t);
+  return d.getUTCDate() + " " + MONTH_SHORT[d.getUTCMonth()] + (withYear ? " " + d.getUTCFullYear() : "");
+}
+
+/* Derived search name: "1 Dec – 1 Mar". Years show when the window crosses a year or starts in another year than
+   the scan. Mirrors the rule the scanner writes into latest.json. */
+function derivedName(from, to, scanYear) {
+  var f = parseIsoDay(from);
+  var t = parseIsoDay(to);
+  if (f === null || t === null) return "";
+  var fy = new Date(f).getUTCFullYear();
+  var ty = new Date(t).getUTCFullYear();
+  var withYear = fy !== ty || fy !== scanYear;
+  return monthDay(f, withYear) + " – " + monthDay(t, withYear);
+}
+
+/* Shown name: a custom name from the config, else the scanner's name, else the name derived from the dates. */
+function displayName(cfg, live, scanYear) {
+  if (typeof cfg.name === "string" && cfg.name.trim()) return cfg.name.trim();
+  if (live && live.custom_name !== true && typeof live.name === "string" && live.name) return live.name;
+  return derivedName(cfg.from, cfg.to, scanYear) || "Search";
+}
+
+/* Check-ins the scanner plans: every check-in from max(from, today) through to − nights, where the stay covers each
+   required weekday night (a stay covers night D when check_in ≤ D < check_out). Empty mustInclude means any check-in. */
+function staysToCheck(from, to, nights, mustInclude, today) {
+  var f = parseIsoDay(from);
+  var t = parseIsoDay(to);
+  var now = parseIsoDay(today);
+  if (f === null || t === null || now === null || !isNumber(nights) || nights < 1 || nights > 60) return 0;
+  var required = (Array.isArray(mustInclude) ? mustInclude : [])
+    .map(function (tok) { return DAY_JS[tok]; })
+    .filter(function (day) { return isNumber(day); });
+  var last = t - nights * DAY_MS;
+  var count = 0;
+  for (var d = Math.max(f, now); d <= last; d += DAY_MS) {
+    var ok = true;
+    for (var r = 0; r < required.length && ok; r++) {
+      var found = false;
+      for (var k = 0; k < nights && !found; k++) {
+        if (new Date(d + k * DAY_MS).getUTCDay() === required[r]) found = true;
+      }
+      ok = found;
+    }
+    if (ok) count += 1;
+  }
+  return count;
+}
+
+/* Weekday tokens, unique, Monday first. */
+function orderDays(list) {
+  var set = {};
+  (Array.isArray(list) ? list : []).forEach(function (tok) {
+    var key = String(tok).toLowerCase();
+    if (DAY_TOKENS.indexOf(key) >= 0) set[key] = true;
+  });
+  return DAY_TOKENS.filter(function (tok) { return !!set[tok]; });
+}
+
+function clampInt(value, min, max, fallback) {
+  if (!isNumber(value)) return fallback;
+  var r = Math.round(value);
+  return r >= min && r <= max ? r : fallback;
+}
+
+/* Whole number text from an input: "12" -> 12, anything else -> null. */
+function parseWhole(text, min, max) {
+  var s = String(text === null || text === undefined ? "" : text).trim();
+  if (!/^\d+$/.test(s)) return null;
+  var n = parseInt(s, 10);
+  return n >= min && n <= max ? n : null;
+}
+
+function emptyConfig() {
+  return {
+    version: 1,
+    defaults: { adults: 2, nights: 2, must_include: ["sat"], top: 3, codes: [] },
+    digest: { weekday: "mon" },
+    searches: [],
+    tracked: []
+  };
+}
+
+/* Keeps what the page understands from a config file, and any other keys so a save does not drop them. */
+function readConfig(raw) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  var base = emptyConfig();
+  var out = Object.assign({}, raw);
+  out.defaults = Object.assign({}, base.defaults, raw.defaults && typeof raw.defaults === "object" ? raw.defaults : {});
+  out.digest = Object.assign({}, base.digest, raw.digest && typeof raw.digest === "object" ? raw.digest : {});
+  out.searches = (Array.isArray(raw.searches) ? raw.searches : []).filter(function (s) {
+    return !!s && typeof s === "object" && typeof s.id === "string";
+  });
+  out.tracked = (Array.isArray(raw.tracked) ? raw.tracked : []).filter(function (t) {
+    return !!t && typeof t === "object" && typeof t.id === "string";
+  });
+  return out;
+}
+
+/* Tracked id per the contract: {check_in}_{check_out}_a{adults}, plus _c{codes joined by -} when there are codes. */
+function trackedId(checkIn, checkOut, adults, codes) {
+  var id = checkIn + "_" + checkOut + "_a" + adults;
+  if (Array.isArray(codes) && codes.length) id += "_c" + codes.join("-");
+  return id;
+}
+
+function isTrackedStay(config, search, stay) {
+  var id = trackedId(stay.check_in, stay.check_out, search.adults, search.codes);
+  return findById(config.tracked, id) !== null;
+}
+
+function trackedEntry(search, stay, today) {
+  var codes = Array.isArray(search.codes) ? search.codes.slice() : [];
+  return {
+    id: trackedId(stay.check_in, stay.check_out, search.adults, codes),
+    check_in: stay.check_in,
+    check_out: stay.check_out,
+    adults: search.adults,
+    codes: codes,
+    notify: "any",
+    below: null,
+    added: today
+  };
+}
+
+function newSearchId(nowMs) {
+  return "s-" + Math.floor(nowMs).toString(36);
+}
+
+/* A new search from config.defaults, dated from today for ADD_DAYS. */
+function defaultSearch(config, id, today) {
+  var d = config.defaults || {};
+  return {
+    id: id,
+    name: null,
+    from: today,
+    to: addDays(today, ADD_DAYS),
+    nights: clampInt(d.nights, 1, 14, 2),
+    must_include: orderDays(d.must_include),
+    adults: clampInt(d.adults, 1, 6, 2),
+    top: d.top === undefined ? 3 : d.top,
+    codes: Array.isArray(d.codes) ? d.codes.slice() : [],
+    offers: [],
+    rooms: [],
+    alerts: []
+  };
+}
+
+function insertSearch(config, search) {
+  var next = clone(config);
+  if (!findById(next.searches, search.id)) next.searches.push(search);
+  return next;
+}
+
+function replaceSearch(config, search) {
+  var next = clone(config);
+  next.searches = next.searches.map(function (s) { return s && s.id === search.id ? search : s; });
+  return next;
+}
+
+function removeSearch(config, id) {
+  var next = clone(config);
+  next.searches = next.searches.filter(function (s) { return s && s.id !== id; });
+  return next;
+}
+
+function insertTracked(config, entry) {
+  var next = clone(config);
+  if (!findById(next.tracked, entry.id)) next.tracked.push(entry);
+  return next;
+}
+
+function removeTracked(config, id) {
+  var next = clone(config);
+  next.tracked = next.tracked.filter(function (t) { return t && t.id !== id; });
+  return next;
+}
+
+function patchTracked(config, id, patch) {
+  var next = clone(config);
+  next.tracked = next.tracked.map(function (t) {
+    return t && t.id === id ? Object.assign({}, t, patch) : t;
+  });
+  return next;
+}
+
+function setTrackedNotify(config, id, mode) {
+  return patchTracked(config, id, { notify: mode });
+}
+
+/* pln is a whole złoty amount or null (no alert). */
+function setTrackedBelow(config, id, pln) {
+  return patchTracked(config, id, { below: pln });
+}
+
+function kindHasValue(kind) {
+  return kind === "below" || kind === "per_night_below" || kind === "drop_pct";
+}
+
+function alertToDraft(alert) {
+  if (!alert || ALERT_KINDS.indexOf(alert.kind) < 0) return null;
+  if (alert.kind === "below" || alert.kind === "per_night_below") {
+    return { kind: alert.kind, value: isNumber(alert.amount) ? String(alert.amount) : "" };
+  }
+  if (alert.kind === "drop_pct") {
+    return { kind: alert.kind, value: isNumber(alert.pct) ? String(alert.pct) : "" };
+  }
+  return { kind: alert.kind, value: "" };
+}
+
+function draftToAlert(row) {
+  if (row.kind === "below" || row.kind === "per_night_below") {
+    return { kind: row.kind, amount: parseWhole(row.value, 1, MAX_PLN) };
+  }
+  if (row.kind === "drop_pct") return { kind: row.kind, pct: parseWhole(row.value, 1, 100) };
+  if (row.kind === "below_recent_lowest" || row.kind === "discounted") return { kind: row.kind };
+  return null;
+}
+
+/* The editor's working copy of a search. Text fields stay as typed until a save. */
+function draftFromSearch(search, defaults) {
+  var s = search || {};
+  var df = defaults || {};
+  var topRaw = hasOwn(s, "top") ? s.top : df.top;
+  return {
+    name: typeof s.name === "string" ? s.name : "",
+    from: typeof s.from === "string" ? s.from : "",
+    to: typeof s.to === "string" ? s.to : "",
+    nights: clampInt(hasOwn(s, "nights") ? s.nights : df.nights, 1, 14, 2),
+    adults: clampInt(hasOwn(s, "adults") ? s.adults : df.adults, 1, 6, 2),
+    mustInclude: orderDays(hasOwn(s, "must_include") ? s.must_include : df.must_include),
+    topAll: topRaw === null || topRaw === undefined,
+    top: String(isNumber(topRaw) ? topRaw : 3),
+    alerts: (Array.isArray(s.alerts) ? s.alerts : []).map(alertToDraft).filter(function (row) { return row !== null; })
+  };
+}
+
+/* Inline checks for a draft. Returns messages per field (empty object or nulls when fine). */
+function checkDraft(d, today) {
+  var errors = {};
+  var alerts = [];
+  var f = parseIsoDay(d.from);
+  var t = parseIsoDay(d.to);
+  var now = parseIsoDay(today);
+  if (f === null) errors.from = "Pick a date.";
+  else if (now !== null && f < now) errors.from = "From can't be in the past.";
+  if (t === null) errors.to = "Pick a date.";
+  else if (f !== null && t <= f) errors.to = "To must be after from.";
+  if (!d.topAll && parseWhole(d.top, 1, MAX_TOP) === null) errors.top = "Enter 1 to " + MAX_TOP + ".";
+  d.alerts.forEach(function (row) {
+    var msg = null;
+    if (row.kind === "below" || row.kind === "per_night_below") {
+      if (parseWhole(row.value, 1, MAX_PLN) === null) msg = "Whole złoty above 0.";
+    } else if (row.kind === "drop_pct") {
+      if (parseWhole(row.value, 1, 100) === null) msg = "Whole percent, 1 to 100.";
+    } else if (ALERT_KINDS.indexOf(row.kind) < 0) {
+      msg = "Pick a kind.";
+    }
+    alerts.push(msg);
+  });
+  var valid = Object.keys(errors).length === 0 && alerts.every(function (m) { return m === null; });
+  return { errors: errors, alerts: alerts, valid: valid };
+}
+
+/* The config search that a valid draft becomes. base is the fresh search, so keys the page does not edit survive. */
+function searchFromDraft(d, id, base) {
+  var out = Object.assign({}, base || {});
+  var name = String(d.name || "").trim();
+  out.id = id;
+  out.name = name ? name : null;
+  out.from = d.from;
+  out.to = d.to;
+  out.nights = d.nights;
+  out.adults = d.adults;
+  out.must_include = orderDays(d.mustInclude);
+  out.top = d.topAll ? null : parseWhole(d.top, 1, MAX_TOP);
+  out.codes = Array.isArray(out.codes) ? out.codes : [];
+  out.offers = Array.isArray(out.offers) ? out.offers : [];
+  out.rooms = Array.isArray(out.rooms) ? out.rooms : [];
+  out.alerts = d.alerts.map(draftToAlert).filter(function (a) { return a !== null; });
+  return out;
+}
+
+/* Change since tracked: price now minus first_price. Null when either side is missing. */
+function trackedChange(trip) {
+  if (!trip || !isNumber(trip.price) || !isNumber(trip.first_price) || trip.first_price <= 0) return null;
+  var change = trip.price - trip.first_price;
+  var pct = change / trip.first_price * 100;
+  return { change: change, pct: pct, tone: changeTone(change, pct) };
+}
+
+/* Lower is good: a fall is green; a rise is red only when it is at least 1%, so a tiny move reads neutral. */
+function changeTone(change, pct) {
+  if (change < 0) return "good";
+  if (change > 0 && Math.abs(pct) >= 1) return "bad";
+  return "none";
+}
+
+/* Attention flags for a tracked trip: the stay flags plus under-alert from the trip's own threshold. */
+function tripFlags(trip) {
+  var flags = stayFlags(trip);
+  if (isPriced(trip) && isNumber(trip.below) && trip.price < trip.below) {
+    flags.unshift({ kind: "under", label: "Under alert", tip: "Under your alert of " + formatPln(trip.below) });
+  }
+  return flags;
+}
+
+/* Poll decision for a save: done when latest.json has a new scanned_at, gave-up after six minutes, else waiting. */
+function pollDecision(sinceMs, nowMs, baseline, scannedAt) {
+  if (scannedAt && scannedAt !== baseline) return "done";
+  if (nowMs - sinceMs >= GIVE_UP_MS) return "gave-up";
+  return "waiting";
+}
+
+/* owner/repo from a GitHub Pages address: https://owner.github.io/repo/ gives owner/repo. */
+function repoFromLocation(hostname, pathname) {
+  var m = /^([A-Za-z0-9-]+)\.github\.io$/i.exec(hostname || "");
+  if (!m) return "";
+  var first = String(pathname || "/").split("/").filter(Boolean)[0];
+  var candidate = m[1] + "/" + (first ? first : m[1] + ".github.io");
+  return isValidRepo(candidate) ? candidate : "";
+}
+
+function isValidRepo(value) {
+  return typeof value === "string" && value.length <= 201 && REPO_PATTERN.test(value);
+}
+
+function isFineGrainedToken(value) {
+  return typeof value === "string" && TOKEN_PATTERN.test(value);
+}
+
+/* Shown as connected: github_pat_…abcd */
+function maskToken(value) {
+  return isFineGrainedToken(value) ? "github_pat_…" + value.slice(-4) : "";
+}
+
+function ghErrorText(status) {
+  if (status === 401) return "GitHub rejected the token (401).";
+  if (status === 403) return "This token can't write to the repository (403). It needs Contents: Read and write.";
+  if (status === 404) return "GitHub couldn't find config.json or the repository (404). Check the repository name.";
+  if (status === 409 || status === 422) return "GitHub refused the change (" + status + "). Try again.";
+  if (status === 429) return "GitHub is rate-limiting requests (429). Try again later.";
+  return "GitHub returned " + status + ".";
+}
+
+function utf8ToBase64(text) {
+  var bytes = new TextEncoder().encode(text);
+  var bin = "";
+  for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+
+function base64ToUtf8(b64) {
+  var bin = atob(String(b64).replace(/\s+/g, ""));
+  var bytes = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder("utf-8").decode(bytes);
+}
+
+/* config.json as the contract writes it: 2-space indent, trailing newline. */
+function encodeConfig(config) {
+  return JSON.stringify(config, null, 2) + "\n";
+}
 </script>
 
 <script>
@@ -842,32 +1528,57 @@ function calendarLayout(stays, ref) {
 
   var SVG_NS = "http://www.w3.org/2000/svg";
   var SLUG_KEY = "stayWatch.bookingSlug";
+  var TOKEN_KEY = "stayWatch.githubToken";
+  var REPO_KEY = "stayWatch.githubRepo";
+  var CONNECT_HINT = "Connect GitHub to edit";
   var params = new URLSearchParams(window.location.search);
   var sampleName = params.get("sample");
   if (sampleName !== null && !/^[a-z0-9-]{1,40}$/.test(sampleName)) sampleName = null;
-  var LATEST_URL = sampleName ? "data-samples/" + sampleName + "/latest.json" : "data/latest.json";
-  var HISTORY_URL = sampleName ? "data-samples/" + sampleName + "/history.json" : "data/history.json";
+  var SAMPLE_DIR = sampleName ? "data-samples/" + sampleName + "/" : "";
+  var DATA_DIR = sampleName ? SAMPLE_DIR : "data/";
+  var LATEST_URL = DATA_DIR + "latest.json";
+  var HISTORY_URL = DATA_DIR + "history.json";
+  var CONFIG_URL = sampleName ? SAMPLE_DIR + "config.json" : "config.json";
   var nowParam = params.get("now");
 
   var state = {
     loading: true,
     error: false,
+    configError: false,
     latest: null,
+    config: emptyConfig(),
     history: {},
     historyFailed: false,
     active: null,
     slug: "",
+    token: "",
+    repo: "",
     open: {},
-    showAll: {}
+    showAll: {},
+    openTrip: {},
+    editing: null,
+    draft: null,
+    confirmDelete: null,
+    busy: false,
+    notice: null,
+    pending: null,
+    popHint: "",
+    ghStatus: "",
+    ghStatusError: false
   };
   var observers = [];
   var copyTimers = [];
+  var pollTimer = null;
 
   function $(id) { return document.getElementById(id); }
 
   function nowMs() {
     var t = nowParam ? Date.parse(nowParam) : NaN;
     return isNumber(t) ? t : Date.now();
+  }
+
+  function scanYear() {
+    return scanYearOf(state.latest ? state.latest.scanned_at : "", nowMs());
   }
 
   function el(tag, attrs, kids) {
@@ -904,24 +1615,41 @@ function calendarLayout(stays, ref) {
     return null;
   }
 
-  /* Slug: localStorage only, every access wrapped. */
-  function readSlug() {
+  /* Storage: every access wrapped; a blocked store reads as empty. */
+  function storeGet(key) {
     try {
-      var value = window.localStorage.getItem(SLUG_KEY);
-      return isValidSlug(value) ? value : "";
+      return window.localStorage.getItem(key) || "";
     } catch (e) {
       return "";
     }
   }
 
-  function saveSlug(value) {
-    state.slug = value;
+  function storeSet(key, value) {
     try {
-      if (value) window.localStorage.setItem(SLUG_KEY, value);
-      else window.localStorage.removeItem(SLUG_KEY);
+      if (value) window.localStorage.setItem(key, value);
+      else window.localStorage.removeItem(key);
     } catch (e) {
-      /* Storage blocked: the slug still works for this page view. */
+      /* Storage blocked: the value still works for this page view. */
     }
+  }
+
+  function isConnected() {
+    return !!state.token;
+  }
+
+  /* Edit controls: when GitHub is not connected, the click opens the settings popover instead. */
+  function requireConnected() {
+    if (isConnected()) return true;
+    openPop(CONNECT_HINT);
+    return false;
+  }
+
+  function guard(fn) {
+    return function (event) {
+      if (event && event.stopPropagation) event.stopPropagation();
+      if (!requireConnected()) return;
+      fn(event);
+    };
   }
 
   /* Tooltip */
@@ -990,25 +1718,72 @@ function calendarLayout(stays, ref) {
     pill.setAttribute("data-tip", tip);
   }
 
-  /* Booking settings popover */
+  /* Settings popover: booking slug and GitHub connection */
   var gear = $("gear");
   var pop = $("pop");
+  var popHint = $("popHint");
   var slugInput = $("slug");
   var slugClear = $("slugClear");
+  var repoInput = $("repo");
+  var tokenInput = $("token");
+  var tokenOn = $("tokenOn");
+  var tokenOff = $("tokenOff");
+  var tokenMask = $("tokenMask");
+  var ghTest = $("ghTest");
+  var ghSave = $("ghSave");
+  var ghDisconnect = $("ghDisconnect");
+  var ghStatusEl = $("ghStatus");
 
-  function openPop() {
+  function setGhStatus(text, isError) {
+    state.ghStatus = text || "";
+    state.ghStatusError = !!isError;
+    ghStatusEl.hidden = !state.ghStatus;
+    ghStatusEl.textContent = state.ghStatus;
+    ghStatusEl.className = "form-status" + (isError ? " error" : "");
+  }
+
+  function refreshGhFields() {
+    var on = isConnected();
+    tokenOn.hidden = !on;
+    tokenOff.hidden = on;
+    tokenMask.textContent = maskToken(state.token);
+    ghSave.textContent = on ? "Save" : "Connect";
+  }
+
+  function openPop(hint) {
     pop.hidden = false;
     gear.setAttribute("aria-expanded", "true");
+    state.popHint = hint || "";
+    popHint.hidden = !state.popHint;
+    popHint.textContent = state.popHint;
     slugInput.value = state.slug;
     slugInput.removeAttribute("aria-invalid");
     slugClear.hidden = !state.slug;
-    slugInput.focus();
+    repoInput.value = state.repo;
+    repoInput.removeAttribute("aria-invalid");
+    tokenInput.value = "";
+    tokenInput.removeAttribute("aria-invalid");
+    refreshGhFields();
+    setGhStatus("", false);
+    if (hint && !isConnected()) tokenInput.focus();
+    else slugInput.focus();
   }
 
   function closePop(returnFocus) {
     pop.hidden = true;
     gear.setAttribute("aria-expanded", "false");
     if (returnFocus) gear.focus();
+  }
+
+  function saveSlug(value) {
+    state.slug = value;
+    if (value) storeSet(SLUG_KEY, value);
+    else storeSet(SLUG_KEY, "");
+  }
+
+  function readSlug() {
+    var value = storeGet(SLUG_KEY);
+    return isValidSlug(value) ? value : "";
   }
 
   function saveFromPop() {
@@ -1029,9 +1804,23 @@ function calendarLayout(stays, ref) {
     renderApp();
   }
 
+  function ghFileUrl(repo) {
+    return "https://api.github.com/repos/" + repo + "/contents/docs/config.json";
+  }
+
+  function ghHeaders(token, json) {
+    var headers = {
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
+      Authorization: "Bearer " + token
+    };
+    if (json) headers["Content-Type"] = "application/json";
+    return headers;
+  }
+
   gear.addEventListener("click", function (event) {
     event.stopPropagation();
-    if (pop.hidden) openPop();
+    if (pop.hidden) openPop("");
     else closePop(false);
   });
   $("slugSave").addEventListener("click", saveFromPop);
@@ -1042,6 +1831,72 @@ function calendarLayout(stays, ref) {
       saveFromPop();
     }
   });
+
+  ghSave.addEventListener("click", function () {
+    var repo = repoInput.value.trim();
+    if (!isValidRepo(repo)) {
+      repoInput.setAttribute("aria-invalid", "true");
+      repoInput.focus();
+      setGhStatus("Use owner/repo.", true);
+      return;
+    }
+    repoInput.removeAttribute("aria-invalid");
+    if (!isConnected()) {
+      var typed = tokenInput.value.trim();
+      if (!isFineGrainedToken(typed)) {
+        tokenInput.setAttribute("aria-invalid", "true");
+        tokenInput.focus();
+        setGhStatus("Use a fine-grained token that starts with github_pat_.", true);
+        return;
+      }
+      state.token = typed;
+      storeSet(TOKEN_KEY, typed);
+      tokenInput.value = "";
+    }
+    state.repo = repo;
+    storeSet(REPO_KEY, repo);
+    refreshGhFields();
+    setGhStatus("Saved.", false);
+    renderApp();
+  });
+
+  ghTest.addEventListener("click", async function () {
+    var repo = repoInput.value.trim();
+    if (!isValidRepo(repo)) {
+      repoInput.setAttribute("aria-invalid", "true");
+      setGhStatus("Use owner/repo.", true);
+      return;
+    }
+    var token = isConnected() ? state.token : tokenInput.value.trim();
+    if (!isFineGrainedToken(token)) {
+      setGhStatus("Add a fine-grained token first.", true);
+      return;
+    }
+    if (sampleName) {
+      setGhStatus("Sample mode: no request sent.", false);
+      return;
+    }
+    setGhStatus("Testing…", false);
+    try {
+      var res = await fetch(ghFileUrl(repo), { headers: ghHeaders(token, false), cache: "no-store" });
+      if (res.ok) setGhStatus("Connected. config.json is readable.", false);
+      else setGhStatus(ghErrorText(res.status), true);
+    } catch (e) {
+      setGhStatus("Couldn't reach GitHub.", true);
+    }
+  });
+
+  ghDisconnect.addEventListener("click", function () {
+    state.token = "";
+    storeSet(TOKEN_KEY, "");
+    state.editing = null;
+    state.draft = null;
+    state.confirmDelete = null;
+    refreshGhFields();
+    setGhStatus("Disconnected.", false);
+    renderApp();
+  });
+
   document.addEventListener("pointerdown", function (event) {
     if (pop.hidden) return;
     if (pop.contains(event.target) || gear.contains(event.target)) return;
@@ -1073,15 +1928,19 @@ function calendarLayout(stays, ref) {
       var observer = new ResizeObserver(run);
       observer.observe(box);
       observers.push(observer);
-      owner._ro = observer;
+      if (owner) owner._ro = observer;
     }
   }
 
-  function historyRows(search, stay) {
-    var bucket = state.history[search.history_key];
+  function historyRowsFor(historyKey, key) {
+    var bucket = state.history[historyKey];
     if (!bucket || typeof bucket !== "object") return [];
-    var rows = bucket[stay.key];
+    var rows = bucket[key];
     return Array.isArray(rows) ? rows : [];
+  }
+
+  function historyRows(search, stay) {
+    return historyRowsFor(search.history_key, stay.key);
   }
 
   function buildHistorySvg(geo, series) {
@@ -1107,18 +1966,17 @@ function calendarLayout(stays, ref) {
       svg.appendChild(label);
     });
 
-    if (geo.alertY !== null) {
-      svg.appendChild(svgEl("line", { class: "ref-alert", x1: geo.plot.left, x2: geo.plot.right, y1: geo.alertY, y2: geo.alertY }));
-      var alertLabel = svgEl("text", { class: "ref-label", x: geo.plot.right, y: geo.alertY - 5, "text-anchor": "end" });
-      alertLabel.textContent = "alert " + formatPln(geo.alertValue);
-      svg.appendChild(alertLabel);
-    }
-    if (geo.lowY !== null) {
-      svg.appendChild(svgEl("line", { class: "ref-low", x1: geo.plot.left, x2: geo.plot.right, y1: geo.lowY, y2: geo.lowY }));
-      var lowLabel = svgEl("text", { class: "ref-label low", x: geo.plot.left + 6, y: geo.lowY + 13, "text-anchor": "start" });
-      lowLabel.textContent = "30-day low " + formatPln(geo.lowValue);
-      svg.appendChild(lowLabel);
-    }
+    geo.refLines.forEach(function (ref) {
+      svg.appendChild(svgEl("line", { class: "ref-" + ref.kind, x1: geo.plot.left, x2: geo.plot.right, y1: ref.y, y2: ref.y }));
+      var text = svgEl("text", {
+        class: "ref-label" + (ref.kind === "alert" ? "" : " " + ref.kind),
+        x: ref.anchor === "start" ? geo.plot.left + 6 : geo.plot.right,
+        y: ref.labelY,
+        "text-anchor": ref.anchor
+      });
+      text.textContent = ref.label;
+      svg.appendChild(text);
+    });
 
     var d = "";
     var open = false;
@@ -1222,13 +2080,12 @@ function calendarLayout(stays, ref) {
     return svg;
   }
 
-  function drawHistory(box, series, threshold, low, width) {
+  function drawHistory(box, series, refs, width) {
     box.textContent = "";
     var geo = chartGeometry(series, {
       width: width,
       height: width < 480 ? 184 : 212,
-      threshold: threshold,
-      low: low
+      refs: refs
     });
     if (!geo) {
       box.appendChild(el("p", { class: "cell-note", text: "No prices recorded" }));
@@ -1237,17 +2094,41 @@ function calendarLayout(stays, ref) {
     box.appendChild(buildHistorySvg(geo, series));
   }
 
+  /* Reference lines for a stay in the stays table: the search's threshold and the hotel's 30-day low. */
+  function refsForStay(search, stay) {
+    var refs = [];
+    var th = thresholdOf(search);
+    if (th) refs.push({ kind: "alert", value: th.total });
+    if (isNumber(stay.recent_lowest)) refs.push({ kind: "low", value: stay.recent_lowest });
+    return refs;
+  }
+
   function buildDetail(search, stay, key) {
     var detail = el("div", { class: "tr-detail", role: "row", "data-detail": key });
     var box = el("div", { class: "chart-box", role: "cell" });
     detail.appendChild(box);
     var series = historySeries(historyRows(search, stay), state.latest.scanned_at);
-    var th = thresholdOf(search);
-    var low = isNumber(stay.recent_lowest) ? stay.recent_lowest : null;
+    var refs = refsForStay(search, stay);
     attachChart(box, function (width) {
-      drawHistory(box, series, th ? th.total : null, low, width);
+      drawHistory(box, series, refs, width);
     }, detail);
     return detail;
+  }
+
+  /* Price history for a tracked trip, with the alert, the first price and the lowest price seen as reference lines. */
+  function tripDetail(cfg, live) {
+    var wrap = el("div", { class: "trip-chart", "data-detail": "trip|" + cfg.id });
+    var box = el("div", { class: "chart-box", role: "img", "aria-label": "Price history for this trip" });
+    wrap.appendChild(box);
+    var series = historySeries(historyRowsFor(live.history_key, live.key), state.latest.scanned_at);
+    var refs = [];
+    if (isNumber(cfg.below)) refs.push({ kind: "alert", value: cfg.below * 100 });
+    if (isNumber(live.first_price)) refs.push({ kind: "first", value: live.first_price });
+    if (isNumber(live.lowest_seen)) refs.push({ kind: "lowest", value: live.lowest_seen });
+    attachChart(box, function (width) {
+      drawHistory(box, series, refs, width);
+    }, wrap);
+    return wrap;
   }
 
   function findDetail(key) {
@@ -1317,12 +2198,62 @@ function calendarLayout(stays, ref) {
     }
   }
 
-  function chipsFor(stay) {
+  function copyButton(stay, adults) {
+    var copy = el("button", { type: "button", class: "btn copy", text: "Copy dates" });
+    copy.addEventListener("click", function (event) {
+      event.stopPropagation();
+      copyDates(copy, stay, adults);
+    });
+    return copy;
+  }
+
+  function flagChips(flags) {
     var wrap = el("div", { class: "chips" });
-    stayFlags(stay).forEach(function (flag) {
+    flags.forEach(function (flag) {
       wrap.appendChild(el("span", { class: "chip " + flag.kind, text: flag.label, "data-tip": flag.tip }));
     });
     return wrap;
+  }
+
+  function starIcon() {
+    var svg = svgEl("svg", { viewBox: "0 0 24 24", width: 16, height: 16, fill: "none", stroke: "currentColor", "stroke-width": 1.8, "stroke-linejoin": "round", "aria-hidden": "true" });
+    svg.appendChild(svgEl("path", { d: "M12 3.8l2.5 5.1 5.6.8-4 3.9.9 5.6L12 16.6l-5 2.6.9-5.6-4-3.9 5.6-.8z" }));
+    return svg;
+  }
+
+  function svgIcon() {
+    var svg = svgEl("svg", { viewBox: "0 0 12 12", width: 10, height: 10, fill: "none", stroke: "currentColor", "stroke-width": 1.6, "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true" });
+    svg.appendChild(svgEl("path", { d: "M4 2.5 8 6 4 9.5" }));
+    return svg;
+  }
+
+  /* Track toggle on a stay row. Uses the config's adults and codes, so the id matches what the scanner writes. */
+  function trackButton(search, stay) {
+    var current = findById(state.config.searches, search.id) || search;
+    var on = isTrackedStay(state.config, current, stay);
+    var label = formatStay(stay.check_in, stay.check_out);
+    var button = el("button", {
+      type: "button",
+      class: "icon-btn track",
+      "aria-pressed": on ? "true" : "false",
+      "aria-label": (on ? "Stop tracking " : "Track ") + label,
+      "data-tip": !isConnected() ? CONNECT_HINT : on ? "Tracked: tap to stop" : "Track this stay",
+      "data-focus": "track|" + search.id + "|" + stay.key
+    });
+    button.appendChild(starIcon());
+    button.addEventListener("click", function (event) {
+      event.stopPropagation();
+      if (!requireConnected()) return;
+      var fresh = findById(state.config.searches, search.id);
+      if (!fresh) return;
+      if (on) {
+        runEdit("tracked", function (c) { return removeTracked(c, trackedId(stay.check_in, stay.check_out, fresh.adults, fresh.codes)); }, "Stop tracking");
+      } else {
+        var entry = trackedEntry(fresh, stay, todayIso(nowMs()));
+        runEdit("tracked", function (c) { return insertTracked(c, entry); }, "Track stay");
+      }
+    });
+    return button;
   }
 
   function stayRow(search, stay) {
@@ -1364,6 +2295,7 @@ function calendarLayout(stays, ref) {
       : el("div", { class: "c-night num", role: "cell", text: DASH });
 
     var action = el("div", { class: "c-act", role: "cell" });
+    action.appendChild(trackButton(search, stay));
     if (priced) {
       var url = bookUrl(state.slug, stay, search.adults);
       if (url) {
@@ -1376,12 +2308,7 @@ function calendarLayout(stays, ref) {
           "aria-label": "Book " + formatStay(stay.check_in, stay.check_out) + " on the booking site"
         }));
       } else {
-        var copy = el("button", { type: "button", class: "btn copy", text: "Copy dates" });
-        copy.addEventListener("click", function (event) {
-          event.stopPropagation();
-          copyDates(copy, stay, search.adults);
-        });
-        action.appendChild(copy);
+        action.appendChild(copyButton(stay, search.adults));
       }
     }
 
@@ -1392,16 +2319,14 @@ function calendarLayout(stays, ref) {
     row.appendChild(action);
 
     row.addEventListener("click", function (event) {
-      if (event.target.closest && event.target.closest("a, button.copy")) return;
+      if (event.target.closest && event.target.closest("a, button.copy, button.track")) return;
       toggleRow(search, stay, row);
     });
     return row;
   }
 
-  function svgIcon() {
-    var svg = svgEl("svg", { viewBox: "0 0 12 12", width: 10, height: 10, fill: "none", stroke: "currentColor", "stroke-width": 1.6, "stroke-linecap": "round", "stroke-linejoin": "round", "aria-hidden": "true" });
-    svg.appendChild(svgEl("path", { d: "M4 2.5 8 6 4 9.5" }));
-    return svg;
+  function chipsFor(stay) {
+    return flagChips(stayFlags(stay));
   }
 
   function staysCard(search, summary) {
@@ -1510,7 +2435,7 @@ function calendarLayout(stays, ref) {
     return el("div", { class: "kpi", "data-tip": tip }, [
       el("div", { class: "kpi-label", text: label }),
       el("div", { class: classes, text: value }),
-      el("div", { class: "kpi-sub", text: sub || " " })
+      el("div", { class: "kpi-sub", text: sub || " " })
     ]);
   }
 
@@ -1527,39 +2452,560 @@ function calendarLayout(stays, ref) {
     var cheapSub = c ? formatStay(c.check_in, c.check_out) : (summary.total ? "All sold out" : "No stays");
     return el("div", { class: "kpis" }, [
       kpi("Cheapest", c ? formatPln(c.price) : DASH, cheapSub, "Cheapest priced stay in this search, total for the whole stay"),
-      kpi("Per night", c ? formatPln(summary.perNight) : DASH, c ? search.nights + (search.nights === 1 ? " night" : " nights") : "", "Cheapest stay's price per night"),
+      kpi("Per night", c ? formatPln(summary.perNight) : DASH, c ? nightsText(search.nights) : "", "Cheapest stay's price per night"),
       kpi("Under alert", underValue, underSub, "Priced stays under the alert threshold"),
       kpi("vs alert", alertValue, th ? thText : "no alert set", "Cheapest stay against the alert threshold", alertGood ? "good" : ""),
       kpi("vs 30-day low", lowValue, summary.lowest !== null ? formatPln(summary.lowest) : "no 30-day low", "Cheapest stay against the hotel's lowest price of the last 30 days", lowGood ? "good" : "")
     ]);
   }
 
-  function renderPanel(search) {
-    var summary = summarize(search);
-    var ref = heatReference(summary);
-    var hasHeat = Array.isArray(search.stays) && search.stays.length >= 3;
-    var meta = el("div", { class: "meta" }, [
-      el("span", { text: search.nights + (search.nights === 1 ? " night" : " nights") }),
-      el("span", { text: search.adults + (search.adults === 1 ? " adult" : " adults") }),
-      el("span", { text: formatWindow(search.window_start, search.window_end) })
+  /* Trip cards -------------------------------------------------------------------------------------------- */
+
+  function tripMeta(cfg) {
+    var parts = [];
+    var n = nightsBetween(cfg.check_in, cfg.check_out);
+    if (n !== null) parts.push(nightsText(n));
+    if (isNumber(cfg.adults)) parts.push(adultsText(cfg.adults));
+    return parts.join(" · ");
+  }
+
+  function fact(label, value, sub, tone, tip) {
+    return el("div", { class: "fact", "data-tip": tip }, [
+      el("dt", { text: label }),
+      el("dd", { class: tone === "good" ? "good" : tone === "bad" ? "bad" : "" }, [
+        el("span", { class: "v", text: value }),
+        sub ? el("span", { class: "s", text: sub }) : null
+      ])
     ]);
-    if (Array.isArray(search.must_include) && search.must_include.length) {
-      var days = search.must_include.map(function (d) {
+  }
+
+  function trackRows() {
+    var live = state.latest && Array.isArray(state.latest.tracked) ? state.latest.tracked : [];
+    return state.config.tracked.map(function (cfg) {
+      return { cfg: cfg, live: findById(live, cfg.id) };
+    });
+  }
+
+  function tripCard(row) {
+    var cfg = row.cfg;
+    var live = row.live;
+    var today = todayIso(nowMs());
+    var title = formatStay(cfg.check_in, cfg.check_out);
+    var open = !!live && !!state.openTrip[cfg.id];
+    var sold = !!live && live.sold_out === true;
+    var passed = typeof cfg.check_in === "string" && cfg.check_in < today;
+    var connected = isConnected();
+    var card = el("article", { class: "trip" + (sold ? " sold" : ""), "data-trip": cfg.id });
+
+    var head;
+    if (live) {
+      head = el("button", {
+        type: "button",
+        class: "stay-btn trip-title",
+        "aria-expanded": open ? "true" : "false",
+        "aria-label": "Price history, " + title,
+        "data-focus": "trip|" + cfg.id
+      }, [document.createTextNode(title), svgIcon()]);
+      head.addEventListener("click", function () {
+        if (state.openTrip[cfg.id]) delete state.openTrip[cfg.id];
+        else state.openTrip[cfg.id] = true;
+        renderApp();
+      });
+    } else {
+      head = el("span", { class: "trip-title-text", text: title });
+    }
+    card.appendChild(el("div", { class: "trip-head" }, [head, el("span", { class: "trip-nights", text: tripMeta(cfg) })]));
+
+    if (live) {
+      card.appendChild(el("div", { class: "trip-price" + (sold ? " none" : ""), text: sold ? "Sold out" : formatPln(live.price) }));
+      if (!sold) card.appendChild(el("div", { class: "trip-sub", text: formatPln(live.per_night) + " a night" }));
+      var delta = trackedChange(live);
+      card.appendChild(el("dl", { class: "facts" }, [
+        fact("Since tracked", delta ? formatSignedPln(delta.change) : DASH, delta ? formatSignedPct(delta.pct) : "",
+          delta ? delta.tone : "none", "Price now minus the price at the first scan after tracking"),
+        fact("Lowest seen", formatPln(live.lowest_seen), "", "none", "Lowest price recorded for this stay since it was tracked")
+      ]));
+      var parts = [live.room_name, live.meal_plan, live.offer_name, live.cancel].filter(function (p) { return typeof p === "string" && p; });
+      if (parts.length) card.appendChild(el("p", { class: "trip-detail", text: parts.join(" · ") }));
+      if (!sold) {
+        var flags = tripFlags(live);
+        if (flags.length) card.appendChild(flagChips(flags));
+      }
+      if (open) card.appendChild(tripDetail(cfg, live));
+    } else {
+      card.appendChild(el("p", { class: "trip-note", text: passed ? "Check-in passed" : "Scanning…" }));
+    }
+
+    var seg = el("div", { class: "seg mini", role: "group", "aria-label": "Notify me about " + title });
+    NOTIFY_MODES.forEach(function (mode) {
+      var button = el("button", {
+        type: "button",
+        "aria-pressed": cfg.notify === mode ? "true" : "false",
+        text: NOTIFY_LABEL[mode],
+        "data-focus": "notify|" + cfg.id + "|" + mode
+      });
+      button.addEventListener("click", guard(function () {
+        if (cfg.notify !== mode) {
+          runEdit("tracked", function (c) { return setTrackedNotify(c, cfg.id, mode); }, "Notify " + mode);
+        }
+      }));
+      seg.appendChild(button);
+    });
+
+    var belowInput = el("input", {
+      type: "number",
+      inputmode: "numeric",
+      min: "1",
+      step: "1",
+      max: String(MAX_PLN),
+      placeholder: DASH,
+      "aria-label": "Alert below, zł, for " + title,
+      "data-focus": "below|" + cfg.id
+    });
+    belowInput.value = isNumber(cfg.below) ? String(cfg.below) : "";
+    if (!connected) {
+      belowInput.readOnly = true;
+      belowInput.addEventListener("click", function () { requireConnected(); });
+    }
+    belowInput.addEventListener("change", function () {
+      if (!requireConnected()) {
+        belowInput.value = isNumber(cfg.below) ? String(cfg.below) : "";
+        return;
+      }
+      var raw = belowInput.value.trim();
+      var value = raw === "" ? null : parseWhole(raw, 1, MAX_PLN);
+      if (raw !== "" && value === null) {
+        state.notice = { kind: "error", text: "Alert below takes whole złoty above 0." };
+        renderApp();
+        return;
+      }
+      if (value === (isNumber(cfg.below) ? cfg.below : null)) return;
+      runEdit("tracked", function (c) { return setTrackedBelow(c, cfg.id, value); }, "Alert below");
+    });
+
+    var belowLabel = el("label", { class: "below" }, [
+      el("span", { text: "Alert below" }),
+      el("span", { class: "suffix-field" }, [belowInput, el("span", { class: "suffix", text: "zł" })])
+    ]);
+    card.appendChild(el("div", { class: "trip-controls" }, [seg, belowLabel]));
+
+    var foot = el("div", { class: "trip-foot" });
+    if (live && isPriced(live)) {
+      var url = bookUrl(state.slug, live, cfg.adults);
+      if (url) {
+        foot.appendChild(el("a", {
+          class: "btn primary",
+          href: url,
+          target: "_blank",
+          rel: "noopener noreferrer",
+          text: "Book",
+          "aria-label": "Book " + title + " on the booking site"
+        }));
+      } else {
+        foot.appendChild(copyButton(live, cfg.adults));
+      }
+    }
+    var untrack = el("button", { type: "button", class: "btn", text: "Untrack", "data-focus": "untrack|" + cfg.id });
+    untrack.addEventListener("click", guard(function () {
+      runEdit("tracked", function (c) { return removeTracked(c, cfg.id); }, "Untrack");
+    }));
+    foot.appendChild(untrack);
+    card.appendChild(foot);
+    return card;
+  }
+
+  function trackedSection() {
+    var section = el("section", { class: "tracked", "aria-labelledby": "trackedHead" });
+    var head = el("div", { class: "sec-head" }, [el("h2", { id: "trackedHead", text: "Tracked trips" })]);
+    if (!isConnected()) {
+      var connect = el("button", { type: "button", class: "link", text: CONNECT_HINT, "data-focus": "connect|tracked" });
+      connect.addEventListener("click", function () { requireConnected(); });
+      head.appendChild(connect);
+    }
+    section.appendChild(head);
+    var status = pendingLine("tracked");
+    if (status) section.appendChild(status);
+    var rows = trackRows();
+    if (!rows.length) {
+      section.appendChild(el("p", { class: "empty-line", text: "Star a stay below to track its price." }));
+      return section;
+    }
+    var grid = el("div", { class: "trips" });
+    rows.forEach(function (row) { grid.appendChild(tripCard(row)); });
+    section.appendChild(grid);
+    return section;
+  }
+
+  /* Search panels ------------------------------------------------------------------------------------------ */
+
+  function searchMeta(cfg) {
+    var meta = el("div", { class: "meta" });
+    meta.appendChild(el("span", { text: nightsText(isNumber(cfg.nights) ? cfg.nights : 2) }));
+    meta.appendChild(el("span", { text: adultsText(isNumber(cfg.adults) ? cfg.adults : 2) }));
+    meta.appendChild(el("span", { text: formatWindow(cfg.from, cfg.to) }));
+    if (Array.isArray(cfg.must_include) && cfg.must_include.length) {
+      var days = cfg.must_include.map(function (d) {
         var key = String(d).toLowerCase();
         return key.charAt(0).toUpperCase() + key.slice(1);
       });
       meta.appendChild(el("span", { text: "Covers " + days.join(", ") }));
     }
-    if (Array.isArray(search.codes) && search.codes.length) {
-      meta.appendChild(el("span", { text: "Code " + search.codes.join(", ") }));
+    if (Array.isArray(cfg.codes) && cfg.codes.length) {
+      meta.appendChild(el("span", { text: "Code " + cfg.codes.join(", ") }));
     }
-    var section = el("section", { class: "search", "aria-label": search.name });
-    section.appendChild(el("div", { class: "search-head" }, [el("h2", { text: search.name }), meta]));
-    section.appendChild(kpiRow(search, summary));
-    var split = el("div", { class: "split" });
-    split.appendChild(staysCard(search, summary));
-    if (hasHeat) split.appendChild(heatCard(search, ref));
-    section.appendChild(split);
+    return meta;
+  }
+
+  function pendingText(p) {
+    if (p.gaveUp) return "Still waiting for the scan.";
+    if (p.sample) return "Saved in sample mode. Nothing was sent to GitHub.";
+    return "Saved, scanning… results in about 2 min";
+  }
+
+  function pendingLine(scope) {
+    var p = state.pending;
+    if (!p || p.scope !== scope) return null;
+    return el("p", { class: "pending", role: "status", text: pendingText(p) });
+  }
+
+  function scanCard() {
+    return el("section", { class: "card scan" }, [
+      el("p", { class: "scan-line", text: state.error ? "Results unavailable right now." : "Scanning…" }),
+      state.error ? null : el("div", { class: "skel scan-skel", "aria-hidden": "true" })
+    ]);
+  }
+
+  function capitalDay(tok) {
+    return tok.charAt(0).toUpperCase() + tok.slice(1);
+  }
+
+  function nextAlertKind(draft) {
+    var used = draft.alerts.map(function (row) { return row.kind; });
+    for (var i = 0; i < ALERT_KINDS.length; i++) {
+      if (used.indexOf(ALERT_KINDS[i]) < 0) return ALERT_KINDS[i];
+    }
+    return "below";
+  }
+
+  function setErr(node, message) {
+    node.textContent = message || "";
+  }
+
+  /* The inline editor. Typing updates the draft and the checks in place; structural changes re-render the app. */
+  function editorPanel(cfg) {
+    var d = state.draft;
+    var today = todayIso(nowMs());
+    var form = el("form", { class: "editor", novalidate: "", "aria-label": "Edit search" });
+    var preview = el("p", { class: "preview", "aria-live": "polite" });
+    var alertErrs = [];
+    var fromErr = el("p", { class: "field-err", id: "edFromErr" });
+    var toErr = el("p", { class: "field-err", id: "edToErr" });
+    var topErr = el("p", { class: "field-err", id: "edTopErr" });
+    var saveBtn = el("button", { type: "submit", class: "btn primary", text: "Save", "data-focus": "ed|save", disabled: state.busy });
+    var fromInput;
+    var toInput;
+    var nameInput;
+
+    function refresh() {
+      var now = todayIso(nowMs());
+      var check = checkDraft(d, now);
+      setErr(fromErr, check.errors.from);
+      setErr(toErr, check.errors.to);
+      setErr(topErr, check.errors.top);
+      fromInput.setAttribute("aria-invalid", check.errors.from ? "true" : "false");
+      toInput.setAttribute("aria-invalid", check.errors.to ? "true" : "false");
+      alertErrs.forEach(function (node, i) { setErr(node, check.alerts[i]); });
+      nameInput.placeholder = derivedName(d.from, d.to, scanYear()) || "From the dates";
+      if (check.errors.from || check.errors.to) {
+        preview.textContent = "";
+      } else {
+        preview.textContent = countLabel(staysToCheck(d.from, d.to, d.nights, d.mustInclude, now));
+      }
+      saveBtn.disabled = !check.valid || state.busy;
+    }
+
+    nameInput = el("input", {
+      type: "text",
+      maxlength: "60",
+      autocomplete: "off",
+      spellcheck: "false",
+      "data-focus": "ed|name",
+      "aria-label": "Name"
+    });
+    nameInput.value = d.name;
+    nameInput.addEventListener("input", function () { d.name = nameInput.value; });
+
+    function dateInput(key, label, errNode) {
+      var input = el("input", { type: "date", min: today, "data-focus": "ed|" + key, "aria-label": label });
+      input.value = d[key];
+      function changed() {
+        d[key] = input.value;
+        refresh();
+      }
+      input.addEventListener("input", changed);
+      input.addEventListener("change", changed);
+      return input;
+    }
+    fromInput = dateInput("from", "From", fromErr);
+    toInput = dateInput("to", "To", toErr);
+
+    function stepper(label, key, min, max) {
+      var output = el("output", { "aria-label": label, text: String(d[key]) });
+      var fewer = el("button", { type: "button", class: "step-btn", "aria-label": "Fewer " + label.toLowerCase(), text: "−", "data-focus": "ed|" + key + "|-" });
+      var more = el("button", { type: "button", class: "step-btn", "aria-label": "More " + label.toLowerCase(), text: "+", "data-focus": "ed|" + key + "|+" });
+      function sync() {
+        output.textContent = String(d[key]);
+        fewer.disabled = d[key] <= min;
+        more.disabled = d[key] >= max;
+      }
+      fewer.addEventListener("click", function () {
+        if (d[key] > min) { d[key] -= 1; sync(); refresh(); }
+      });
+      more.addEventListener("click", function () {
+        if (d[key] < max) { d[key] += 1; sync(); refresh(); }
+      });
+      fewer.disabled = d[key] <= min;
+      more.disabled = d[key] >= max;
+      return el("div", { class: "field" }, [
+        el("span", { class: "field-label", text: label }),
+        el("div", { class: "step-row" }, [fewer, output, more])
+      ]);
+    }
+
+    var days = el("div", { class: "days", role: "group", "aria-label": "Required nights" });
+    DAY_TOKENS.forEach(function (tok, i) {
+      var button = el("button", {
+        type: "button",
+        "aria-pressed": d.mustInclude.indexOf(tok) >= 0 ? "true" : "false",
+        "aria-label": WEEKDAY_NAME[i],
+        text: DAY_SHORT[i],
+        "data-focus": "ed|day|" + tok
+      });
+      button.addEventListener("click", function () {
+        var list = d.mustInclude.slice();
+        var at = list.indexOf(tok);
+        if (at >= 0) list.splice(at, 1);
+        else list.push(tok);
+        d.mustInclude = orderDays(list);
+        button.setAttribute("aria-pressed", d.mustInclude.indexOf(tok) >= 0 ? "true" : "false");
+        refresh();
+      });
+      days.appendChild(button);
+    });
+
+    var topWrap = el("div", { class: "field" });
+    var topSeg = el("div", { class: "seg mini", role: "group", "aria-label": "Stays to list" });
+    var topAll = el("button", { type: "button", "aria-pressed": d.topAll ? "true" : "false", text: "All", "data-focus": "ed|top|all" });
+    var topCount = el("button", { type: "button", "aria-pressed": d.topAll ? "false" : "true", text: "Top", "data-focus": "ed|top|count" });
+    topAll.addEventListener("click", function () { d.topAll = true; renderApp(); });
+    topCount.addEventListener("click", function () { d.topAll = false; renderApp(); });
+    topSeg.appendChild(topAll);
+    topSeg.appendChild(topCount);
+    topWrap.appendChild(el("span", { class: "field-label", text: "Stays to list" }));
+    topWrap.appendChild(topSeg);
+    if (!d.topAll) {
+      var topInput = el("input", { type: "number", inputmode: "numeric", min: "1", step: "1", max: String(MAX_TOP), "aria-label": "Stays to list, number", "data-focus": "ed|top|value" });
+      topInput.value = d.top;
+      topInput.addEventListener("input", function () { d.top = topInput.value; refresh(); });
+      topWrap.appendChild(topInput);
+    }
+    topWrap.appendChild(topErr);
+
+    var alertsBox = el("div", { class: "alerts" });
+    d.alerts.forEach(function (row, index) {
+      var select = el("select", { "aria-label": "Alert " + (index + 1) + " kind", "data-focus": "ed|kind|" + index });
+      ALERT_KINDS.forEach(function (kind) {
+        var opt = el("option", { value: kind, text: ALERT_LABEL[kind] });
+        if (kind === row.kind) opt.selected = true;
+        select.appendChild(opt);
+      });
+      select.addEventListener("change", function () {
+        row.kind = select.value;
+        row.value = "";
+        renderApp();
+      });
+      var line = el("div", { class: "alert-row" }, [select]);
+      if (kindHasValue(row.kind)) {
+        var isPercent = row.kind === "drop_pct";
+        var valueInput = el("input", {
+          type: "number",
+          inputmode: "numeric",
+          min: "1",
+          step: "1",
+          max: isPercent ? "100" : String(MAX_PLN),
+          placeholder: isPercent ? "%" : "zł",
+          "aria-label": (isPercent ? "Percent" : "Złoty") + " for alert " + (index + 1),
+          "data-focus": "ed|val|" + index
+        });
+        valueInput.value = row.value;
+        valueInput.addEventListener("input", function () { row.value = valueInput.value; refresh(); });
+        line.appendChild(el("span", { class: "val" }, [valueInput, el("span", { class: "suffix", text: isPercent ? "%" : "zł" })]));
+      } else {
+        line.appendChild(el("span"));
+      }
+      var remove = el("button", { type: "button", class: "icon-btn-s", "aria-label": "Remove alert " + (index + 1), text: "×", "data-focus": "ed|rm|" + index });
+      remove.addEventListener("click", function () {
+        d.alerts.splice(index, 1);
+        renderApp();
+      });
+      line.appendChild(remove);
+      var err = el("p", { class: "field-err" });
+      alertErrs.push(err);
+      alertsBox.appendChild(el("div", { class: "alert-item" }, [line, err]));
+    });
+    var addAlert = el("button", { type: "button", class: "link", text: "Add alert", "data-focus": "ed|add" });
+    addAlert.addEventListener("click", function () {
+      d.alerts.push({ kind: nextAlertKind(d), value: "" });
+      renderApp();
+    });
+
+    var cancel = el("button", { type: "button", class: "btn", text: "Cancel", "data-focus": "ed|cancel" });
+    cancel.addEventListener("click", function () { closeEditor(); });
+    var actions;
+    if (state.confirmDelete === cfg.id) {
+      var confirmDelete = el("button", { type: "button", class: "btn danger", text: "Delete", "data-focus": "ed|delete-yes" });
+      confirmDelete.addEventListener("click", function () {
+        runEdit("config", function (c) { return removeSearch(c, cfg.id); }, "Delete search", function () {
+          state.editing = null;
+          state.draft = null;
+          state.confirmDelete = null;
+        });
+      });
+      var keep = el("button", { type: "button", class: "btn", text: "Keep", "data-focus": "ed|keep" });
+      keep.addEventListener("click", function () {
+        state.confirmDelete = null;
+        renderApp();
+      });
+      actions = el("div", { class: "ed-actions" }, [
+        el("div", { class: "confirm", role: "group", "aria-label": "Confirm delete" }, [el("span", { text: "Delete this search?" }), confirmDelete, keep]),
+        el("span", { class: "spacer" }),
+        cancel,
+        saveBtn
+      ]);
+    } else {
+      var deleteBtn = el("button", { type: "button", class: "btn danger", text: "Delete search", "data-focus": "ed|delete" });
+      deleteBtn.addEventListener("click", function () {
+        state.confirmDelete = cfg.id;
+        renderApp();
+      });
+      actions = el("div", { class: "ed-actions" }, [deleteBtn, el("span", { class: "spacer" }), cancel, saveBtn]);
+    }
+
+    form.appendChild(el("div", { class: "ed-grid" }, [
+      el("div", { class: "field f-wide" }, [el("span", { class: "field-label", text: "Name" }), nameInput]),
+      el("div", { class: "field" }, [el("span", { class: "field-label", text: "From" }), fromInput, fromErr]),
+      el("div", { class: "field" }, [el("span", { class: "field-label", text: "To" }), toInput, toErr]),
+      stepper("Nights", "nights", 1, 14),
+      stepper("Adults", "adults", 1, 6),
+      topWrap
+    ]));
+    form.appendChild(el("div", { class: "field" }, [
+      el("span", { class: "field-label", text: "Required nights" }),
+      days,
+      el("p", { class: "field-hint", text: "None selected: any check-in" })
+    ]));
+    form.appendChild(el("div", { class: "field" }, [
+      el("span", { class: "field-label", text: "Alerts" }),
+      alertsBox,
+      el("div", {}, [addAlert])
+    ]));
+    form.appendChild(preview);
+    form.appendChild(actions);
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      saveEditor();
+    });
+    refresh();
+    return form;
+  }
+
+  function openEditor(id) {
+    var search = findById(state.config.searches, id);
+    if (!search) return;
+    state.editing = id;
+    state.draft = draftFromSearch(search, state.config.defaults);
+    state.confirmDelete = null;
+    renderApp();
+    var first = findByAttr("data-focus", "ed|name");
+    if (first) first.focus();
+  }
+
+  function closeEditor() {
+    state.editing = null;
+    state.draft = null;
+    state.confirmDelete = null;
+    renderApp();
+  }
+
+  function saveEditor() {
+    var d = state.draft;
+    var id = state.editing;
+    if (!d || !id) return;
+    var check = checkDraft(d, todayIso(nowMs()));
+    if (!check.valid) {
+      renderApp();
+      return;
+    }
+    var snapshot = clone(d);
+    runEdit("search|" + id, function (c) {
+      var base = findById(c.searches, id);
+      if (!base) return c;
+      return replaceSearch(c, searchFromDraft(snapshot, id, base));
+    }, "Edit search", function () {
+      state.editing = null;
+      state.draft = null;
+      state.confirmDelete = null;
+    });
+  }
+
+  function addSearchFlow() {
+    if (!requireConnected()) return;
+    var id = newSearchId(nowMs());
+    var today = todayIso(nowMs());
+    runEdit("search|" + id, function (c) {
+      return insertSearch(c, defaultSearch(c, id, today));
+    }, "Add search", function () {
+      openEditor(id);
+    });
+  }
+
+  function searchPanel(row) {
+    var cfg = row.cfg;
+    var live = row.live;
+    var name = displayName(cfg, live, scanYear());
+    var editing = state.editing === cfg.id;
+    var section = el("section", { class: "search", "aria-label": name, "data-search": cfg.id });
+    var editButton = el("button", {
+      type: "button",
+      class: isConnected() ? "btn" : "link",
+      text: isConnected() ? "Edit" : CONNECT_HINT,
+      "aria-expanded": editing ? "true" : "false",
+      "data-focus": "edit|" + cfg.id
+    });
+    editButton.addEventListener("click", function () {
+      if (!requireConnected()) return;
+      if (state.editing === cfg.id) closeEditor();
+      else openEditor(cfg.id);
+    });
+    section.appendChild(el("div", { class: "search-head" }, [
+      el("h2", { text: name }),
+      searchMeta(cfg),
+      el("div", { class: "search-actions" }, [editButton])
+    ]));
+    var status = pendingLine("search|" + cfg.id);
+    if (status) section.appendChild(status);
+    if (editing && state.draft) section.appendChild(editorPanel(cfg));
+    if (live && Array.isArray(live.stays)) {
+      var summary = summarize(live);
+      section.appendChild(kpiRow(live, summary));
+      var split = el("div", { class: "split" });
+      split.appendChild(staysCard(live, summary));
+      if (live.stays.length >= 3) split.appendChild(heatCard(live, heatReference(summary)));
+      section.appendChild(split);
+    } else {
+      section.appendChild(scanCard());
+    }
     return section;
   }
 
@@ -1570,18 +3016,23 @@ function calendarLayout(stays, ref) {
     ]);
   }
 
-  function emptyCard(title, body, action) {
+  function emptyCard(title, body) {
     return el("section", { class: "card empty" }, [
       el("h2", { text: title }),
-      body ? el("p", { text: body }) : null,
-      action || null
+      body ? el("p", { text: body }) : null
     ]);
   }
 
-  function retryButton() {
-    var button = el("button", { type: "button", class: "btn", text: "Try again" });
-    button.addEventListener("click", load);
-    return button;
+  function addRow() {
+    var connected = isConnected();
+    var button = el("button", {
+      type: "button",
+      class: connected ? "btn" : "link",
+      text: connected ? "Add search" : CONNECT_HINT,
+      "data-focus": "add"
+    });
+    button.addEventListener("click", addSearchFlow);
+    return el("div", { class: "add-row" }, [button]);
   }
 
   function renderBanner() {
@@ -1593,16 +3044,42 @@ function calendarLayout(stays, ref) {
     }
     banner.hidden = false;
     banner.textContent = "";
-    banner.appendChild(el("span", {}, [el("b", { text: "Sample" }), sampleName]));
+    banner.appendChild(el("span", {}, [el("b", { text: "Sample" }), sampleName, " · changes stay on this page"]));
     banner.appendChild(el("a", { href: window.location.pathname, text: "Hide sample" }));
   }
 
   function renderNotes() {
     var notes = $("notes");
     notes.textContent = "";
-    if (state.historyFailed) {
-      notes.appendChild(el("p", { class: "note", text: "Price history didn't load." }));
+    if (state.notice) {
+      var isError = state.notice.kind === "error";
+      var noteEl = el("div", { class: "note" + (isError ? " error" : ""), role: isError ? "alert" : "status" }, [
+        el("span", { text: state.notice.text })
+      ]);
+      var dismiss = el("button", { type: "button", class: "link", text: "Dismiss", "data-focus": "dismiss" });
+      dismiss.addEventListener("click", function () {
+        state.notice = null;
+        renderApp();
+      });
+      noteEl.appendChild(dismiss);
+      notes.appendChild(noteEl);
     }
+    if (state.busy) notes.appendChild(el("p", { class: "note", role: "status", text: "Saving…" }));
+    if (state.error || state.configError) {
+      var message = state.error && state.configError
+        ? "Couldn't read the scan or the config. Try again in a moment."
+        : state.error
+          ? "Couldn't read the latest scan. Try again in a moment."
+          : "Couldn't read config.json. Try again in a moment.";
+      var failed = el("div", { class: "note", role: "alert" }, [el("span", { text: message })]);
+      var retry = el("button", { type: "button", class: "link", text: "Try again" });
+      retry.addEventListener("click", load);
+      failed.appendChild(retry);
+      notes.appendChild(failed);
+    }
+    if (state.historyFailed) notes.appendChild(el("p", { class: "note", text: "Price history didn't load." }));
+    var p = state.pending;
+    if (p && p.scope === "config") notes.appendChild(el("p", { class: "note", role: "status", text: pendingText(p) }));
   }
 
   function renderApp() {
@@ -1613,47 +3090,45 @@ function calendarLayout(stays, ref) {
     renderNotes();
     var app = $("app");
     app.textContent = "";
-    app.setAttribute("aria-busy", state.loading ? "true" : "false");
+    app.setAttribute("aria-busy", state.loading || state.busy ? "true" : "false");
 
     if (state.loading) {
       app.appendChild(skeleton());
-    } else if (state.error) {
-      app.appendChild(emptyCard("Couldn't read the latest scan.", "Try again in a moment.", retryButton()));
-    } else if (!state.latest) {
-      app.appendChild(emptyCard("No scans yet", "Prices appear here after the first scan."));
     } else {
-      var searches = Array.isArray(state.latest.searches) ? state.latest.searches : [];
-      if (!searches.length) {
-        app.appendChild(emptyCard("No searches", "The watch file has no searches yet."));
-      } else {
-        var current = searches[0];
+      app.appendChild(trackedSection());
+      var rows = state.config.searches.map(function (cfg) {
+        return { cfg: cfg, live: state.latest ? findById(state.latest.searches, cfg.id) : null };
+      });
+      if (!rows.length) {
+        if (!state.latest && !state.error) app.appendChild(emptyCard("No scans yet", "Prices appear here after the first scan."));
+        else app.appendChild(emptyCard("No searches", "Add a search to start watching prices."));
+      } else if (rows.length > 2) {
+        var current = rows[0];
         if (state.active) {
-          for (var i = 0; i < searches.length; i++) {
-            if (searches[i].id === state.active) current = searches[i];
-          }
+          rows.forEach(function (row) { if (row.cfg.id === state.active) current = row; });
         }
-        if (searches.length > 2) {
-          var seg = el("div", { class: "seg", role: "group", "aria-label": "Searches" });
-          searches.forEach(function (s) {
-            var tab = el("button", {
-              type: "button",
-              "aria-pressed": s === current ? "true" : "false",
-              text: s.name,
-              "data-tip": s.name,
-              "data-focus": "tab|" + s.id
-            });
-            tab.addEventListener("click", function () {
-              state.active = s.id;
-              renderApp();
-            });
-            seg.appendChild(tab);
+        var seg = el("div", { class: "seg", role: "group", "aria-label": "Searches" });
+        rows.forEach(function (row) {
+          var tabName = displayName(row.cfg, row.live, scanYear());
+          var tab = el("button", {
+            type: "button",
+            "aria-pressed": row === current ? "true" : "false",
+            text: tabName,
+            "data-tip": tabName,
+            "data-focus": "tab|" + row.cfg.id
           });
-          app.appendChild(seg);
-          app.appendChild(renderPanel(current));
-        } else {
-          searches.forEach(function (s) { app.appendChild(renderPanel(s)); });
-        }
+          tab.addEventListener("click", function () {
+            state.active = row.cfg.id;
+            renderApp();
+          });
+          seg.appendChild(tab);
+        });
+        app.appendChild(seg);
+        app.appendChild(searchPanel(current));
+      } else {
+        rows.forEach(function (row) { app.appendChild(searchPanel(row)); });
       }
+      app.appendChild(addRow());
     }
     updatePill();
     if (focusKey) {
@@ -1662,47 +3137,190 @@ function calendarLayout(stays, ref) {
     }
   }
 
-  function load() {
-    state.loading = true;
-    state.error = false;
-    state.historyFailed = false;
-    renderApp();
-    fetch(LATEST_URL, { cache: "no-cache" })
-      .then(function (res) {
-        if (res.status === 404) return null;
-        if (!res.ok) throw new Error("latest " + res.status);
-        return res.json();
-      })
-      .then(function (latest) {
-        if (latest === null) {
-          state.latest = null;
-          return;
-        }
-        if (!latest || typeof latest !== "object" || !Array.isArray(latest.searches)) {
-          throw new Error("latest has no searches");
-        }
-        state.latest = latest;
-        return fetch(HISTORY_URL, { cache: "no-cache" })
-          .then(function (res) { return res.ok ? res.json() : {}; })
-          .then(function (history) {
-            state.history = history && typeof history === "object" ? history : {};
-          })
-          .catch(function () {
-            state.history = {};
-            state.historyFailed = true;
-          });
-      })
-      .catch(function () {
-        state.latest = null;
-        state.error = true;
-      })
-      .then(function () {
-        state.loading = false;
-        renderApp();
-      });
+  /* Saving: GET the fresh config, apply the change to that copy, PUT it back. A 409 or 422 re-reads and retries once. */
+  async function ghReadConfig(repo, token) {
+    var res;
+    try {
+      res = await fetch(ghFileUrl(repo), { headers: ghHeaders(token, false), cache: "no-store" });
+    } catch (e) {
+      throw new Error("Couldn't reach GitHub.");
+    }
+    if (res.status === 404) return { sha: null, config: null };
+    if (!res.ok) throw new Error(ghErrorText(res.status));
+    var body = await res.json();
+    var config;
+    try {
+      config = readConfig(JSON.parse(base64ToUtf8(body.content)));
+    } catch (e) {
+      throw new Error("config.json on GitHub isn't valid JSON.");
+    }
+    if (!config) throw new Error("config.json on GitHub isn't an object.");
+    return { sha: body.sha || null, config: config };
   }
 
-  saveSlug(readSlug());
+  async function commitChange(mutate, message) {
+    if (sampleName) {
+      var local = mutate(clone(state.config));
+      return { config: local, changed: !sameJson(local, state.config) };
+    }
+    var repo = state.repo;
+    var token = state.token;
+    var attempt = 0;
+    for (;;) {
+      var current = await ghReadConfig(repo, token);
+      var fresh = current.config || emptyConfig();
+      var next = mutate(clone(fresh));
+      if (sameJson(next, fresh)) return { config: fresh, changed: false };
+      var body = { message: message, content: utf8ToBase64(encodeConfig(next)) };
+      if (current.sha) body.sha = current.sha;
+      var res;
+      try {
+        res = await fetch(ghFileUrl(repo), {
+          method: "PUT",
+          headers: ghHeaders(token, true),
+          body: JSON.stringify(body),
+          cache: "no-store"
+        });
+      } catch (e) {
+        throw new Error("Couldn't reach GitHub.");
+      }
+      if (res.ok) return { config: next, changed: true };
+      if ((res.status === 409 || res.status === 422) && attempt === 0) {
+        attempt += 1;
+        continue;
+      }
+      throw new Error(ghErrorText(res.status));
+    }
+  }
+
+  async function runEdit(scope, mutate, message, onDone) {
+    if (state.busy) return;
+    if (!requireConnected()) return;
+    state.busy = true;
+    state.notice = null;
+    renderApp();
+    try {
+      var result = await commitChange(mutate, message);
+      state.busy = false;
+      state.config = result.config;
+      if (result.changed) startPending(scope);
+      else state.notice = { kind: "info", text: "Nothing changed." };
+      if (onDone) onDone(result);
+    } catch (e) {
+      state.busy = false;
+      state.notice = { kind: "error", text: "Couldn't save. " + (e && e.message ? e.message : "Try again.") };
+    }
+    renderApp();
+  }
+
+  function startPending(scope) {
+    var baseline = state.latest ? state.latest.scanned_at : null;
+    state.pending = { scope: scope, since: Date.now(), baseline: baseline, gaveUp: false, sample: !!sampleName };
+    if (!sampleName) schedulePoll();
+  }
+
+  function schedulePoll() {
+    if (pollTimer) clearTimeout(pollTimer);
+    pollTimer = setTimeout(pollTick, POLL_MS);
+  }
+
+  async function pollTick() {
+    pollTimer = null;
+    var p = state.pending;
+    if (!p || p.sample) return;
+    var latest = null;
+    try {
+      var res = await fetch(LATEST_URL, { cache: "no-cache" });
+      if (res.ok) latest = await res.json();
+    } catch (e) {
+      latest = null;
+    }
+    if (state.pending !== p) return;
+    var fresh = latest && Array.isArray(latest.searches) ? latest : null;
+    var decision = pollDecision(p.since, Date.now(), p.baseline, fresh ? fresh.scanned_at : null);
+    if (decision === "done") {
+      state.latest = fresh;
+      state.error = false;
+      state.pending = null;
+      await refreshHistory();
+      renderApp();
+      return;
+    }
+    if (decision === "gave-up") {
+      p.gaveUp = true;
+      renderApp();
+      return;
+    }
+    schedulePoll();
+  }
+
+  async function refreshHistory() {
+    try {
+      var res = await fetch(HISTORY_URL, { cache: "no-cache" });
+      var history = res.ok ? await res.json() : {};
+      state.history = history && typeof history === "object" ? history : {};
+      state.historyFailed = false;
+    } catch (e) {
+      state.history = {};
+      state.historyFailed = true;
+    }
+  }
+
+  async function fetchJson(url) {
+    var res = await fetch(url, { cache: "no-cache" });
+    if (res.status === 404) return { missing: true };
+    if (!res.ok) throw new Error(url + " " + res.status);
+    return { body: await res.json() };
+  }
+
+  async function load() {
+    state.loading = true;
+    state.error = false;
+    state.configError = false;
+    state.historyFailed = false;
+    renderApp();
+    var latest = null;
+    var error = false;
+    var config = emptyConfig();
+    var configError = false;
+    try {
+      var lr = await fetchJson(LATEST_URL);
+      if (!lr.missing) {
+        if (!lr.body || typeof lr.body !== "object" || !Array.isArray(lr.body.searches)) {
+          throw new Error("latest has no searches");
+        }
+        latest = lr.body;
+      }
+    } catch (e) {
+      error = true;
+    }
+    try {
+      var cr = await fetchJson(CONFIG_URL);
+      config = cr.missing ? emptyConfig() : readConfig(cr.body);
+      if (!config) throw new Error("config is not an object");
+    } catch (e) {
+      configError = true;
+      config = emptyConfig();
+    }
+    state.latest = latest;
+    state.error = error;
+    state.config = config;
+    state.configError = configError;
+    if (latest) await refreshHistory();
+    else state.history = {};
+    state.loading = false;
+    renderApp();
+  }
+
+  state.slug = readSlug();
+  state.token = (function () {
+    var v = storeGet(TOKEN_KEY);
+    return isFineGrainedToken(v) ? v : "";
+  })();
+  state.repo = (function () {
+    var v = storeGet(REPO_KEY);
+    return isValidRepo(v) ? v : repoFromLocation(window.location.hostname, window.location.pathname);
+  })();
   window.setInterval(updatePill, 60000);
   renderApp();
   load();
