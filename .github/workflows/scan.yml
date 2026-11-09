@@ -49,6 +49,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -99,7 +101,15 @@ jobs:
             echo "No changes in docs/data"
           else
             git commit -m "Update stay data"
-            git push
+            ref="${{ github.ref_name }}"
+            for attempt in 1 2 3; do
+              if git pull --rebase origin "$ref" && git push; then
+                break
+              fi
+              if [ "$attempt" -eq 3 ]; then
+                exit 1
+              fi
+            done
           fi
       - name: Report a failed scan
         if: steps.scan.outcome == 'failure'

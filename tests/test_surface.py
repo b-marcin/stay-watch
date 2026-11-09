@@ -61,6 +61,13 @@ def test_failed_scan_still_reaches_the_public_check_and_the_commit():
     assert "exit 1" in fail_step
 
 
+def test_push_rebases_and_retries_three_times():
+    text = (REPO / ".github" / "workflows" / "scan.yml").read_text(encoding="utf-8")
+    assert "fetch-depth: 0" in text
+    assert "git pull --rebase origin" in text
+    assert "for attempt in 1 2 3" in text
+
+
 def test_scan_workflow_is_scheduled_and_does_not_print_secrets():
     text = (REPO / ".github" / "workflows" / "scan.yml").read_text(encoding="utf-8")
     assert 'cron: "17 */3 * * *"' in text
