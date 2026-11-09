@@ -17,7 +17,7 @@
       "id": "s1",
       "name": null,
       "from": "2026-12-01",
-      "to": "2027-03-01",
+      "to": "2027-03-31",
       "nights": 2,
       "must_include": [
         "sat"
