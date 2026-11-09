@@ -1,0 +1,96 @@
+name: scan
+
+on:
+  schedule:
+    - cron: "17 */3 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "scan or search"
+        type: choice
+        default: scan
+        options:
+          - scan
+          - search
+      from:
+        description: "Earliest check-in (search mode), YYYY-MM-DD"
+        required: false
+        type: string
+      to:
+        description: "Latest check-out (search mode), YYYY-MM-DD"
+        required: false
+        type: string
+      nights:
+        description: "Nights per stay (search mode)"
+        required: false
+        type: string
+      must_include:
+        description: "Weekdays the stay must cover, for example sat or sat,fri"
+        required: false
+        type: string
+      adults:
+        description: "Adults (search mode)"
+        required: false
+        type: string
+      top:
+        description: "How many stays to list, or all"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stay-watch
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Scan or search
+        env:
+          HOTEL_SLUG: ${{ secrets.HOTEL_SLUG }}
+          HOTEL_NAME_TERMS: ${{ secrets.HOTEL_NAME_TERMS }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          ALERT_TO: ${{ secrets.ALERT_TO }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          MODE: ${{ inputs.mode }}
+          SEARCH_FROM: ${{ inputs.from }}
+          SEARCH_TO: ${{ inputs.to }}
+          SEARCH_NIGHTS: ${{ inputs.nights }}
+          SEARCH_MUST_INCLUDE: ${{ inputs.must_include }}
+          SEARCH_ADULTS: ${{ inputs.adults }}
+          SEARCH_TOP: ${{ inputs.top }}
+        run: |
+          set -euo pipefail
+          if [ "${MODE}" = "search" ]; then
+            args=(search --from "${SEARCH_FROM}" --to "${SEARCH_TO}" --email)
+            if [ -n "${SEARCH_NIGHTS}" ]; then args+=(--nights "${SEARCH_NIGHTS}"); fi
+            if [ -n "${SEARCH_MUST_INCLUDE}" ]; then args+=(--must-include "${SEARCH_MUST_INCLUDE}"); fi
+            if [ -n "${SEARCH_ADULTS}" ]; then args+=(--adults "${SEARCH_ADULTS}"); fi
+            if [ -n "${SEARCH_TOP}" ]; then args+=(--top "${SEARCH_TOP}"); fi
+            python -m stay_watch "${args[@]}"
+          else
+            python -m stay_watch scan
+            python -m stay_watch check-public
+          fi
+      - name: Commit dashboard data
+        if: success() && inputs.mode != 'search'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data
+          if git diff --staged --quiet; then
+            echo "No changes in docs/data"
+          else
+            git commit -m "Update stay data"
+            git push
+          fi
