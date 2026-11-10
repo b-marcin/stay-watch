@@ -12,6 +12,12 @@
         98000,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-10T18:08:11+01:00",
+        97700,
+        "Oferta bezzwrotna",
+        "Standard Room"
       ]
     ],
     "2026-12-18_2026-12-20": [
@@ -26,6 +32,12 @@
         99000,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-10T18:08:11+01:00",
+        98700,
+        "Oferta bezzwrotna",
+        "Standard Room"
       ]
     ],
     "2027-01-02_2027-01-04": [
@@ -34,12 +46,24 @@
         100900,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-10T18:08:11+01:00",
+        100500,
+        "Oferta bezzwrotna",
+        "Standard Room"
       ]
     ],
     "2026-12-12_2026-12-14": [
       [
         "2026-11-09T14:38:56+01:00",
         108100,
+        "Oferta bezzwrotna",
+        "Standard Room"
+      ],
+      [
+        "2026-11-10T18:08:11+01:00",
+        109200,
         "Oferta bezzwrotna",
         "Standard Room"
       ]
@@ -70,6 +94,12 @@
         122800,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-10T18:08:11+01:00",
+        124100,
+        "Oferta bezzwrotna",
+        "Standard Room"
       ]
     ],
     "2026-12-04_2026-12-06": [
@@ -98,6 +128,12 @@
         131300,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-10T18:08:11+01:00",
+        130900,
+        "Oferta bezzwrotna",
+        "Standard Room"
       ]
     ],
     "2027-01-16_2027-01-18": [
@@ -112,12 +148,24 @@
         139200,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-10T18:08:11+01:00",
+        139000,
+        "Oferta bezzwrotna",
+        "Standard Room"
       ]
     ],
     "2027-01-09_2027-01-11": [
       [
         "2026-11-09T14:38:56+01:00",
         139600,
+        "Oferta bezzwrotna",
+        "Standard Room"
+      ],
+      [
+        "2026-11-10T18:08:11+01:00",
+        139800,
         "Oferta bezzwrotna",
         "Standard Room"
       ]
@@ -200,6 +248,12 @@
       [
         "2026-11-09T14:38:56+01:00",
         152400,
+        "Oferta bezzwrotna",
+        "Standard Room"
+      ],
+      [
+        "2026-11-10T18:08:11+01:00",
+        152900,
         "Oferta bezzwrotna",
         "Standard Room"
       ]
