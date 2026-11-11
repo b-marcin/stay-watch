@@ -1,5 +1,5 @@
 {
-  "scanned_at": "2026-11-11T00:29:46+01:00",
+  "scanned_at": "2026-11-11T07:42:05+01:00",
   "searches": [
     {
       "id": "s1",
@@ -563,7 +563,7 @@
           "matched_rules": [],
           "price": 155600,
           "per_night": 77800,
-          "recent_lowest": 150500,
+          "recent_lowest": 151500,
           "original": null,
           "rooms_left": 34,
           "offer_name": "Oferta bezzwrotna",
