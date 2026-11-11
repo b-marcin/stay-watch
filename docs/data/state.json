@@ -19,8 +19,8 @@
     "2027-01-02_2027-01-04_a2": {
       "introduced": true,
       "first_price": 100900,
-      "last_notified_price": 100500,
-      "last_seen_price": 100500
+      "last_notified_price": 100900,
+      "last_seen_price": 100900
     }
   },
   "consecutive_failures": 0,
