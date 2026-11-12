@@ -1,0 +1,9 @@
+Generated with the built-in imagegen tool. PNG and ICO derivatives were resized from leaf-original.png using Pillow.
+
+Use case: logo-brand
+Asset type: square web app and iPhone Home Screen icon for Stay Watch, a watch for a hotel in a nature spa setting.
+Primary request: A simple, serene green leaf symbol. One graceful broad leaf, gently tilted upward, with a single clean curved ivory vein. Refined flat graphic design with an organic silhouette, calm and understated.
+Scene/backdrop: solid warm ivory background filling the entire square edge to edge.
+Composition: one centered leaf occupying about 62 percent of the image width, generous balanced breathing space, immediately recognizable at tiny favicon sizes. Square image with full-bleed background, no pre-rounded corners; iOS will mask the corners.
+Color palette: deep muted forest green leaf, warm soft ivory background.
+Constraints: no text, no letters, no border, no additional objects, no drop shadow, no gradient, no texture, no mockup, no phone frame, no watermark. Produce the actual icon artwork only.
