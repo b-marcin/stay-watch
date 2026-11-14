@@ -1,5 +1,5 @@
 {
-  "scanned_at": "2026-11-14T02:29:08+01:00",
+  "scanned_at": "2026-11-14T11:38:27+01:00",
   "searches": [
     {
       "id": "s1",
@@ -47,28 +47,6 @@
           "cancel": "non-refundable"
         },
         {
-          "key": "2026-12-18_2026-12-20",
-          "check_in": "2026-12-18",
-          "check_out": "2026-12-20",
-          "nights": 2,
-          "sold_out": false,
-          "offer_count": 3,
-          "previous_price": 99000,
-          "matched_rules": [
-            "below:120000",
-            "below_recent_lowest"
-          ],
-          "price": 98700,
-          "per_night": 49350,
-          "recent_lowest": 99000,
-          "original": null,
-          "rooms_left": 27,
-          "offer_name": "Oferta bezzwrotna",
-          "room_name": "Standard Room",
-          "meal_plan": "breakfast",
-          "cancel": "non-refundable"
-        },
-        {
           "key": "2027-01-02_2027-01-04",
           "check_in": "2027-01-02",
           "check_out": "2027-01-04",
@@ -84,6 +62,27 @@
           "recent_lowest": 100500,
           "original": null,
           "rooms_left": 33,
+          "offer_name": "Oferta bezzwrotna",
+          "room_name": "Standard Room",
+          "meal_plan": "breakfast",
+          "cancel": "non-refundable"
+        },
+        {
+          "key": "2026-12-18_2026-12-20",
+          "check_in": "2026-12-18",
+          "check_out": "2026-12-20",
+          "nights": 2,
+          "sold_out": false,
+          "offer_count": 3,
+          "previous_price": 98700,
+          "matched_rules": [
+            "below:120000"
+          ],
+          "price": 101100,
+          "per_night": 50550,
+          "recent_lowest": 98700,
+          "original": null,
+          "rooms_left": 27,
           "offer_name": "Oferta bezzwrotna",
           "room_name": "Standard Room",
           "meal_plan": "breakfast",
@@ -117,12 +116,12 @@
           "nights": 2,
           "sold_out": false,
           "offer_count": 3,
-          "previous_price": 111800,
+          "previous_price": 110400,
           "matched_rules": [
             "below:120000"
           ],
-          "price": 110400,
-          "per_night": 55200,
+          "price": 112000,
+          "per_night": 56000,
           "recent_lowest": 102200,
           "original": null,
           "rooms_left": 15,
