@@ -1,5 +1,5 @@
 {
-  "scanned_at": "2026-11-19T12:51:38+01:00",
+  "scanned_at": "2026-11-19T21:47:08+01:00",
   "searches": [
     {
       "id": "s1",
@@ -32,12 +32,12 @@
           "nights": 2,
           "sold_out": false,
           "offer_count": 3,
-          "previous_price": 98500,
+          "previous_price": 98700,
           "matched_rules": [
             "below:120000"
           ],
-          "price": 98700,
-          "per_night": 49350,
+          "price": 98600,
+          "per_night": 49300,
           "recent_lowest": 94200,
           "original": null,
           "rooms_left": 28,
@@ -53,12 +53,12 @@
           "nights": 2,
           "sold_out": false,
           "offer_count": 3,
-          "previous_price": 100900,
+          "previous_price": 101100,
           "matched_rules": [
             "below:120000"
           ],
-          "price": 101100,
-          "per_night": 50550,
+          "price": 100900,
+          "per_night": 50450,
           "recent_lowest": 100500,
           "original": null,
           "rooms_left": 33,
@@ -74,12 +74,12 @@
           "nights": 2,
           "sold_out": false,
           "offer_count": 3,
-          "previous_price": 103500,
+          "previous_price": 105700,
           "matched_rules": [
             "below:120000"
           ],
-          "price": 105700,
-          "per_night": 52850,
+          "price": 105400,
+          "per_night": 52700,
           "recent_lowest": 98700,
           "original": null,
           "rooms_left": 14,
@@ -124,7 +124,7 @@
           "per_night": 55600,
           "recent_lowest": 103400,
           "original": null,
-          "rooms_left": 14,
+          "rooms_left": 13,
           "offer_name": "Oferta bezzwrotna",
           "room_name": "Standard Room",
           "meal_plan": "breakfast",
@@ -137,13 +137,13 @@
           "nights": 2,
           "sold_out": false,
           "offer_count": 3,
-          "previous_price": 131500,
+          "previous_price": 124900,
           "matched_rules": [
             "below_recent_lowest"
           ],
-          "price": 124900,
-          "per_night": 62450,
-          "recent_lowest": 130900,
+          "price": 124700,
+          "per_night": 62350,
+          "recent_lowest": 124900,
           "original": null,
           "rooms_left": 33,
           "offer_name": "Oferta bezzwrotna",
@@ -432,10 +432,12 @@
           "nights": 2,
           "sold_out": false,
           "offer_count": 3,
-          "previous_price": 148600,
-          "matched_rules": [],
-          "price": 149100,
-          "per_night": 74550,
+          "previous_price": 149100,
+          "matched_rules": [
+            "below_recent_lowest"
+          ],
+          "price": 147000,
+          "per_night": 73500,
           "recent_lowest": 147900,
           "original": null,
           "rooms_left": 22,
@@ -709,8 +711,8 @@
       "history_key": "adults=2;codes=;offers=;rooms=",
       "sold_out": false,
       "offer_count": 3,
-      "price": 101100,
-      "per_night": 50550,
+      "price": 100900,
+      "per_night": 50450,
       "recent_lowest": 100500,
       "original": null,
       "rooms_left": 33,
@@ -718,10 +720,10 @@
       "room_name": "Standard Room",
       "meal_plan": "breakfast",
       "cancel": "non-refundable",
-      "previous_price": 100900,
+      "previous_price": 101100,
       "first_price": 100900,
       "lowest_seen": 100500,
-      "last_notified_price": 101100
+      "last_notified_price": 100900
     }
   ]
 }
