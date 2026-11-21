@@ -104,6 +104,12 @@
         108500,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-21T20:26:23+01:00",
+        null,
+        null,
+        null
       ]
     ],
     "2027-01-02_2027-01-04": [
@@ -554,12 +560,24 @@
         141800,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-21T20:26:23+01:00",
+        138500,
+        "Oferta bezzwrotna",
+        "Standard Room"
       ]
     ],
     "2027-02-27_2027-03-01": [
       [
         "2026-11-09T14:38:56+01:00",
         142100,
+        "Oferta bezzwrotna",
+        "Standard Room"
+      ],
+      [
+        "2026-11-21T20:26:23+01:00",
+        138300,
         "Oferta bezzwrotna",
         "Standard Room"
       ]
@@ -632,6 +650,12 @@
       [
         "2026-11-19T12:51:38+01:00",
         141800,
+        "Oferta bezzwrotna",
+        "Standard Room"
+      ],
+      [
+        "2026-11-21T20:26:23+01:00",
+        135400,
         "Oferta bezzwrotna",
         "Standard Room"
       ]
@@ -786,12 +810,24 @@
         154400,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-21T20:26:23+01:00",
+        150400,
+        "Oferta bezzwrotna",
+        "Standard Room"
       ]
     ],
     "2027-02-26_2027-02-28": [
       [
         "2026-11-09T14:38:56+01:00",
         154500,
+        "Oferta bezzwrotna",
+        "Standard Room"
+      ],
+      [
+        "2026-11-21T20:26:23+01:00",
+        150400,
         "Oferta bezzwrotna",
         "Standard Room"
       ]
@@ -878,6 +914,12 @@
         151100,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-21T20:26:23+01:00",
+        146900,
+        "Oferta bezzwrotna",
+        "Standard Room"
       ]
     ],
     "2027-01-22_2027-01-24": [
@@ -928,12 +970,24 @@
         138900,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-21T20:26:23+01:00",
+        133600,
+        "Oferta bezzwrotna",
+        "Standard Room"
       ]
     ],
     "2027-03-20_2027-03-22": [
       [
         "2026-11-09T18:10:05+01:00",
         138900,
+        "Oferta bezzwrotna",
+        "Standard Room"
+      ],
+      [
+        "2026-11-21T20:26:23+01:00",
+        133600,
         "Oferta bezzwrotna",
         "Standard Room"
       ]
@@ -944,12 +998,24 @@
         141600,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-21T20:26:23+01:00",
+        135800,
+        "Oferta bezzwrotna",
+        "Standard Room"
       ]
     ],
     "2027-03-19_2027-03-21": [
       [
         "2026-11-09T18:10:05+01:00",
         149700,
+        "Oferta bezzwrotna",
+        "Standard Room"
+      ],
+      [
+        "2026-11-21T20:26:23+01:00",
+        143400,
         "Oferta bezzwrotna",
         "Standard Room"
       ]
@@ -960,12 +1026,24 @@
         151300,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-21T20:26:23+01:00",
+        144100,
+        "Oferta bezzwrotna",
+        "Standard Room"
       ]
     ],
     "2027-03-05_2027-03-07": [
       [
         "2026-11-09T18:10:05+01:00",
         153100,
+        "Oferta bezzwrotna",
+        "Standard Room"
+      ],
+      [
+        "2026-11-21T20:26:23+01:00",
+        147500,
         "Oferta bezzwrotna",
         "Standard Room"
       ]
