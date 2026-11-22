@@ -1,5 +1,5 @@
 {
-  "scanned_at": "2026-11-22T12:38:41+01:00",
+  "scanned_at": "2026-11-22T20:49:46+01:00",
   "searches": [
     {
       "id": "s1",
@@ -103,7 +103,7 @@
           "per_night": 56200,
           "recent_lowest": 102200,
           "original": null,
-          "rooms_left": 15,
+          "rooms_left": 14,
           "offer_name": "Oferta bezzwrotna",
           "room_name": "Standard Room",
           "meal_plan": "breakfast",
@@ -162,7 +162,7 @@
           "per_night": 63500,
           "recent_lowest": 114900,
           "original": null,
-          "rooms_left": 15,
+          "rooms_left": 14,
           "offer_name": "Oferta bezzwrotna",
           "room_name": "Standard Room",
           "meal_plan": "breakfast",
@@ -402,7 +402,7 @@
           "per_night": 71300,
           "recent_lowest": 129000,
           "original": null,
-          "rooms_left": 2,
+          "rooms_left": 1,
           "offer_name": "Oferta bezzwrotna",
           "room_name": "Standard Plus",
           "meal_plan": "breakfast",
