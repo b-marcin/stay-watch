@@ -1,5 +1,5 @@
 {
-  "scanned_at": "2026-11-23T14:08:45+01:00",
+  "scanned_at": "2026-11-24T03:18:50+01:00",
   "searches": [
     {
       "id": "s1",
@@ -137,10 +137,10 @@
           "nights": 2,
           "sold_out": false,
           "offer_count": 3,
-          "previous_price": 127000,
+          "previous_price": 122400,
           "matched_rules": [],
-          "price": 122400,
-          "per_night": 61200,
+          "price": 123000,
+          "per_night": 61500,
           "recent_lowest": 114900,
           "original": null,
           "rooms_left": 14,
