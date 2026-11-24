@@ -48,6 +48,12 @@
         100000,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-24T14:56:02+01:00",
+        98200,
+        "Oferta bezzwrotna",
+        "Standard Room"
       ]
     ],
     "2026-12-18_2026-12-20": [
@@ -120,6 +126,12 @@
       [
         "2026-11-23T14:08:45+01:00",
         110100,
+        "Oferta bezzwrotna",
+        "Standard Room"
+      ],
+      [
+        "2026-11-24T14:56:02+01:00",
+        104700,
         "Oferta bezzwrotna",
         "Standard Room"
       ]
@@ -302,6 +314,12 @@
         107000,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-24T14:56:02+01:00",
+        109900,
+        "Oferta bezzwrotna",
+        "Standard Room"
       ]
     ],
     "2026-12-11_2026-12-13": [
@@ -370,6 +388,12 @@
         142600,
         "Oferta bezzwrotna",
         "Standard Plus"
+      ],
+      [
+        "2026-11-24T14:56:02+01:00",
+        null,
+        null,
+        null
       ]
     ],
     "2026-12-04_2026-12-06": [
@@ -450,6 +474,12 @@
         123000,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-24T14:56:02+01:00",
+        138400,
+        "Cena dnia - oferta elastyczna",
+        "Standard Room"
       ]
     ],
     "2027-01-01_2027-01-03": [
@@ -504,6 +534,12 @@
       [
         "2026-11-23T14:08:45+01:00",
         124500,
+        "Oferta bezzwrotna",
+        "Standard Room"
+      ],
+      [
+        "2026-11-24T14:56:02+01:00",
+        127900,
         "Oferta bezzwrotna",
         "Standard Room"
       ]
@@ -624,6 +660,12 @@
         132200,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-24T14:56:02+01:00",
+        132500,
+        "Oferta bezzwrotna",
+        "Standard Room"
       ]
     ],
     "2027-02-20_2027-02-22": [
@@ -676,6 +718,12 @@
       [
         "2026-11-23T14:08:45+01:00",
         140300,
+        "Oferta bezzwrotna",
+        "Standard Room"
+      ],
+      [
+        "2026-11-24T14:56:02+01:00",
+        139200,
         "Oferta bezzwrotna",
         "Standard Room"
       ]
@@ -886,6 +934,12 @@
         145600,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-24T14:56:02+01:00",
+        145900,
+        "Oferta bezzwrotna",
+        "Standard Room"
       ]
     ],
     "2027-02-19_2027-02-21": [
@@ -944,6 +998,12 @@
       [
         "2026-11-23T14:08:45+01:00",
         151700,
+        "Oferta bezzwrotna",
+        "Standard Room"
+      ],
+      [
+        "2026-11-24T14:56:02+01:00",
+        149100,
         "Oferta bezzwrotna",
         "Standard Room"
       ]
@@ -1048,6 +1108,12 @@
         151700,
         "Oferta bezzwrotna",
         "Standard Room"
+      ],
+      [
+        "2026-11-24T14:56:02+01:00",
+        151900,
+        "Oferta bezzwrotna",
+        "Standard Room"
       ]
     ],
     "2026-12-25_2026-12-27": [
@@ -1064,6 +1130,12 @@
         null,
         null,
         null
+      ],
+      [
+        "2026-11-24T14:56:02+01:00",
+        171400,
+        "PoŚWIĄTECZNY Relaks w Spa pod Warszawą",
+        "Standard Room"
       ]
     ],
     "2027-03-13_2027-03-15": [
