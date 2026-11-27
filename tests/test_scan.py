@@ -11,7 +11,6 @@ from pathlib import Path
 from stay_watch.config import load_secrets, load_watch
 from stay_watch.guard import PublicFilesError
 from stay_watch.model import Catalog
-from stay_watch.notify import MailError
 from stay_watch.profitroom import FixtureClient
 from stay_watch.service import execute_scan, execute_search
 from stay_watch.store import Store
@@ -63,15 +62,15 @@ def write_watch(tmp_path, text):
 
 ALERT_TOML = """
 {
-  "version": 1,
-  "digest": {"weekday": "off"},
+  "version": 2,
+  "digest": {"weekday": "mon"},
   "searches": [
     {
       "id": "winter-weekends",
       "name": "Winter at Example Hotel",
       "from": "2026-12-01",
       "to": "2026-12-08",
-      "alerts": [{"kind": "below", "amount": 1300}]
+      "alert": {"under": 1300, "again_cheaper_by": 0}
     }
   ]
 }
@@ -79,7 +78,7 @@ ALERT_TOML = """
 
 QUIET_TOML = """
 {
-  "version": 1,
+  "version": 2,
   "digest": {"weekday": "mon"},
   "searches": [
     {
@@ -87,7 +86,7 @@ QUIET_TOML = """
       "name": "Winter weekends",
       "from": "2026-12-01",
       "to": "2026-12-08",
-      "alerts": [{"kind": "below", "amount": 1}]
+      "alert": {"under": 1}
     }
   ]
 }
@@ -105,6 +104,8 @@ def test_scan_redacts_public_files_and_emails_the_deep_link(tmp_path):
         "check-in=2026-12-04&check-out=2026-12-06&r1_adults=2&currency=PLN"
     ) in first.stdout
     assert "1 stay under 1 300 zł: Fri 4 Dec → Sun 6 Dec 1 270 zł" in first.stdout
+    assert "Weekly digest" not in first.stdout
+    assert "under 1 300 zł" in first.stdout
 
     latest_path = tmp_path / "docs" / "data" / "latest.json"
     history_path = tmp_path / "docs" / "data" / "history.json"
@@ -121,7 +122,10 @@ def test_scan_redacts_public_files_and_emails_the_deep_link(tmp_path):
     assert stay["room_name"] == "Standard Room"
     assert stay["meal_plan"] == "breakfast"
     assert stay["cancel"] == "non-refundable"
-    assert "below:130000" in stay["matched_rules"]
+    assert stay["alert_match"] is True
+    assert "matched_rules" not in stay
+    assert latest["searches"][0]["alert"]["under"] == 1300
+    assert "alerts" not in latest["searches"][0]
     history = json.loads(history_text)
     series = next(iter(history.values()))
     assert series["2026-12-04_2026-12-06"][0][1] == 127_000
@@ -142,21 +146,21 @@ def test_scan_redacts_public_files_and_emails_the_deep_link(tmp_path):
     assert "docs/plant.txt:1:" in planted.stdout
 
 
-def test_weekly_digest_sends_once_per_day(tmp_path):
+def test_a_scan_on_a_digest_weekday_sends_no_digest(tmp_path):
     write_watch(tmp_path, QUIET_TOML)
     monday = run_cli(tmp_path, ["scan", "--fixtures", str(FIXTURES)])
     assert monday.returncode == 0, monday.stderr
-    assert "Weekly digest: Fri 4 Dec → Sun 6 Dec 1 270 zł" in monday.stdout
+    assert "Weekly digest" not in monday.stdout
+    assert "Subject:" not in monday.stdout
     assert "under 1 zł" not in monday.stdout
-    again = run_cli(tmp_path, ["scan", "--fixtures", str(FIXTURES)])
-    assert again.returncode == 0, again.stderr
-    assert "Weekly digest" not in again.stdout
+    state = json.loads((tmp_path / "docs" / "data" / "state.json").read_text(encoding="utf-8"))
+    assert "last_digest_date" not in state
     next_week = run_cli(
         tmp_path,
         ["scan", "--now", "2026-11-16T10:00:00+01:00", "--fixtures", str(FIXTURES)],
     )
     assert next_week.returncode == 0, next_week.stderr
-    assert "Weekly digest" in next_week.stdout
+    assert "Weekly digest" not in next_week.stdout
 
 
 def test_now_flag_sets_the_scan_clock_and_ignores_the_old_env_hook(tmp_path):
@@ -307,15 +311,14 @@ def test_search_prints_a_table_and_does_not_touch_the_store(tmp_path):
 
 PAST_TOML = """
 {
-  "version": 1,
-  "digest": {"weekday": "off"},
+  "version": 2,
   "searches": [
     {
       "id": "old",
       "name": "Old weekends",
       "from": "2026-01-01",
       "to": "2026-02-01",
-      "alerts": [{"kind": "below", "amount": 1300}]
+      "alert": {"under": 1300}
     }
   ]
 }
@@ -405,18 +408,12 @@ def test_a_public_name_blocks_email(tmp_path, monkeypatch):
     assert calls == []
 
 
-def test_alert_state_survives_a_later_mail_failure(tmp_path, monkeypatch):
-    write_watch(tmp_path, ALERT_TOML.replace('"weekday": "off"', '"weekday": "mon"'))
+def test_monday_alert_does_not_send_a_digest(tmp_path, monkeypatch):
+    write_watch(tmp_path, ALERT_TOML)
     calls = []
-
-    def deliver(secrets, message):
-        calls.append(str(message["Subject"]))
-        if len(calls) == 2:
-            raise MailError("digest failed")
-
-    monkeypatch.setattr("stay_watch.service.deliver", deliver)
-    with pytest.raises(MailError):
-        execute_scan(load_watch(tmp_path / "config.json"), _secrets(), Store(tmp_path / "docs", _secrets().terms), FixtureClient(FIXTURES), _monday())
+    monkeypatch.setattr("stay_watch.service.deliver", lambda secrets, message: calls.append(str(message["Subject"])))
+    execute_scan(load_watch(tmp_path / "config.json"), _secrets(), Store(tmp_path / "docs", _secrets().terms), FixtureClient(FIXTURES), _monday())
+    assert calls == ["1 stay under 1 300 zł: Fri 4 Dec → Sun 6 Dec 1 270 zł"]
     state = json.loads((tmp_path / "docs" / "data" / "state.json").read_text(encoding="utf-8"))
     assert "2026-12-04_2026-12-06" in json.dumps(state["alerts_sent"])
-    assert state.get("last_digest_date") is None
+    assert "last_digest_date" not in state

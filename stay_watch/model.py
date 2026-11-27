@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date, timedelta
-from typing import Literal
 
 
 @dataclass(frozen=True)
@@ -63,33 +62,12 @@ class Catalog:
 
 
 @dataclass(frozen=True)
-class Below:
-    amount: int
-
-
-@dataclass(frozen=True)
-class PerNightBelow:
-    amount: int
-
-
-@dataclass(frozen=True)
-class DropPct:
-    pct: int
-
-
-@dataclass(frozen=True)
-class BelowRecentLowest:
-    pass
-
-
-@dataclass(frozen=True)
-class Discounted:
-    pass
-
-
-AlertRule = Below | PerNightBelow | DropPct | BelowRecentLowest | Discounted
-
-NotifyMode = Literal["any", "drop"]
+class PriceAlert:
+    under: int  # grosze, exclusive upper bound on the stay total
+    again_cheaper_by: int  # grosze, >= 0
+    recent_low: bool
+    discounted: bool
+    drop_pct: int | None  # 1..100
 
 
 def tracked_id(check_in: date, check_out: date, adults: int, codes: tuple[str, ...]) -> str:
@@ -106,8 +84,6 @@ class TrackedTrip:
     stay: Stay
     adults: int
     codes: tuple[str, ...]
-    notify: NotifyMode
-    below: int | None
     added: date
 
 
@@ -124,7 +100,7 @@ class Search:
     codes: tuple[str, ...]
     offer_filter: tuple[str, ...]
     room_filter: tuple[str, ...]
-    alerts: tuple[AlertRule, ...]
+    alert: PriceAlert | None
 
 
 @dataclass(frozen=True)
@@ -137,6 +113,6 @@ class StayResult:
 @dataclass(frozen=True)
 class AlertHit:
     search_id: str
-    rule: AlertRule
     stay_result: StayResult
     previous_price: int | None
+    last_emailed: int | None

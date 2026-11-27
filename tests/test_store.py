@@ -1,9 +1,9 @@
 from datetime import date, datetime, timedelta, timezone
 
-from stay_watch.model import Below, Catalog, StayResult
+from stay_watch.model import Catalog, OfferInfo, StayResult, TrackedTrip, tracked_id
 from stay_watch.render import describe
 from stay_watch.store import Store, build_latest, describe_quote, redact, update_history
-from tests.support import make_quote, make_search, stay
+from tests.support import make_alert, make_quote, make_search, stay
 
 
 def test_latest_writes_a_derived_name_and_a_custom_name_flag():
@@ -12,6 +12,7 @@ def test_latest_writes_a_derived_name_and_a_custom_name_flag():
     payload = build_latest([(derived, [])], Catalog({}, {}), {}, when)
     assert payload["searches"][0]["name"] == "28 Dec – 3 Jan"
     assert payload["searches"][0]["custom_name"] is False
+    assert payload["searches"][0]["alert"] is None
     custom = build_latest([(make_search(name="Weekends"), [])], Catalog({}, {}), {}, when)
     assert custom["searches"][0]["name"] == "Weekends"
     assert custom["searches"][0]["custom_name"] is True
@@ -94,36 +95,103 @@ def test_history_appends_only_when_the_price_changes_and_prunes_past_stays():
     assert current not in history.get(group, {})
 
 
-def test_save_state_drops_past_stays_and_removed_rules(tmp_path):
-    search = make_search(id="winter", alerts=(Below(100),))
+def test_save_state_drops_past_stays_removed_searches_and_searches_without_an_alert(tmp_path):
+    search = make_search(id="winter", alert=make_alert(under=10_000))
+    quiet = make_search(id="quiet", alert=None)
     store = Store(tmp_path / "docs", [])
     store.save_state(
         {
             "consecutive_failures": 2,
             "alerts_sent": {
                 "winter": {
-                    "below:100": {
-                        "2026-12-04_2026-12-06": 900,
-                        "2026-11-09_2026-11-11": 800,
-                        "2026-10-01_2026-10-03": 700,
-                        "not-a-date": 1,
-                    },
-                    "discounted": {"2026-12-04_2026-12-06": 500},
+                    "2026-12-04_2026-12-06": 900,
+                    "2026-11-09_2026-11-11": 800,
+                    "2026-10-01_2026-10-03": 700,
+                    "not-a-date": 1,
                 },
-                "gone": {"below:100": {"2026-12-04_2026-12-06": 400}},
+                "quiet": {"2026-12-04_2026-12-06": 500},
+                "gone": {"2026-12-04_2026-12-06": 400},
             },
         },
         today=date(2026, 11, 9),
-        searches=[search],
+        searches=[search, quiet],
     )
     saved = store.load_state()
     assert saved["consecutive_failures"] == 2
+    assert "last_digest_date" not in saved
     assert saved["alerts_sent"] == {
         "winter": {
-            "below:100": {
-                "2026-12-04_2026-12-06": 900,
-                "2026-11-09_2026-11-11": 800,
-                "not-a-date": 1,
-            }
+            "2026-12-04_2026-12-06": 900,
+            "2026-11-09_2026-11-11": 800,
+            "not-a-date": 1,
         }
     }
+
+
+def test_old_alerts_sent_keeps_the_lowest_price_per_stay(tmp_path):
+    store = Store(tmp_path / "docs", [])
+    data = tmp_path / "docs" / "data"
+    data.mkdir(parents=True)
+    (data / "state.json").write_text(
+        """
+        {
+          "alerts_sent": {
+            "winter": {
+              "below:120000": {"2026-12-04_2026-12-06": 110000, "2026-12-11_2026-12-13": 90000},
+              "below_recent_lowest": {"2026-12-04_2026-12-06": 100000}
+            }
+          },
+          "last_digest_date": "2026-11-09"
+        }
+        """,
+        encoding="utf-8",
+    )
+    loaded = store.load_state()
+    assert loaded["alerts_sent"] == {
+        "winter": {
+            "2026-12-04_2026-12-06": 100000,
+            "2026-12-11_2026-12-13": 90000,
+        }
+    }
+    assert "last_digest_date" not in loaded
+
+
+def test_latest_carries_alert_alert_match_and_no_tracked_notify_fields():
+    when = datetime(2026, 11, 9, 10, 0, tzinfo=timezone(timedelta(hours=1)))
+    found = stay("2026-12-04", "2026-12-06")
+    search = make_search(alert=make_alert(under=130_000, again_cheaper_by=5_000, discounted=True))
+    quiet = make_search(id="quiet", name="Quiet", alert=None)
+    later = stay("2026-12-11", "2026-12-13")
+    matched = StayResult(found, make_quote(120_000, found, original=140_000), 1)
+    at_limit = StayResult(
+        later,
+        make_quote(130_000, later, original=140_000, recent_lowest=90_000),
+        1,
+    )
+    trip = TrackedTrip(tracked_id(found.check_in, found.check_out, 2, ()), found, 2, (), date(2026, 11, 9))
+    catalog = Catalog({1: OfferInfo("Rate", "breakfast", "non-refundable")}, {1: "Double"})
+    payload = build_latest(
+        [(search, [matched, at_limit]), (quiet, [matched])],
+        catalog,
+        {},
+        when,
+        [(trip, matched)],
+        {trip.id: {"first_price": 120_000, "last_notified_price": 120_000}},
+    )
+    emailed = payload["searches"][0]
+    assert emailed["alert"] == {
+        "under": 1300,
+        "again_cheaper_by": 50,
+        "require": {"recent_low": False, "discounted": True, "drop_pct": None},
+    }
+    assert emailed["stays"][0]["alert_match"] is True
+    assert emailed["stays"][1]["alert_match"] is False
+    assert "matched_rules" not in emailed["stays"][0]
+    assert "alerts" not in emailed
+    assert payload["searches"][1]["alert"] is None
+    assert payload["searches"][1]["stays"][0]["alert_match"] is False
+    row = payload["tracked"][0]
+    assert row["first_price"] == 120_000
+    assert "notify" not in row
+    assert "below" not in row
+    assert "last_notified_price" not in row

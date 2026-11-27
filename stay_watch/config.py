@@ -9,13 +9,7 @@ from datetime import date
 from pathlib import Path
 
 from stay_watch.model import (
-    AlertRule,
-    Below,
-    BelowRecentLowest,
-    Discounted,
-    DropPct,
-    NotifyMode,
-    PerNightBelow,
+    PriceAlert,
     Search,
     Stay,
     TrackedTrip,
@@ -83,7 +77,6 @@ class Secrets:
 class WatchConfig:
     searches: tuple[Search, ...]
     tracked: tuple[TrackedTrip, ...]
-    digest_weekday: int | None
     revision: str | None = None
 
 
@@ -146,10 +139,12 @@ def load_watch(path: Path) -> WatchConfig:
         raise ConfigError(f"{path.name}: not valid JSON") from exc
     if not isinstance(data, dict):
         raise ConfigError(f"{path.name}: must be an object")
-    if not isinstance(data.get("version"), int) or isinstance(data.get("version"), bool) or data.get("version") != 1:
-        _fail("version", "must be 1")
+    version = data.get("version")
+    if type(version) is int and version == 1:
+        raise ConfigError("config.json is version 1; this scanner reads version 2")
+    if type(version) is not int or version != 2:
+        _fail("version", "must be 2")
     defaults = _object(data.get("defaults", {}), "defaults")
-    digest = _object(data.get("digest", {}), "digest")
     searches = _list(data.get("searches", []), "searches")
     tracked = _list(data.get("tracked", []), "tracked")
     parsed_defaults = _parse_defaults(defaults)
@@ -168,7 +163,7 @@ def load_watch(path: Path) -> WatchConfig:
             _fail(f"tracked[{index}].id", "already used")
         seen_trips.add(trip.id)
     revision = hashlib.sha1(f"blob {len(raw)}\0".encode("ascii") + raw, usedforsecurity=False).hexdigest()
-    return WatchConfig(parsed_searches, parsed_tracked, _parse_digest(digest), revision)
+    return WatchConfig(parsed_searches, parsed_tracked, revision)
 
 
 def _parse_defaults(raw: dict) -> dict:
@@ -205,8 +200,8 @@ def _parse_search(item: object, defaults: dict, path: str) -> Search:
     offers = tuple(_string_list(raw["offers"], f"{path}.offers")) if "offers" in raw else defaults["offers"]
     rooms = tuple(_string_list(raw["rooms"], f"{path}.rooms")) if "rooms" in raw else defaults["rooms"]
     must = _parse_must_include(raw["must_include"], f"{path}.must_include") if "must_include" in raw else defaults["must_include"]
-    alerts_raw = raw.get("alerts", [])
-    alerts = tuple(_parse_alert(entry, f"{path}.alerts[{index}]") for index, entry in enumerate(_list(alerts_raw, f"{path}.alerts")))
+    if "alerts" in raw:
+        _fail(f"{path}.alerts", "removed; use alert")
     return Search(
         id=search_id,
         name=name,
@@ -219,7 +214,7 @@ def _parse_search(item: object, defaults: dict, path: str) -> Search:
         codes=codes,
         offer_filter=offers,
         room_filter=rooms,
-        alerts=alerts,
+        alert=_parse_price_alert(raw.get("alert"), f"{path}.alert"),
     )
 
 
@@ -233,10 +228,6 @@ def _parse_tracked(item: object, path: str) -> TrackedTrip:
         _fail(f"{path}.adults", "missing")
     adults = _positive_int(raw.get("adults"), f"{path}.adults")
     codes = tuple(_string_list(raw["codes"], f"{path}.codes")) if "codes" in raw else ()
-    notify = _notify(raw.get("notify"), f"{path}.notify")
-    below = None
-    if "below" in raw and raw["below"] is not None:
-        below = _pln(raw["below"], f"{path}.below")
     added = _parse_date(raw.get("added"), f"{path}.added")
     expected = tracked_id(check_in, check_out, adults, codes)
     if "id" in raw and raw["id"] != expected:
@@ -246,45 +237,33 @@ def _parse_tracked(item: object, path: str) -> TrackedTrip:
         stay=Stay(check_in, check_out),
         adults=adults,
         codes=codes,
-        notify=notify,
-        below=below,
         added=added,
     )
 
 
-def _parse_alert(entry: object, path: str) -> AlertRule:
-    raw = _object(entry, path)
-    kind = raw.get("kind")
-    if "kind" not in raw:
-        _fail(f"{path}.kind", "missing")
-    if kind == "below":
-        return Below(_pln(raw.get("amount"), f"{path}.amount"))
-    if kind == "per_night_below":
-        return PerNightBelow(_pln(raw.get("amount"), f"{path}.amount"))
-    if kind == "drop_pct":
-        value = raw.get("pct")
-        if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= 100:
-            _fail(f"{path}.pct", "must be a whole number from 1 to 100")
-        return DropPct(value)
-    if kind == "below_recent_lowest":
-        return BelowRecentLowest()
-    if kind == "discounted":
-        return Discounted()
-    _fail(f"{path}.kind", f"unknown alert {kind!r}")
-
-
-def _parse_digest(raw: dict) -> int | None:
-    if "weekday" not in raw:
+def _parse_price_alert(value: object, path: str) -> PriceAlert | None:
+    if value is None:
         return None
-    value = raw["weekday"]
-    if value is None or (isinstance(value, str) and value.strip().lower() == "off"):
-        return None
-    if not isinstance(value, str):
-        _fail("digest.weekday", 'must be mon tue wed thu fri sat sun or "off"')
-    key = value.strip().lower()
-    if key not in CONFIG_WEEKDAYS:
-        _fail("digest.weekday", 'must be mon tue wed thu fri sat sun or "off"')
-    return CONFIG_WEEKDAYS[key]
+    raw = _object(value, path)
+    if "under" not in raw:
+        _fail(f"{path}.under", "missing")
+    under = _pln(raw.get("under"), f"{path}.under")
+    if "again_cheaper_by" not in raw or raw["again_cheaper_by"] is None:
+        margin = 0
+    else:
+        margin = _whole_pln(raw["again_cheaper_by"], f"{path}.again_cheaper_by", minimum=0)
+    recent_low = False
+    discounted = False
+    drop_pct = None
+    if "require" in raw and raw["require"] is not None:
+        require = _object(raw["require"], f"{path}.require")
+        if "recent_low" in require:
+            recent_low = _bool(require["recent_low"], f"{path}.require.recent_low")
+        if "discounted" in require:
+            discounted = _bool(require["discounted"], f"{path}.require.discounted")
+        if "drop_pct" in require and require["drop_pct"] is not None:
+            drop_pct = _percent(require["drop_pct"], f"{path}.require.drop_pct")
+    return PriceAlert(under, margin, recent_low, discounted, drop_pct)
 
 
 def _parse_must_include(value: object, path: str) -> frozenset[int]:
@@ -315,12 +294,6 @@ def _search_id(value: object, path: str) -> str:
     return value
 
 
-def _notify(value: object, path: str) -> NotifyMode:
-    if value not in ("any", "drop"):
-        _fail(path, 'must be "any" or "drop"')
-    return value
-
-
 def _parse_date(value: object, path: str) -> date:
     if not isinstance(value, str):
         _fail(path, "not a date")
@@ -339,9 +312,25 @@ def _parse_top(value: object, path: str) -> int | None:
 
 
 def _pln(value: object, path: str) -> int:
-    if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+    return _whole_pln(value, path, minimum=1)
+
+
+def _whole_pln(value: object, path: str, *, minimum: int) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value < minimum:
         _fail(path, "must be whole PLN")
     return value * 100
+
+
+def _percent(value: object, path: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= 100:
+        _fail(path, "must be a whole number from 1 to 100")
+    return value
+
+
+def _bool(value: object, path: str) -> bool:
+    if not isinstance(value, bool):
+        _fail(path, "must be true or false")
+    return value
 
 
 def _positive_int(value: object, path: str) -> int:

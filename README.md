@@ -1,6 +1,6 @@
 # Stay Watch
 
-Stay Watch checks one hotel's prices on a schedule, emails you when a stay matches a rule, and publishes a small dashboard. The hotel's name and booking link stay in GitHub secrets. They are not written into this repository.
+Stay Watch checks one hotel's prices on a schedule, emails you when a stay is priced under the limit you set, and publishes a small dashboard. The hotel's name and booking link stay in GitHub secrets. They are not written into this repository.
 
 ## Edit what to watch
 
@@ -12,9 +12,9 @@ A search name is optional. Leave it null and the scan names the search from its 
 
 `must_include` of `["sat"]` keeps stays that cover Saturday night (Friday to Sunday, and Saturday to Monday, when the stay is 2 nights). `top` of `3` lists the three cheapest. `top` of `null` lists every stay. Add `offers` or `rooms` to keep names that contain that text.
 
-Each alert object has a `kind`: `below` (total PLN), `per_night_below`, `drop_pct`, `below_recent_lowest`, or `discounted`.
+`docs/config.json` is version 2. A search can set `alert`. `under` is the whole-stay price in whole PLN, and a stay is emailed only when its price is strictly under that. `again_cheaper_by` (whole PLN, default 0) is how much cheaper that same stay must be before it is emailed again. `require.recent_low`, `require.discounted`, and `require.drop_pct` are optional extra filters. They never cause a stay at or above `under` to be emailed. Leave `alert` null, or omit it, and that search sends no mail. The scanner remembers the last emailed price in `alerts_sent` as `{search id: {stay key: price in grosze}}`.
 
-A tracked trip is one stay. `notify` of `any` emails on every price change. `drop` emails only when the price falls below the last emailed price, or the stay becomes available again. `below` is an optional PLN price that also emails once, and again after the price has gone above the last emailed price under that line.
+A tracked trip is one stay on the dashboard. Tracked trips do not send email. There is no weekly digest.
 
 ## Secrets
 

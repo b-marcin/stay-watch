@@ -1,6 +1,6 @@
 from datetime import date
 
-from stay_watch.model import Quote, Search, Stay
+from stay_watch.model import PriceAlert, Quote, Search, Stay
 
 
 def stay(start: str, end: str) -> Stay:
@@ -20,10 +20,20 @@ def make_search(**overrides) -> Search:
         codes=(),
         offer_filter=(),
         room_filter=(),
-        alerts=(),
+        alert=None,
     )
     values.update(overrides)
     return Search(**values)
+
+
+def make_alert(
+    under: int = 130_000,
+    again_cheaper_by: int = 0,
+    recent_low: bool = False,
+    discounted: bool = False,
+    drop_pct: int | None = None,
+) -> PriceAlert:
+    return PriceAlert(under, again_cheaper_by, recent_low, discounted, drop_pct)
 
 
 def make_quote(price: int, stay_value: Stay | None = None, **overrides) -> Quote:

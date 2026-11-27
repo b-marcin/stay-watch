@@ -3,50 +3,26 @@ from __future__ import annotations
 import copy
 from collections.abc import Mapping
 
-from stay_watch.model import (
-    AlertHit,
-    AlertRule,
-    Below,
-    BelowRecentLowest,
-    Discounted,
-    DropPct,
-    PerNightBelow,
-    Search,
-    StayResult,
-)
+from stay_watch.model import AlertHit, PriceAlert, Search, StayResult
 
 
-def rule_id(rule: AlertRule) -> str:
-    match rule:
-        case Below(amount):
-            return f"below:{amount}"
-        case PerNightBelow(amount):
-            return f"per_night_below:{amount}"
-        case DropPct(pct):
-            return f"drop_pct:{pct}"
-        case BelowRecentLowest():
-            return "below_recent_lowest"
-        case Discounted():
-            return "discounted"
-
-
-def rule_matches(rule: AlertRule, result: StayResult, previous_price: int | None) -> bool:
+def qualifies(alert: PriceAlert, result: StayResult, previous_price: int | None) -> bool:
     quote = result.best
     if quote is None:
         return False
-    match rule:
-        case Below(amount):
-            return quote.price < amount
-        case PerNightBelow(amount):
-            return quote.price < amount * result.stay.nights
-        case DropPct(pct):
-            if previous_price is None or previous_price <= 0:
-                return False
-            return (previous_price - quote.price) * 100 >= pct * previous_price
-        case BelowRecentLowest():
-            return quote.recent_lowest is not None and quote.price < quote.recent_lowest
-        case Discounted():
-            return quote.original is not None
+    price = quote.price
+    if price >= alert.under:
+        return False
+    if alert.recent_low and (quote.recent_lowest is None or price >= quote.recent_lowest):
+        return False
+    if alert.discounted and quote.original is None:
+        return False
+    if alert.drop_pct is not None:
+        if previous_price is None or previous_price <= 0:
+            return False
+        if (previous_price - price) * 100 < alert.drop_pct * previous_price:
+            return False
+    return True
 
 
 def evaluate(
@@ -57,22 +33,31 @@ def evaluate(
 ) -> tuple[list[AlertHit], dict]:
     """Return hits and the next alerts_sent map.
 
-    A hit is sent only the first time, or when the price is lower than the
-    last price we sent. A rise keeps that remembered price: the stay is
-    re-armed, and the next price below it sends again.
+    A hit is sent only the first time, or when the price is at least
+    ``again_cheaper_by`` below the last emailed price. A rise keeps that
+    remembered price.
     """
     sent = copy.deepcopy(sent)
-    bucket = sent.setdefault(search.id, {})
+    alert = search.alert
+    if alert is None:
+        return [], sent
+    bucket = sent.get(search.id)
+    if not isinstance(bucket, dict):
+        bucket = {}
     hits: list[AlertHit] = []
+    changed = False
     for result in results:
-        previous = previous_prices.get(result.stay.key)
-        for rule in search.alerts:
-            if not rule_matches(rule, result, previous):
-                continue
-            prices = bucket.setdefault(rule_id(rule), {})
-            last = prices.get(result.stay.key)
-            price = result.best.price
-            if last is None or price < last:
-                hits.append(AlertHit(search.id, rule, result, previous))
-                prices[result.stay.key] = price
+        if result.best is None or not qualifies(alert, result, previous_prices.get(result.stay.key)):
+            continue
+        last = bucket.get(result.stay.key)
+        if isinstance(last, bool) or not isinstance(last, int):
+            last = None
+        price = result.best.price
+        if last is not None and not (price < last and last - price >= alert.again_cheaper_by):
+            continue
+        hits.append(AlertHit(search.id, result, previous_prices.get(result.stay.key), last))
+        bucket[result.stay.key] = price
+        changed = True
+    if changed:
+        sent[search.id] = bucket
     return hits, sent

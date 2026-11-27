@@ -1,19 +1,24 @@
+import json
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 
 import pytest
 
 from stay_watch.config import WatchConfig, load_secrets
-from stay_watch.model import Catalog, DropPct, OfferInfo, TrackedTrip, tracked_id
+from stay_watch.model import Catalog, OfferInfo, TrackedTrip, tracked_id
 from stay_watch.notify import MailError
 from stay_watch.service import RecordedFailure, execute_scan
 from stay_watch.store import Store, StoreError, history_group
-from tests.support import make_quote, make_search, stay
+from tests.support import make_alert, make_quote, make_search, stay
 
 
 NOW = datetime(2026, 11, 9, 10, 0, tzinfo=timezone(timedelta(hours=1)))
 FOUND = stay("2026-12-04", "2026-12-06")
-SEARCH = make_search(window_start=FOUND.check_in, window_end=FOUND.check_out, alerts=(DropPct(10),))
+SEARCH = make_search(
+    window_start=FOUND.check_in,
+    window_end=FOUND.check_out,
+    alert=make_alert(under=1_000_000, drop_pct=10),
+)
 SECRETS = load_secrets(
     {
         "HOTEL_SLUG": "examplehotel",
@@ -40,10 +45,9 @@ class Mailbox:
     def __init__(self):
         self.messages = []
         self.fail = False
-        self.fail_digest = False
 
     def deliver(self, secrets, message):
-        if self.fail or (self.fail_digest and str(message["Subject"]).startswith("Weekly digest:")):
+        if self.fail:
             raise MailError("simulated SMTP failure")
         self.messages.append(message)
 
@@ -70,7 +74,7 @@ def plain(message):
 
 def trip():
     return TrackedTrip(
-        tracked_id(FOUND.check_in, FOUND.check_out, 2, ()), FOUND, 2, (), "any", None, NOW.date()
+        tracked_id(FOUND.check_in, FOUND.check_out, 2, ()), FOUND, 2, (), NOW.date()
     )
 
 
@@ -90,7 +94,9 @@ def test_failed_percentage_drop_retries_after_reloading_state(tmp_path, mailbox)
 
     assert len(mailbox.messages) == 1
     assert "800 zł" in plain(mailbox.messages[0])
-    assert "was 1 000 zł" in plain(mailbox.messages[0])
+    assert "under" in plain(mailbox.messages[0])
+    assert "was " not in plain(mailbox.messages[0])
+    assert "last emailed" not in plain(mailbox.messages[0])
     rows = saved(tmp_path).load_history()[history_group(2, ())][FOUND.key]
     assert [row[1] for row in rows] == [100_000, 80_000]
 
@@ -107,7 +113,7 @@ def test_failed_drop_retries_with_the_current_qualifying_price(tmp_path, mailbox
     assert len(mailbox.messages) == 1
     assert "700 zł" in plain(mailbox.messages[0])
     assert "800 zł" not in plain(mailbox.messages[0])
-    assert "was 1 000 zł" in plain(mailbox.messages[0])
+    assert "was " not in plain(mailbox.messages[0])
 
 
 def test_a_failed_alert_does_not_accumulate_quiet_stays_drops(tmp_path, mailbox):
@@ -146,102 +152,61 @@ def test_state_write_failure_leaves_history_and_delivery_untouched(tmp_path, mai
     assert len(mailbox.messages) == 1
 
 
-def test_failed_initial_tracked_email_does_not_publish_delivery(tmp_path, mailbox):
-    tracked = trip()
-    config = WatchConfig((), (tracked,), None)
-    mailbox.fail = True
-    with pytest.raises(MailError):
-        scan(tmp_path, 100_000, config)
+def test_tracked_price_changes_send_no_email(tmp_path, mailbox):
+    config = WatchConfig((), (trip(),))
+    scan(tmp_path, 100_000, config)
+    scan(tmp_path, 80_000, config)
+    scan(tmp_path, 120_000, config)
 
+    assert mailbox.messages == []
     row = saved(tmp_path).load_latest()["tracked"][0]
-    assert row["price"] == 100_000
+    assert row["price"] == 120_000
     assert row["first_price"] == 100_000
-    assert row["last_notified_price"] is None
-    assert tracked.id not in saved(tmp_path).load_state()["tracked"]
+    assert "notify" not in row
+    assert "below" not in row
+    assert "last_notified_price" not in row
+    state = saved(tmp_path).load_state()["tracked"][trip().id]
+    assert state["first_price"] == 100_000
+    assert state["last_seen_price"] == 120_000
+    assert "last_notified_price" not in state
 
-    mailbox.fail = False
-    scan(tmp_path, 100_000, config)
-    scan(tmp_path, 100_000, config)
 
+def test_old_shape_alerts_sent_does_not_reemail_the_same_price(tmp_path, mailbox):
+    data = tmp_path / "docs" / "data"
+    data.mkdir(parents=True)
+    (data / "state.json").write_text(
+        json.dumps(
+            {
+                "alerts_sent": {
+                    "s": {
+                        "below:1000000": {FOUND.key: 100_000},
+                        "discounted": {FOUND.key: 120_000},
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert saved(tmp_path).load_state()["alerts_sent"] == {"s": {FOUND.key: 100_000}}
+
+    config = WatchConfig(
+        (make_search(window_start=FOUND.check_in, window_end=FOUND.check_out, alert=make_alert(under=1_000_000)),),
+        (),
+    )
+    scan(tmp_path, 100_000, config)
+    assert mailbox.messages == []
+    assert saved(tmp_path).load_state()["alerts_sent"][SEARCH.id][FOUND.key] == 100_000
+
+    scan(tmp_path, 90_000, config)
     assert len(mailbox.messages) == 1
-    assert saved(tmp_path).load_latest()["tracked"][0]["last_notified_price"] == 100_000
-    assert saved(tmp_path).load_state()["tracked"][tracked.id]["last_notified_price"] == 100_000
-
-
-def test_failed_tracked_change_keeps_the_last_delivered_price(tmp_path, mailbox):
-    config = WatchConfig((), (trip(),), None)
-    scan(tmp_path, 100_000, config)
-    mailbox.fail = True
-    with pytest.raises(MailError):
-        scan(tmp_path, 80_000, config)
-
-    row = saved(tmp_path).load_latest()["tracked"][0]
-    assert row["price"] == 80_000
-    assert row["first_price"] == 100_000
-    assert row["last_notified_price"] == 100_000
-
-    mailbox.fail = False
-    scan(tmp_path, 80_000, config)
-    scan(tmp_path, 80_000, config)
-
-    assert len(mailbox.messages) == 2
-    assert saved(tmp_path).load_latest()["tracked"][0]["last_notified_price"] == 80_000
-
-
-def test_successful_drop_survives_a_later_digest_failure(tmp_path, mailbox):
-    config = WatchConfig((SEARCH,), (), NOW.weekday())
-    scan(tmp_path, 100_000, config, NOW - timedelta(days=1))
-    mailbox.fail_digest = True
-    with pytest.raises(MailError):
-        scan(tmp_path, 80_000, config)
-
-    assert len(mailbox.messages) == 1
-    assert saved(tmp_path).load_state()["last_digest_date"] is None
-
-    mailbox.fail_digest = False
-    scan(tmp_path, 80_000, config)
-
-    assert len(mailbox.messages) == 2
-    assert str(mailbox.messages[1]["Subject"]).startswith("Weekly digest:")
-
-
-def test_successful_tracked_notice_survives_a_later_digest_failure(tmp_path, mailbox):
-    tracked = trip()
-    config = WatchConfig((), (tracked,), NOW.weekday())
-    mailbox.fail_digest = True
-    with pytest.raises(MailError):
-        scan(tmp_path, 100_000, config)
-
-    assert len(mailbox.messages) == 1
-    assert saved(tmp_path).load_latest()["tracked"][0]["last_notified_price"] == 100_000
-    assert saved(tmp_path).load_state()["tracked"][tracked.id]["last_notified_price"] == 100_000
-    assert saved(tmp_path).load_state()["last_digest_date"] is None
-
-    mailbox.fail_digest = False
-    scan(tmp_path, 100_000, config)
-
-    assert len(mailbox.messages) == 2
-    assert str(mailbox.messages[1]["Subject"]).startswith("Weekly digest:")
-
-
-def test_quiet_evaluation_survives_a_later_digest_failure(tmp_path, mailbox):
-    config = WatchConfig((SEARCH,), (), NOW.weekday())
-    mailbox.fail_digest = True
-    with pytest.raises(MailError):
-        scan(tmp_path, 100_000, config)
-
-    mailbox.fail_digest = False
-    scan(tmp_path, 80_000, config)
-
-    assert len(mailbox.messages) == 2
-    assert "800 zł" in plain(mailbox.messages[0])
-    assert str(mailbox.messages[1]["Subject"]).startswith("Weekly digest:")
+    assert "900 zł" in plain(mailbox.messages[0])
+    assert "last emailed 1 000 zł" in plain(mailbox.messages[0])
 
 
 @pytest.mark.parametrize(
     "change",
     [
-        {"alerts": (DropPct(20),)},
+        {"alert": make_alert(under=1_000_000, drop_pct=20)},
         {"adults": 3},
         {"codes": ("PROMO",)},
         {"offer_filter": ("Rate",)},
@@ -277,7 +242,7 @@ def test_removed_search_does_not_retry_its_old_comparison(tmp_path, mailbox):
 
 
 def test_suspected_empty_feed_preserves_a_failed_drop_comparison(tmp_path, mailbox):
-    config = WatchConfig((make_search(alerts=(DropPct(10),)),), (), None)
+    config = WatchConfig((make_search(alert=make_alert(under=1_000_000, drop_pct=10)),), ())
     scan(tmp_path, 100_000, config)
     mailbox.fail = True
     with pytest.raises(MailError):

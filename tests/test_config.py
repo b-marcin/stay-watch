@@ -33,13 +33,22 @@ def test_shipped_config_parses_into_a_valid_watch():
     for search in config.searches:
         assert search.id
         assert search.window_end > search.window_start
+    live = config.searches[0]
+    assert live.alert is not None
+    assert live.alert.under == 120_000
+    assert live.alert.again_cheaper_by == 5_000
+    assert live.alert.recent_low is False
+    assert live.alert.discounted is False
+    assert live.alert.drop_pct is None
+    assert config.tracked
+    assert not hasattr(config.tracked[0], "notify")
 
 
 def test_defaults_fill_missing_search_fields_and_null_top_means_all(tmp_path):
     path = _write(
         tmp_path,
         {
-            "version": 1,
+            "version": 2,
             "defaults": {
                 "nights": 4,
                 "adults": 2,
@@ -64,7 +73,6 @@ def test_defaults_fill_missing_search_fields_and_null_top_means_all(tmp_path):
         },
     )
     config = load_watch(path)
-    assert config.digest_weekday is None
     weekend, inherited = config.searches
     assert weekend.nights == 2
     assert weekend.adults == 3
@@ -82,7 +90,7 @@ def test_unknown_keys_are_ignored(tmp_path):
     path = _write(
         tmp_path,
         {
-            "version": 1,
+            "version": 2,
             "extra": True,
             "searches": [_search(nickname="nope")],
             "tracked": [
@@ -103,14 +111,14 @@ def test_unknown_keys_are_ignored(tmp_path):
     assert config.searches[0].id == "s1"
     trip = config.tracked[0]
     assert trip.id == "2026-12-19_2026-12-21_a2_cSAVE"
-    assert trip.notify == "drop"
-    assert trip.below is None
     assert trip.codes == ("SAVE",)
+    assert not hasattr(trip, "notify")
+    assert not hasattr(trip, "below")
 
 
 def test_a_supplied_tracked_id_must_match_the_trip(tmp_path):
     payload = {
-        "version": 1,
+        "version": 2,
         "searches": [],
         "tracked": [
             {
@@ -133,17 +141,34 @@ def test_a_supplied_tracked_id_must_match_the_trip(tmp_path):
 @pytest.mark.parametrize(
     ("mutate", "fragment"),
     [
-        (lambda payload: payload.update({"version": 2}), "version:"),
+        (lambda payload: payload.update({"version": 3}), "version: must be 2"),
         (lambda payload: payload["searches"][0].update({"from": "2026-13-01"}), "searches[0].from:"),
         (lambda payload: payload["searches"][0].update({"id": "Winter"}), "searches[0].id:"),
         (lambda payload: payload["searches"][0].update({"to": "2026-12-01"}), "searches[0].to:"),
         (lambda payload: payload["searches"][0].update({"top": 0}), "searches[0].top:"),
         (lambda payload: payload["searches"][0].update({"name": 4}), "searches[0].name:"),
         (
-            lambda payload: payload["searches"][0].update({"alerts": [{"kind": "below", "amount": "1300"}]}),
-            "searches[0].alerts[0].amount:",
+            lambda payload: payload["searches"][0].update({"alert": {"under": "1300"}}),
+            "searches[0].alert.under:",
         ),
-        (lambda payload: payload.update({"digest": {"weekday": "someday"}}), "digest.weekday:"),
+        (
+            lambda payload: payload["searches"][0].update({"alert": {"under": 0}}),
+            "searches[0].alert.under:",
+        ),
+        (
+            lambda payload: payload["searches"][0].update({"alert": {"under": 100, "again_cheaper_by": -1}}),
+            "searches[0].alert.again_cheaper_by:",
+        ),
+        (
+            lambda payload: payload["searches"][0].update(
+                {"alert": {"under": 100, "require": {"drop_pct": 0}}}
+            ),
+            "searches[0].alert.require.drop_pct:",
+        ),
+        (
+            lambda payload: payload["searches"][0].update({"alerts": [{"kind": "below", "amount": 1300}]}),
+            "searches[0].alerts:",
+        ),
         (
             lambda payload: payload.update(
                 {
@@ -152,7 +177,6 @@ def test_a_supplied_tracked_id_must_match_the_trip(tmp_path):
                             "check_in": "nope",
                             "check_out": "2026-12-21",
                             "adults": 2,
-                            "notify": "any",
                             "added": "2026-11-09",
                         }
                     ]
@@ -160,30 +184,61 @@ def test_a_supplied_tracked_id_must_match_the_trip(tmp_path):
             ),
             "tracked[0].check_in:",
         ),
-        (
-            lambda payload: payload.update(
-                {
-                    "tracked": [
-                        {
-                            "check_in": "2026-12-19",
-                            "check_out": "2026-12-21",
-                            "adults": 2,
-                            "notify": "sometimes",
-                            "added": "2026-11-09",
-                        }
-                    ]
-                }
-            ),
-            "tracked[0].notify:",
-        ),
     ],
 )
 def test_invalid_config_names_the_json_path(tmp_path, mutate, fragment):
-    payload = {"version": 1, "searches": [_search()], "tracked": []}
+    payload = {"version": 2, "searches": [_search()], "tracked": []}
     mutate(payload)
     with pytest.raises(ConfigError) as caught:
         load_watch(_write(tmp_path, payload))
     assert fragment in str(caught.value)
+
+
+def test_version_1_and_a_leftover_alerts_list_are_rejected(tmp_path):
+    with pytest.raises(ConfigError, match="config.json is version 1; this scanner reads version 2"):
+        load_watch(_write(tmp_path, {"version": 1, "searches": [_search()], "tracked": []}))
+    with pytest.raises(ConfigError, match=r"searches\[0\].alerts: removed; use alert"):
+        load_watch(
+            _write(
+                tmp_path,
+                {
+                    "version": 2,
+                    "searches": [_search(alerts=[{"kind": "below", "amount": 1200}])],
+                    "tracked": [],
+                },
+            )
+        )
+
+
+def test_alert_parses_in_whole_pln_and_fills_defaults(tmp_path):
+    path = _write(
+        tmp_path,
+        {
+            "version": 2,
+            "searches": [
+                _search(id="full", alert={"under": 1200, "again_cheaper_by": 0, "require": {"recent_low": True, "discounted": True, "drop_pct": 10}}),
+                _search(id="plain", alert={"under": 900}),
+                _search(id="quiet", alert=None),
+                _search(id="omitted"),
+            ],
+            "tracked": [],
+        },
+    )
+    full, plain, quiet, omitted = load_watch(path).searches
+    assert full.alert is not None
+    assert full.alert.under == 120_000
+    assert full.alert.again_cheaper_by == 0
+    assert full.alert.recent_low is True
+    assert full.alert.discounted is True
+    assert full.alert.drop_pct == 10
+    assert plain.alert is not None
+    assert plain.alert.under == 90_000
+    assert plain.alert.again_cheaper_by == 0
+    assert plain.alert.recent_low is False
+    assert plain.alert.discounted is False
+    assert plain.alert.drop_pct is None
+    assert quiet.alert is None
+    assert omitted.alert is None
 
 
 def test_derived_names_omit_years_when_the_end_is_within_a_year_of_the_scan():

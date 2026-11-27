@@ -93,7 +93,7 @@ def _search(args: argparse.Namespace) -> int:
         codes=_cli_codes(args.codes),
         offer_filter=(),
         room_filter=(),
-        alerts=(),
+        alert=None,
     )
     client = _client(args.fixtures, secrets)
     try:

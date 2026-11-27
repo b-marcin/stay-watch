@@ -10,18 +10,13 @@ from pathlib import Path
 
 from stay_watch.config import WEEKDAY_NAMES
 from stay_watch.model import (
-    AlertRule,
-    Below,
-    BelowRecentLowest,
     Catalog,
-    Discounted,
-    DropPct,
-    PerNightBelow,
+    PriceAlert,
     Search,
     StayResult,
     TrackedTrip,
 )
-from stay_watch.alerts import rule_id, rule_matches
+from stay_watch.alerts import qualifies
 from stay_watch.rank import per_night
 from stay_watch.render import describe, display_name
 
@@ -85,7 +80,6 @@ def default_state() -> dict:
         "alert_baselines": {},
         "tracked": {},
         "consecutive_failures": 0,
-        "last_digest_date": None,
     }
 
 
@@ -100,7 +94,7 @@ def alert_baseline_key(search: Search) -> str:
         search.codes,
         search.offer_filter,
         search.room_filter,
-        sorted(rule_id(rule) for rule in search.alerts),
+        _alert_context(search.alert),
     ]
     return "0x" + hashlib.sha256(json.dumps(context).encode("utf-8")).hexdigest()
 
@@ -130,38 +124,64 @@ def check_in_of(stay_key: str) -> date | None:
         return None
 
 
-def prune_alerts_sent(sent: dict, today: date, searches: Sequence[Search] | None) -> dict:
-    """Drop past stays, and drop rules or searches that are no longer configured."""
+def flatten_alerts_sent(sent: object) -> dict:
+    """Collapse a rule-bucket map to one price per stay, the lowest one stored."""
     if not isinstance(sent, dict):
         return {}
-    known_searches: set[str] | None = None
-    known_rules: dict[str, set[str]] | None = None
-    if searches is not None:
-        known_searches = {search.id for search in searches}
-        known_rules = {search.id: {rule_id(rule) for rule in search.alerts} for search in searches}
-    kept: dict = {}
-    for search_id, rules in sent.items():
-        if known_searches is not None and search_id not in known_searches:
+    flat: dict = {}
+    for search_id, bucket in sent.items():
+        if not isinstance(bucket, dict):
             continue
-        if not isinstance(rules, dict):
-            continue
-        allowed = None if known_rules is None else known_rules.get(search_id, set())
-        kept_rules: dict = {}
-        for rule, stays in rules.items():
-            if allowed is not None and rule not in allowed:
-                continue
-            if not isinstance(stays, dict):
-                continue
-            kept_stays = {}
-            for stay_key, price in stays.items():
-                check_in = check_in_of(str(stay_key))
-                if check_in is not None and check_in < today:
+        stays: dict[str, int] = {}
+        if any(isinstance(value, dict) for value in bucket.values()):
+            for rule_bucket in bucket.values():
+                if not isinstance(rule_bucket, dict):
                     continue
-                kept_stays[stay_key] = price
-            if kept_stays:
-                kept_rules[rule] = kept_stays
-        if kept_rules:
-            kept[search_id] = kept_rules
+                for stay_key, price in rule_bucket.items():
+                    _keep_lower(stays, stay_key, price)
+        else:
+            for stay_key, price in bucket.items():
+                _keep_lower(stays, stay_key, price)
+        if stays:
+            flat[str(search_id)] = stays
+    return flat
+
+
+def _keep_lower(stays: dict[str, int], stay_key: object, price: object) -> None:
+    if isinstance(price, bool) or not isinstance(price, int):
+        return
+    key = str(stay_key)
+    current = stays.get(key)
+    if current is None or price < current:
+        stays[key] = price
+
+
+def _alert_context(alert: PriceAlert | None) -> list | None:
+    if alert is None:
+        return None
+    return [alert.under, alert.again_cheaper_by, alert.recent_low, alert.discounted, alert.drop_pct]
+
+
+def prune_alerts_sent(sent: dict, today: date, searches: Sequence[Search] | None) -> dict:
+    """Drop past stays, searches that are gone, and searches that no longer email."""
+    sent = flatten_alerts_sent(sent)
+    known: dict[str, Search] | None = None
+    if searches is not None:
+        known = {search.id: search for search in searches}
+    kept: dict = {}
+    for search_id, stays in sent.items():
+        if known is not None and (search_id not in known or known[search_id].alert is None):
+            continue
+        if not isinstance(stays, dict):
+            continue
+        kept_stays = {}
+        for stay_key, price in stays.items():
+            check_in = check_in_of(str(stay_key))
+            if check_in is not None and check_in < today:
+                continue
+            kept_stays[stay_key] = price
+        if kept_stays:
+            kept[search_id] = kept_stays
     return kept
 
 
@@ -239,18 +259,18 @@ def trend_baseline(rows: list, current: int | None) -> int | None:
     return None
 
 
-def rule_payload(rule: AlertRule) -> dict:
-    match rule:
-        case Below(amount):
-            return {"kind": "below", "amount": amount}
-        case PerNightBelow(amount):
-            return {"kind": "per_night_below", "amount": amount}
-        case DropPct(pct):
-            return {"kind": "drop_pct", "pct": pct}
-        case BelowRecentLowest():
-            return {"kind": "below_recent_lowest"}
-        case Discounted():
-            return {"kind": "discounted"}
+def alert_payload(alert: PriceAlert | None) -> dict | None:
+    if alert is None:
+        return None
+    return {
+        "under": alert.under // 100,
+        "again_cheaper_by": alert.again_cheaper_by // 100,
+        "require": {
+            "recent_low": alert.recent_low,
+            "discounted": alert.discounted,
+            "drop_pct": alert.drop_pct,
+        },
+    }
 
 
 def describe_quote(catalog: Catalog, result: StayResult) -> dict:
@@ -300,11 +320,6 @@ def build_latest(
             rows = bucket.get(result.stay.key) or []
             current = None if result.best is None else result.best.price
             previous = last_recorded_price(rows)
-            matched = [
-                rule_id(rule)
-                for rule in search.alerts
-                if rule_matches(rule, result, previous)
-            ]
             stays.append(
                 {
                     "key": result.stay.key,
@@ -314,7 +329,7 @@ def build_latest(
                     "sold_out": result.best is None,
                     "offer_count": result.offer_count,
                     "previous_price": trend_baseline(rows, current),
-                    "matched_rules": matched,
+                    "alert_match": bool(search.alert is not None and qualifies(search.alert, result, previous)),
                     **describe_quote(catalog, result),
                 }
             )
@@ -331,7 +346,7 @@ def build_latest(
                 "top": search.top,
                 "codes": list(search.codes),
                 "history_key": group,
-                "alerts": [rule_payload(rule) for rule in search.alerts],
+                "alert": alert_payload(search.alert),
                 "stays": stays,
             }
         )
@@ -356,7 +371,6 @@ def _tracked_payload(
     current = None if result.best is None else result.best.price
     entry = tracked_state.get(trip.id) if isinstance(tracked_state.get(trip.id), dict) else {}
     quote = describe_quote(catalog, result)
-    last_notified = entry.get("last_notified_price")
     return {
         "id": trip.id,
         "key": result.stay.key,
@@ -365,8 +379,6 @@ def _tracked_payload(
         "nights": result.stay.nights,
         "adults": trip.adults,
         "codes": list(trip.codes),
-        "notify": trip.notify,
-        "below": trip.below,
         "added": trip.added.isoformat(),
         "history_key": group,
         "sold_out": result.best is None,
@@ -383,7 +395,6 @@ def _tracked_payload(
         "previous_price": trend_baseline(rows, current),
         "first_price": entry.get("first_price"),
         "lowest_seen": lowest_seen(rows, current),
-        "last_notified_price": last_notified if isinstance(last_notified, int) else None,
     }
 
 
@@ -421,8 +432,8 @@ class Store:
             return default_state()
         state = default_state()
         state.update(loaded)
-        if not isinstance(state.get("alerts_sent"), dict):
-            state["alerts_sent"] = {}
+        state["alerts_sent"] = flatten_alerts_sent(state.get("alerts_sent"))
+        state.pop("last_digest_date", None)
         if not isinstance(state.get("alert_baselines"), dict):
             state["alert_baselines"] = {}
         if not isinstance(state.get("tracked"), dict):

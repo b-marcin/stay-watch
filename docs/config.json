@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "defaults": {
     "adults": 2,
     "nights": 2,
@@ -8,9 +8,6 @@
     ],
     "top": 3,
     "codes": []
-  },
-  "digest": {
-    "weekday": "mon"
   },
   "searches": [
     {
@@ -27,15 +24,15 @@
       "codes": [],
       "offers": [],
       "rooms": [],
-      "alerts": [
-        {
-          "kind": "below",
-          "amount": 1200
-        },
-        {
-          "kind": "below_recent_lowest"
+      "alert": {
+        "under": 1200,
+        "again_cheaper_by": 50,
+        "require": {
+          "recent_low": false,
+          "discounted": false,
+          "drop_pct": null
         }
-      ]
+      }
     }
   ],
   "tracked": [
@@ -45,8 +42,6 @@
       "check_out": "2027-01-04",
       "adults": 2,
       "codes": [],
-      "notify": "any",
-      "below": null,
       "added": "2026-11-09"
     }
   ]

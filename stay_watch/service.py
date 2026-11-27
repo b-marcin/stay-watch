@@ -8,11 +8,10 @@ from datetime import date, datetime
 from stay_watch.alerts import evaluate
 from stay_watch.config import Secrets, WatchConfig
 from stay_watch.guard import PublicFilesError, check_tree
-from stay_watch.model import DropPct, Search, Stay, StayResult
+from stay_watch.model import Search, Stay, StayResult
 from stay_watch.notify import (
     MailError,
     build_alert_message,
-    build_digest_message,
     build_failure_message,
     build_recovered_message,
     build_search_message,
@@ -20,7 +19,7 @@ from stay_watch.notify import (
 )
 from stay_watch.plan import candidate_stays
 from stay_watch.profitroom import FixtureClient, ProfitroomClient
-from stay_watch.rank import cheapest, priced_results, rank_search, select_quotes
+from stay_watch.rank import cheapest, rank_search, select_quotes
 from stay_watch.render import describe, display_name, render_table
 from stay_watch.store import (
     Store,
@@ -32,7 +31,7 @@ from stay_watch.store import (
     prune_alert_baselines,
     update_history,
 )
-from stay_watch.tracked import evaluate_tracked
+from stay_watch.tracked import remember_tracked
 
 # A handful of empty stays is a real sell-out. A wide empty feed, after a run
 # that still had prices, is treated as a broken feed.
@@ -101,7 +100,8 @@ def execute_scan(
         }
         search_hits, sent = evaluate(search, ranked, previous, sent)
         current = {result.stay.key: None if result.best is None else result.best.price for result in ranked}
-        pending = {hit.stay_result.stay.key for hit in search_hits if isinstance(hit.rule, DropPct)}
+        holds_drop = search.alert is not None and search.alert.drop_pct is not None
+        pending = {hit.stay_result.stay.key for hit in search_hits} if holds_drop else set()
         held_baselines[context] = {
             key: previous[key] if suspected or key in pending else price for key, price in current.items()
         }
@@ -121,21 +121,12 @@ def execute_scan(
         observe(history_group(trip.adults, trip.codes), result)
 
     tracked_before = state.get("tracked") if isinstance(state.get("tracked"), dict) else {}
-    new_tracked: dict = {}
-    notices = []
-    for trip, result in tracked_ranked:
-        notice, entry = evaluate_tracked(trip, result, tracked_before.get(trip.id))
-        new_tracked[trip.id] = entry
-        if notice:
-            notices.append(notice)
-
-    published_tracked: dict = {}
-    for trip_id, entry in new_tracked.items():
-        delivered_entry = tracked_before.get(trip_id)
-        delivered_entry = delivered_entry if isinstance(delivered_entry, dict) else {}
-        published_tracked[trip_id] = {**entry, "last_notified_price": delivered_entry.get("last_notified_price")}
+    new_tracked = {
+        trip.id: remember_tracked(result, tracked_before.get(trip.id))
+        for trip, result in tracked_ranked
+    }
     latest = build_latest(
-        ranked_by_search, catalog, history, now, tracked_ranked, published_tracked,
+        ranked_by_search, catalog, history, now, tracked_ranked, new_tracked,
         config_revision=config.revision,
     )
     new_history = history
@@ -175,20 +166,10 @@ def execute_scan(
             except MailError:
                 print("could not send the failure email")
         raise RecordedFailure("every stay returned zero proposals")
-    if hits or notices:
-        deliver(secrets, build_alert_message(secrets, hits, shown, catalog, notices))
+    if hits:
+        deliver(secrets, build_alert_message(secrets, hits, shown, catalog))
     state["alert_baselines"] = next_baselines
     persist()
-    if notices:
-        store.save_latest(build_latest(
-            ranked_by_search, catalog, history, now, tracked_ranked, new_tracked,
-            config_revision=config.revision,
-        ))
-    if _digest_due(config, state, now) and (config.searches or tracked_ranked):
-        sections = [(shown[search.id], priced_results(ranked, search.top)) for search, ranked in ranked_by_search]
-        deliver(secrets, build_digest_message(secrets, sections, catalog, tracked_ranked))
-        state["last_digest_date"] = now.date().isoformat()
-        persist()
     if old_failures >= 3:
         deliver(secrets, build_recovered_message(secrets))
 
@@ -281,11 +262,3 @@ def _fetch_plan(config: WatchConfig, today: date | None) -> tuple[list, list]:
             continue
         take(trip.stay, trip.adults, trip.codes, tracked_jobs)
     return search_jobs, tracked_jobs
-
-
-def _digest_due(config: WatchConfig, state: dict, now: datetime) -> bool:
-    if config.digest_weekday is None:
-        return False
-    if now.weekday() != config.digest_weekday:
-        return False
-    return state.get("last_digest_date") != now.date().isoformat()

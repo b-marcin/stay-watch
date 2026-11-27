@@ -12,7 +12,7 @@ from stay_watch.store import Store
 
 @pytest.mark.parametrize('newline', ['\n', '\r\n'])
 def test_config_revision_matches_git_blob_identity(tmp_path, newline):
-    raw = ('{\n  "version": 1,\n  "description": "Zażółć"\n}\n').replace('\n', newline).encode('utf-8')
+    raw = ('{\n  "version": 2,\n  "description": "Zażółć"\n}\n').replace('\n', newline).encode('utf-8')
     path = tmp_path / 'config.json'
     path.write_bytes(raw)
     git_revision = subprocess.run(
@@ -25,7 +25,7 @@ def test_config_revision_matches_git_blob_identity(tmp_path, newline):
 def test_scan_publishes_the_configuration_it_evaluated(tmp_path):
     path = tmp_path / 'config.json'
     path.write_text(
-        '{"version":1,"searches":[{"id":"trip","from":"2026-12-04","to":"2026-12-06"}]}',
+        '{"version":2,"searches":[{"id":"trip","from":"2026-12-04","to":"2026-12-06"}]}',
         encoding='utf-8',
     )
     config = load_watch(path)
