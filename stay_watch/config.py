@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -83,6 +84,7 @@ class WatchConfig:
     searches: tuple[Search, ...]
     tracked: tuple[TrackedTrip, ...]
     digest_weekday: int | None
+    revision: str | None = None
 
 
 def parse_weekday_token(token: str) -> int:
@@ -136,7 +138,8 @@ def load_secrets(env: dict[str, str] | None = None) -> Secrets:
 def load_watch(path: Path) -> WatchConfig:
     if not path.is_file():
         raise ConfigError(f"missing config file {path}")
-    text = path.read_text(encoding="utf-8")
+    raw = path.read_bytes()
+    text = raw.decode("utf-8")
     try:
         data = json.loads(text)
     except json.JSONDecodeError as exc:
@@ -164,7 +167,8 @@ def load_watch(path: Path) -> WatchConfig:
         if trip.id in seen_trips:
             _fail(f"tracked[{index}].id", "already used")
         seen_trips.add(trip.id)
-    return WatchConfig(parsed_searches, parsed_tracked, _parse_digest(digest))
+    revision = hashlib.sha1(f"blob {len(raw)}\0".encode("ascii") + raw, usedforsecurity=False).hexdigest()
+    return WatchConfig(parsed_searches, parsed_tracked, _parse_digest(digest), revision)
 
 
 def _parse_defaults(raw: dict) -> dict:

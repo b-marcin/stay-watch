@@ -585,7 +585,6 @@
 <div class="tip" id="tip" role="tooltip" hidden><span class="tip-main" id="tipMain"></span><span class="tip-sub" id="tipSub"></span></div>
 
 <script id="pure">
-/* Pure functions: no DOM access. Extracted and tested by out/test_page_totals.mjs. */
 var STALE_AFTER_HOURS = 7;
 var SLUG_PATTERN = /^[A-Za-z0-9_-]{1,80}$/;
 var NNBSP = " ";
@@ -1069,7 +1068,6 @@ function calendarLayout(stays, ref) {
   return { cols: cols, cells: cells, months: months, weekdays: weekdays };
 }
 
-/* ---- Round 2: config, editing, tracking, GitHub, polling ---- */
 
 var DAY_TOKENS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 var DAY_JS = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
@@ -1227,12 +1225,6 @@ function orderDays(list) {
   return DAY_TOKENS.filter(function (tok) { return !!set[tok]; });
 }
 
-function clampInt(value, min, max, fallback) {
-  if (!isNumber(value)) return fallback;
-  var r = Math.round(value);
-  return r >= min && r <= max ? r : fallback;
-}
-
 /* Whole number text from an input: "12" -> 12, anything else -> null. */
 function parseWhole(text, min, max) {
   var s = String(text === null || text === undefined ? "" : text).trim();
@@ -1242,28 +1234,109 @@ function parseWhole(text, min, max) {
 }
 
 function emptyConfig() {
-  return {
-    version: 1,
-    defaults: { adults: 2, nights: 2, must_include: ["sat"], top: 3, codes: [] },
-    digest: { weekday: "mon" },
-    searches: [],
-    tracked: []
-  };
+  return { version: 1, searches: [], tracked: [] };
 }
 
-/* Keeps what the page understands from a config file, and any other keys so a save does not drop them. */
+function configObject(value) {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function configInteger(value) {
+  return Number.isInteger(value) && value > 0;
+}
+
+function configTexts(value) {
+  return Array.isArray(value) && value.every(function (item) { return typeof item === "string" && !!item.trim(); });
+}
+
+function configDate(value) {
+  if (typeof value !== "string") return false;
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!m || +m[1] < 1) return false;
+  var date = new Date(0);
+  date.setUTCFullYear(+m[1], +m[2] - 1, +m[3]);
+  return date.getUTCFullYear() === +m[1] && date.getUTCMonth() === +m[2] - 1 && date.getUTCDate() === +m[3];
+}
+
+function configOptions(raw) {
+  if (!["adults", "nights"].every(function (key) { return !hasOwn(raw, key) || configInteger(raw[key]); })) return false;
+  if (hasOwn(raw, "top") && raw.top !== null && !configInteger(raw.top)) return false;
+  if (!["codes", "offers", "rooms"].every(function (key) { return !hasOwn(raw, key) || configTexts(raw[key]); })) return false;
+  return !hasOwn(raw, "must_include") || (configTexts(raw.must_include) && raw.must_include.every(function (day) {
+    return DAY_TOKENS.indexOf(day.trim().toLowerCase()) >= 0;
+  }));
+}
+
+function configAlert(raw) {
+  if (!configObject(raw)) return false;
+  if (raw.kind === "below" || raw.kind === "per_night_below") return configInteger(raw.amount);
+  if (raw.kind === "drop_pct") return configInteger(raw.pct) && raw.pct <= 100;
+  return raw.kind === "discounted" || raw.kind === "below_recent_lowest";
+}
+
+/* Validated raw JSON owns writes. Defaults and derived ids belong only to effectiveConfig. */
 function readConfig(raw) {
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
-  var base = emptyConfig();
-  var out = Object.assign({}, raw);
-  out.defaults = Object.assign({}, base.defaults, raw.defaults && typeof raw.defaults === "object" ? raw.defaults : {});
-  out.digest = Object.assign({}, base.digest, raw.digest && typeof raw.digest === "object" ? raw.digest : {});
-  out.searches = (Array.isArray(raw.searches) ? raw.searches : []).filter(function (s) {
-    return !!s && typeof s === "object" && typeof s.id === "string";
+  if (!configObject(raw) || raw.version !== 1) return null;
+  if (hasOwn(raw, "defaults") && (!configObject(raw.defaults) || !configOptions(raw.defaults))) return null;
+  if (hasOwn(raw, "digest")) {
+    if (!configObject(raw.digest)) return null;
+    var weekday = raw.digest.weekday;
+    if (hasOwn(raw.digest, "weekday") && weekday !== null && (typeof weekday !== "string" ||
+      ["off"].concat(DAY_TOKENS).indexOf(weekday.trim().toLowerCase()) < 0)) return null;
+  }
+  if (hasOwn(raw, "searches") && !Array.isArray(raw.searches)) return null;
+  if (hasOwn(raw, "tracked") && !Array.isArray(raw.tracked)) return null;
+  var searchIds = {};
+  var searchesValid = (raw.searches || []).every(function (s) {
+    if (!configObject(s) || typeof s.id !== "string" || !/^[a-z0-9-]{1,40}$/.test(s.id) || hasOwn(searchIds, s.id)) return false;
+    searchIds[s.id] = true;
+    if (!configDate(s.from) || !configDate(s.to) || s.from >= s.to || !configOptions(s)) return false;
+    if (hasOwn(s, "name") && s.name !== null && (typeof s.name !== "string" || !s.name.trim())) return false;
+    return !hasOwn(s, "alerts") || (Array.isArray(s.alerts) && s.alerts.every(configAlert));
   });
-  out.tracked = (Array.isArray(raw.tracked) ? raw.tracked : []).filter(function (t) {
-    return !!t && typeof t === "object" && typeof t.id === "string";
+  var tripIds = {};
+  var trackedValid = (raw.tracked || []).every(function (t) {
+    if (!configObject(t) || !configDate(t.check_in) || !configDate(t.check_out) || t.check_in >= t.check_out ||
+      !configInteger(t.adults) || !configDate(t.added) || NOTIFY_MODES.indexOf(t.notify) < 0) return false;
+    if (hasOwn(t, "codes") && !configTexts(t.codes)) return false;
+    if (hasOwn(t, "below") && t.below !== null && !configInteger(t.below)) return false;
+    var id = effectiveTracked(t).id;
+    if ((hasOwn(t, "id") && t.id !== id) || hasOwn(tripIds, id)) return false;
+    tripIds[id] = true;
+    return true;
   });
+  return searchesValid && trackedValid ? clone(raw) : null;
+}
+
+function effectiveDefaults(defaults) {
+  var out = { adults: 2, nights: 2, must_include: ["sat"], top: 3, codes: [], offers: [], rooms: [] };
+  Object.keys(out).forEach(function (key) { if (defaults && hasOwn(defaults, key)) out[key] = defaults[key]; });
+  out.must_include = orderDays(out.must_include.map(function (day) { return day.trim().toLowerCase(); }));
+  ["codes", "offers", "rooms"].forEach(function (key) { out[key] = out[key].map(function (item) { return item.trim(); }); });
+  return out;
+}
+
+function effectiveSearch(search, defaults) {
+  var out = Object.assign({}, effectiveDefaults(defaults), search);
+  out.name = typeof search.name === "string" ? search.name.trim() : null;
+  out.must_include = orderDays(out.must_include.map(function (day) { return day.trim().toLowerCase(); }));
+  ["codes", "offers", "rooms"].forEach(function (key) { out[key] = out[key].map(function (item) { return item.trim(); }); });
+  out.alerts = hasOwn(search, "alerts") ? clone(search.alerts) : [];
+  return out;
+}
+
+function effectiveTracked(trip) {
+  var out = Object.assign({ below: null }, trip);
+  out.codes = (trip.codes || []).map(function (code) { return code.trim(); });
+  out.id = trackedId(trip.check_in, trip.check_out, trip.adults, out.codes);
+  return out;
+}
+
+function effectiveConfig(config) {
+  var out = Object.assign({}, config);
+  out.defaults = effectiveDefaults(config.defaults);
+  out.searches = (config.searches || []).map(function (search) { return effectiveSearch(search, out.defaults); });
+  out.tracked = (config.tracked || []).map(effectiveTracked);
   return out;
 }
 
@@ -1275,17 +1348,19 @@ function trackedId(checkIn, checkOut, adults, codes) {
 }
 
 function isTrackedStay(config, search, stay) {
-  var id = trackedId(stay.check_in, stay.check_out, search.adults, search.codes);
-  return findById(config.tracked, id) !== null;
+  var current = effectiveSearch(search, config.defaults);
+  var id = trackedId(stay.check_in, stay.check_out, current.adults, current.codes);
+  return (config.tracked || []).some(function (trip) { return effectiveTracked(trip).id === id; });
 }
 
-function trackedEntry(search, stay, today) {
-  var codes = Array.isArray(search.codes) ? search.codes.slice() : [];
+function trackedEntry(search, stay, today, defaults) {
+  var current = effectiveSearch(search, defaults);
+  var codes = current.codes.slice();
   return {
-    id: trackedId(stay.check_in, stay.check_out, search.adults, codes),
+    id: trackedId(stay.check_in, stay.check_out, current.adults, codes),
     check_in: stay.check_in,
     check_out: stay.check_out,
-    adults: search.adults,
+    adults: current.adults,
     codes: codes,
     notify: "any",
     below: null,
@@ -1297,59 +1372,47 @@ function newSearchId(nowMs) {
   return "s-" + Math.floor(nowMs).toString(36);
 }
 
-/* A new search from config.defaults, dated from today for ADD_DAYS. */
+/* A new search inherits config.defaults by omission, dated from today for ADD_DAYS. */
 function defaultSearch(config, id, today) {
-  var d = config.defaults || {};
-  return {
-    id: id,
-    name: null,
-    from: today,
-    to: addDays(today, ADD_DAYS),
-    nights: clampInt(d.nights, 1, 14, 2),
-    must_include: orderDays(d.must_include),
-    adults: clampInt(d.adults, 1, 6, 2),
-    top: d.top === undefined ? 3 : d.top,
-    codes: Array.isArray(d.codes) ? d.codes.slice() : [],
-    offers: [],
-    rooms: [],
-    alerts: []
-  };
+  return { id: id, name: null, from: today, to: addDays(today, ADD_DAYS) };
 }
 
 function insertSearch(config, search) {
   var next = clone(config);
+  if (!next.searches) next.searches = [];
   if (!findById(next.searches, search.id)) next.searches.push(search);
   return next;
 }
 
 function replaceSearch(config, search) {
   var next = clone(config);
-  next.searches = next.searches.map(function (s) { return s && s.id === search.id ? search : s; });
+  if (next.searches) next.searches = next.searches.map(function (s) { return s.id === search.id ? search : s; });
   return next;
 }
 
 function removeSearch(config, id) {
   var next = clone(config);
-  next.searches = next.searches.filter(function (s) { return s && s.id !== id; });
+  if (next.searches) next.searches = next.searches.filter(function (s) { return s.id !== id; });
   return next;
 }
 
 function insertTracked(config, entry) {
   var next = clone(config);
-  if (!findById(next.tracked, entry.id)) next.tracked.push(entry);
+  if (!next.tracked) next.tracked = [];
+  if (!next.tracked.some(function (trip) { return effectiveTracked(trip).id === entry.id; })) next.tracked.push(entry);
   return next;
 }
 
 function removeTracked(config, id) {
   var next = clone(config);
-  next.tracked = next.tracked.filter(function (t) { return t && t.id !== id; });
+  if (next.tracked) next.tracked = next.tracked.filter(function (t) { return effectiveTracked(t).id !== id; });
   return next;
 }
 
 function patchTracked(config, id, patch) {
   var next = clone(config);
-  next.tracked = next.tracked.map(function (t) {
-    return t && t.id === id ? Object.assign({}, t, patch) : t;
+  if (next.tracked) next.tracked = next.tracked.map(function (t) {
+    return effectiveTracked(t).id === id ? Object.assign({}, t, patch) : t;
   });
   return next;
 }
@@ -1367,15 +1430,14 @@ function kindHasValue(kind) {
   return kind === "below" || kind === "per_night_below" || kind === "drop_pct";
 }
 
-function alertToDraft(alert) {
-  if (!alert || ALERT_KINDS.indexOf(alert.kind) < 0) return null;
+function alertToDraft(alert, source) {
   if (alert.kind === "below" || alert.kind === "per_night_below") {
-    return { kind: alert.kind, value: isNumber(alert.amount) ? String(alert.amount) : "" };
+    return { kind: alert.kind, value: String(alert.amount), source: source };
   }
   if (alert.kind === "drop_pct") {
-    return { kind: alert.kind, value: isNumber(alert.pct) ? String(alert.pct) : "" };
+    return { kind: alert.kind, value: String(alert.pct), source: source };
   }
-  return { kind: alert.kind, value: "" };
+  return { kind: alert.kind, value: "", source: source };
 }
 
 function draftToAlert(row) {
@@ -1387,22 +1449,26 @@ function draftToAlert(row) {
   return null;
 }
 
-/* The editor's working copy of a search. Text fields stay as typed until a save. */
+/* The draft owns effective input values and an opening baseline. Unchanged fields keep the fresh raw value. */
 function draftFromSearch(search, defaults) {
-  var s = search || {};
-  var df = defaults || {};
-  var topRaw = hasOwn(s, "top") ? s.top : df.top;
-  return {
-    name: typeof s.name === "string" ? s.name : "",
-    from: typeof s.from === "string" ? s.from : "",
-    to: typeof s.to === "string" ? s.to : "",
-    nights: clampInt(hasOwn(s, "nights") ? s.nights : df.nights, 1, 14, 2),
-    adults: clampInt(hasOwn(s, "adults") ? s.adults : df.adults, 1, 6, 2),
-    mustInclude: orderDays(hasOwn(s, "must_include") ? s.must_include : df.must_include),
-    topAll: topRaw === null || topRaw === undefined,
-    top: String(isNumber(topRaw) ? topRaw : 3),
-    alerts: (Array.isArray(s.alerts) ? s.alerts : []).map(alertToDraft).filter(function (row) { return row !== null; })
+  var s = effectiveSearch(search || {}, defaults);
+  var draft = {
+    name: s.name || "",
+    from: s.from || "",
+    to: s.to || "",
+    nights: s.nights,
+    adults: s.adults,
+    mustInclude: s.must_include,
+    topAll: s.top === null,
+    top: String(s.top === null ? 3 : s.top),
+    alerts: s.alerts.map(alertToDraft)
   };
+  draft.original = clone(draft);
+  return draft;
+}
+
+function draftChanged(draft, key) {
+  return !draft.original || !sameJson(draft[key], draft.original[key]);
 }
 
 /* Inline checks for a draft. Returns messages per field (empty object or nulls when fine). */
@@ -1412,12 +1478,19 @@ function checkDraft(d, today) {
   var f = parseIsoDay(d.from);
   var t = parseIsoDay(d.to);
   var now = parseIsoDay(today);
-  if (f === null) errors.from = "Pick a date.";
-  else if (now !== null && f < now) errors.from = "From can't be in the past.";
-  if (t === null) errors.to = "Pick a date.";
+  if (!configDate(d.from)) errors.from = "Pick a date.";
+  else if (now !== null && f < now && draftChanged(d, "from")) errors.from = "From can't be in the past.";
+  if (!configDate(d.to)) errors.to = "Pick a date.";
   else if (f !== null && t <= f) errors.to = "To must be after from.";
-  if (!d.topAll && parseWhole(d.top, 1, MAX_TOP) === null) errors.top = "Enter 1 to " + MAX_TOP + ".";
+  if (!d.topAll && (draftChanged(d, "top") || draftChanged(d, "topAll")) && parseWhole(d.top, 1, MAX_TOP) === null) {
+    errors.top = "Enter 1 to " + MAX_TOP + ".";
+  }
   d.alerts.forEach(function (row) {
+    var original = d.original && d.original.alerts[row.source];
+    if (original && row.kind === original.kind && row.value === original.value) {
+      alerts.push(null);
+      return;
+    }
     var msg = null;
     if (row.kind === "below" || row.kind === "per_night_below") {
       if (parseWhole(row.value, 1, MAX_PLN) === null) msg = "Whole złoty above 0.";
@@ -1437,17 +1510,20 @@ function searchFromDraft(d, id, base) {
   var out = Object.assign({}, base || {});
   var name = String(d.name || "").trim();
   out.id = id;
-  out.name = name ? name : null;
-  out.from = d.from;
-  out.to = d.to;
-  out.nights = d.nights;
-  out.adults = d.adults;
-  out.must_include = orderDays(d.mustInclude);
-  out.top = d.topAll ? null : parseWhole(d.top, 1, MAX_TOP);
-  out.codes = Array.isArray(out.codes) ? out.codes : [];
-  out.offers = Array.isArray(out.offers) ? out.offers : [];
-  out.rooms = Array.isArray(out.rooms) ? out.rooms : [];
-  out.alerts = d.alerts.map(draftToAlert).filter(function (a) { return a !== null; });
+  if (draftChanged(d, "name")) out.name = name ? name : null;
+  ["from", "to", "nights", "adults"].forEach(function (key) { if (draftChanged(d, key)) out[key] = d[key]; });
+  if (draftChanged(d, "mustInclude")) out.must_include = orderDays(d.mustInclude);
+  if (draftChanged(d, "topAll") || draftChanged(d, "top")) out.top = d.topAll ? null : parseWhole(d.top, 1, MAX_TOP);
+  if (draftChanged(d, "alerts")) {
+    var alerts = out.alerts || [];
+    out.alerts = d.alerts.map(function (row) {
+      var original = d.original && d.original.alerts[row.source];
+      if (original && row.kind === original.kind && row.value === original.value && alerts[row.source]) return alerts[row.source];
+      var alert = draftToAlert(row);
+      if (!alert) throw new Error("Pick a valid alert kind.");
+      return Object.assign({}, alerts[row.source], alert);
+    });
+  }
   return out;
 }
 
@@ -1475,9 +1551,8 @@ function tripFlags(trip) {
   return flags;
 }
 
-/* Poll decision for a save: done when latest.json has a new scanned_at, gave-up after ten minutes, else waiting. */
-function pollDecision(sinceMs, nowMs, baseline, scannedAt) {
-  if (scannedAt && scannedAt !== baseline) return "done";
+function pollDecision(sinceMs, nowMs, expectedRevision, scannedRevision) {
+  if (expectedRevision && scannedRevision === expectedRevision) return "done";
   if (nowMs - sinceMs >= GIVE_UP_MS) return "gave-up";
   return "waiting";
 }
@@ -1576,6 +1651,7 @@ function base64ToUtf8(b64) {
 
 /* config.json as the contract writes it: 2-space indent, trailing newline. */
 function encodeConfig(config) {
+  if (!readConfig(config)) throw new Error("config.json has an unsupported structure.");
   return JSON.stringify(config, null, 2) + "\n";
 }
 </script>
@@ -2337,14 +2413,13 @@ function encodeConfig(config) {
     button.addEventListener("click", function (event) {
       event.stopPropagation();
       if (!requireConnected()) return;
-      var fresh = findById(state.config.searches, search.id);
-      if (!fresh) return;
-      if (on) {
-        runEdit("tracked", function (c) { return removeTracked(c, trackedId(stay.check_in, stay.check_out, fresh.adults, fresh.codes)); }, "Stop tracking");
-      } else {
-        var entry = trackedEntry(fresh, stay, todayIso(nowMs()));
-        runEdit("tracked", function (c) { return insertTracked(c, entry); }, "Track stay");
-      }
+      var today = todayIso(nowMs());
+      runEdit("tracked", function (c) {
+        var fresh = findById(c.searches, search.id);
+        if (!fresh) return c;
+        var entry = trackedEntry(fresh, stay, today, c.defaults);
+        return on ? removeTracked(c, entry.id) : insertTracked(c, entry);
+      }, on ? "Stop tracking" : "Track stay");
     });
     return button;
   }
@@ -2574,7 +2649,7 @@ function encodeConfig(config) {
 
   function trackRows() {
     var live = state.latest && Array.isArray(state.latest.tracked) ? state.latest.tracked : [];
-    return state.config.tracked.map(function (cfg) {
+    return effectiveConfig(state.config).tracked.map(function (cfg) {
       return { cfg: cfg, live: findById(live, cfg.id) };
     });
   }
@@ -3188,7 +3263,7 @@ function encodeConfig(config) {
       app.appendChild(skeleton());
     } else {
       app.appendChild(trackedSection());
-      var rows = state.config.searches.map(function (cfg) {
+      var rows = effectiveConfig(state.config).searches.map(function (cfg) {
         return { cfg: cfg, live: state.latest ? findById(state.latest.searches, cfg.id) : null };
       });
       if (!rows.length) {
@@ -3240,19 +3315,21 @@ function encodeConfig(config) {
     if (res.status === 404) return { sha: null, config: null };
     if (!res.ok) throw new Error(ghErrorText(res.status));
     var body = await res.json();
-    var config;
+    var raw;
     try {
-      config = readConfig(JSON.parse(base64ToUtf8(body.content)));
+      raw = JSON.parse(base64ToUtf8(body.content));
     } catch (e) {
       throw new Error("config.json on GitHub isn't valid JSON.");
     }
-    if (!config) throw new Error("config.json on GitHub isn't an object.");
+    var config = readConfig(raw);
+    if (!config) throw new Error("config.json on GitHub has an unsupported structure.");
     return { sha: body.sha || null, config: config };
   }
 
   async function commitChange(mutate, message) {
     if (sampleName) {
       var local = mutate(clone(state.config));
+      if (!readConfig(local)) throw new Error("config.json has an unsupported structure.");
       return { config: local, changed: !sameJson(local, state.config) };
     }
     var repo = state.repo;
@@ -3262,7 +3339,7 @@ function encodeConfig(config) {
       var current = await ghReadConfig(repo, token);
       var fresh = current.config || emptyConfig();
       var next = mutate(clone(fresh));
-      if (sameJson(next, fresh)) return { config: fresh, changed: false };
+      if (sameJson(next, fresh)) return { config: fresh, changed: false, revision: current.sha };
       var body = { message: message, content: utf8ToBase64(encodeConfig(next)) };
       if (current.sha) body.sha = current.sha;
       var res;
@@ -3276,7 +3353,10 @@ function encodeConfig(config) {
       } catch (e) {
         throw new Error("Couldn't reach GitHub.");
       }
-      if (res.ok) return { config: next, changed: true };
+      if (res.ok) {
+        var saved = await res.json();
+        return { config: next, changed: true, revision: saved.content ? saved.content.sha : null };
+      }
       if ((res.status === 409 || res.status === 422) && attempt === 0) {
         attempt += 1;
         continue;
@@ -3296,7 +3376,7 @@ function encodeConfig(config) {
       state.busy = false;
       state.config = result.config;
       if (!sampleName) state.held.config = result.config;
-      if (result.changed) startPending(scope);
+      if (result.changed) startPending(scope, result.revision);
       else state.notice = { kind: "info", text: "Nothing changed." };
       if (onDone) onDone(result);
     } catch (e) {
@@ -3306,9 +3386,8 @@ function encodeConfig(config) {
     renderApp();
   }
 
-  function startPending(scope) {
-    var baseline = state.latest ? state.latest.scanned_at : null;
-    state.pending = { scope: scope, since: Date.now(), baseline: baseline, gaveUp: false, sample: !!sampleName };
+  function startPending(scope, revision) {
+    state.pending = { scope: scope, since: Date.now(), revision: revision, gaveUp: false, sample: !!sampleName };
     if (!sampleName) schedulePoll();
   }
 
@@ -3329,7 +3408,7 @@ function encodeConfig(config) {
       fresh = null;
     }
     if (state.pending !== p) return;
-    var decision = pollDecision(p.since, Date.now(), p.baseline, fresh ? fresh.scanned_at : null);
+    var decision = pollDecision(p.since, Date.now(), p.revision, fresh ? fresh.config_revision : null);
     if (decision === "done") {
       state.latest = fresh;
       state.error = false;

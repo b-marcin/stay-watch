@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import re
 from collections.abc import Sequence
@@ -81,10 +82,45 @@ def history_group(
 def default_state() -> dict:
     return {
         "alerts_sent": {},
+        "alert_baselines": {},
         "tracked": {},
         "consecutive_failures": 0,
         "last_digest_date": None,
     }
+
+
+def alert_baseline_key(search: Search) -> str:
+    context = [
+        search.id,
+        search.window_start.isoformat(),
+        search.window_end.isoformat(),
+        search.nights,
+        sorted(search.must_include),
+        search.adults,
+        search.codes,
+        search.offer_filter,
+        search.room_filter,
+        sorted(rule_id(rule) for rule in search.alerts),
+    ]
+    return "0x" + hashlib.sha256(json.dumps(context).encode("utf-8")).hexdigest()
+
+
+def prune_alert_baselines(baselines: dict, today: date, searches: Sequence[Search] | None) -> dict:
+    if not isinstance(baselines, dict):
+        return {}
+    known = None if searches is None else {alert_baseline_key(search) for search in searches}
+    kept: dict = {}
+    for context, prices in baselines.items():
+        if (known is not None and context not in known) or not isinstance(prices, dict):
+            continue
+        current = {}
+        for stay_key, price in prices.items():
+            check_in = check_in_of(str(stay_key))
+            if check_in is not None and check_in >= today and (price is None or type(price) is int):
+                current[stay_key] = price
+        if current:
+            kept[context] = current
+    return kept
 
 
 def check_in_of(stay_key: str) -> date | None:
@@ -252,6 +288,8 @@ def build_latest(
     scanned_at: datetime,
     tracked: list[tuple[TrackedTrip, StayResult]] | None = None,
     tracked_state: dict | None = None,
+    *,
+    config_revision: str | None = None,
 ) -> dict:
     payload_searches = []
     for search, results in searches:
@@ -299,6 +337,7 @@ def build_latest(
         )
     return {
         "scanned_at": scanned_at.isoformat(timespec="seconds"),
+        "config_revision": config_revision,
         "searches": payload_searches,
         "tracked": [_tracked_payload(item, catalog, history, tracked_state or {}) for item in tracked or []],
     }
@@ -384,6 +423,8 @@ class Store:
         state.update(loaded)
         if not isinstance(state.get("alerts_sent"), dict):
             state["alerts_sent"] = {}
+        if not isinstance(state.get("alert_baselines"), dict):
+            state["alert_baselines"] = {}
         if not isinstance(state.get("tracked"), dict):
             state["tracked"] = {}
         return state
@@ -406,6 +447,8 @@ class Store:
             payload = copy.deepcopy(payload)
             if isinstance(payload.get("alerts_sent"), dict):
                 payload["alerts_sent"] = prune_alerts_sent(payload["alerts_sent"], today, searches)
+            if isinstance(payload.get("alert_baselines"), dict):
+                payload["alert_baselines"] = prune_alert_baselines(payload["alert_baselines"], today, searches)
             if isinstance(payload.get("tracked"), dict) or tracked is not None:
                 raw = payload.get("tracked")
                 payload["tracked"] = prune_tracked_state(raw if isinstance(raw, dict) else {}, today, tracked)

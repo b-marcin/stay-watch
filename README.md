@@ -42,6 +42,8 @@ In Settings, then Pages, set the source to the main branch and the folder `/docs
 
 Python 3.12. No packages are required to scan. Tests need pytest (`python -m pip install pytest`).
 
+Run the Python tests with `python -m pytest -q`. Dashboard tests need Node.js 24 and run with `node --test tests/*.test.cjs`. Both suites run in CI.
+
 Windows Command Prompt:
 
 ```

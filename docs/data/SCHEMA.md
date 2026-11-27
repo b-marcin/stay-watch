@@ -10,7 +10,8 @@ Top-level object:
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `scanned_at` | string | When this scan finished, in Europe/Warsaw. |
+| `scanned_at` | string | When this scan started, in Europe/Warsaw. |
+| `config_revision` | string or null | Git blob SHA of the exact config bytes used by this scan. The dashboard matches this against the saved config revision before completing a pending edit. Null for a scan constructed without a config file. Older snapshots can omit it. |
 | `searches` | array of objects | One entry per search in `docs/config.json`, in file order. Empty before any search is configured. |
 | `tracked` | array of objects | One entry per tracked trip whose check-in is today or later, in config order. Empty when none qualify. |
 

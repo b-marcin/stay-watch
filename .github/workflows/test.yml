@@ -12,7 +12,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
       - name: Install pytest
         run: python -m pip install pytest
       - name: Run tests
         run: python -m pytest -q
+      - name: Run dashboard tests
+        run: node --test tests/*.test.cjs

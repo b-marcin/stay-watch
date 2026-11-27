@@ -8,7 +8,7 @@ from datetime import date, datetime
 from stay_watch.alerts import evaluate
 from stay_watch.config import Secrets, WatchConfig
 from stay_watch.guard import PublicFilesError, check_tree
-from stay_watch.model import Search, Stay, StayResult
+from stay_watch.model import DropPct, Search, Stay, StayResult
 from stay_watch.notify import (
     MailError,
     build_alert_message,
@@ -24,10 +24,12 @@ from stay_watch.rank import cheapest, priced_results, rank_search, select_quotes
 from stay_watch.render import describe, display_name, render_table
 from stay_watch.store import (
     Store,
+    alert_baseline_key,
     build_latest,
     had_availability,
     history_group,
     last_recorded_price,
+    prune_alert_baselines,
     update_history,
 )
 from stay_watch.tracked import evaluate_tracked
@@ -68,6 +70,9 @@ def execute_scan(
     feed_count = len(search_jobs) if search_jobs else len(tracked_jobs)
     suspected = feed_count >= EMPTY_FEED_MIN and not any_quote and had_prices
     sent = state.get("alerts_sent") or {}
+    baselines = prune_alert_baselines(state.get("alert_baselines"), today, config.searches)
+    held_baselines: dict = {}
+    next_baselines: dict = {}
     ranked_by_search: list[tuple[Search, list]] = []
     hits = []
     observations: dict[str, dict] = {}
@@ -88,8 +93,19 @@ def execute_scan(
         ranked = rank_search(search, stays, quotes_by_key, catalog)
         group = history_group(search.adults, search.codes, search.offer_filter, search.room_filter)
         bucket = history.get(group) if isinstance(history.get(group), dict) else {}
-        previous = {result.stay.key: last_recorded_price(bucket.get(result.stay.key) or []) for result in ranked}
+        context = alert_baseline_key(search)
+        baseline = baselines.get(context, {})
+        previous = {
+            result.stay.key: baseline.get(result.stay.key, last_recorded_price(bucket.get(result.stay.key) or []))
+            for result in ranked
+        }
         search_hits, sent = evaluate(search, ranked, previous, sent)
+        current = {result.stay.key: None if result.best is None else result.best.price for result in ranked}
+        pending = {hit.stay_result.stay.key for hit in search_hits if isinstance(hit.rule, DropPct)}
+        held_baselines[context] = {
+            key: previous[key] if suspected or key in pending else price for key, price in current.items()
+        }
+        next_baselines[context] = current
         hits.extend(search_hits)
         ranked_by_search.append((search, ranked))
         for result in ranked:
@@ -113,7 +129,15 @@ def execute_scan(
         if notice:
             notices.append(notice)
 
-    latest = build_latest(ranked_by_search, catalog, history, now, tracked_ranked, new_tracked)
+    published_tracked: dict = {}
+    for trip_id, entry in new_tracked.items():
+        delivered_entry = tracked_before.get(trip_id)
+        delivered_entry = delivered_entry if isinstance(delivered_entry, dict) else {}
+        published_tracked[trip_id] = {**entry, "last_notified_price": delivered_entry.get("last_notified_price")}
+    latest = build_latest(
+        ranked_by_search, catalog, history, now, tracked_ranked, published_tracked,
+        config_revision=config.revision,
+    )
     new_history = history
     for group, rows in observations.items():
         new_history = update_history(
@@ -124,6 +148,8 @@ def execute_scan(
             now.date(),
         )
 
+    state["alert_baselines"] = held_baselines
+    store.save_state(state, today=today, searches=config.searches, tracked=config.tracked)
     store.save_latest(latest)
     store.save_history(new_history)
     findings = check_tree(store.docs, secrets.terms)
@@ -151,7 +177,13 @@ def execute_scan(
         raise RecordedFailure("every stay returned zero proposals")
     if hits or notices:
         deliver(secrets, build_alert_message(secrets, hits, shown, catalog, notices))
-        persist()
+    state["alert_baselines"] = next_baselines
+    persist()
+    if notices:
+        store.save_latest(build_latest(
+            ranked_by_search, catalog, history, now, tracked_ranked, new_tracked,
+            config_revision=config.revision,
+        ))
     if _digest_due(config, state, now) and (config.searches or tracked_ranked):
         sections = [(shown[search.id], priced_results(ranked, search.top)) for search, ranked in ranked_by_search]
         deliver(secrets, build_digest_message(secrets, sections, catalog, tracked_ranked))
