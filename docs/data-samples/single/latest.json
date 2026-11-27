@@ -15,12 +15,15 @@
       "top": 3,
       "codes": [],
       "history_key": "adults=2;codes=;offers=;rooms=",
-      "alerts": [
-        {
-          "kind": "below",
-          "amount": 130000
+      "alert": {
+        "under": 1300,
+        "again_cheaper_by": 0,
+        "require": {
+          "recent_low": false,
+          "discounted": false,
+          "drop_pct": null
         }
-      ],
+      },
       "stays": [
         {
           "key": "2026-12-19_2026-12-21",
@@ -30,9 +33,7 @@
           "sold_out": false,
           "offer_count": 3,
           "previous_price": null,
-          "matched_rules": [
-            "below:130000"
-          ],
+          "alert_match": true,
           "price": 99300,
           "per_night": 49650,
           "recent_lowest": 94200,

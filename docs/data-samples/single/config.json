@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "defaults": {
     "adults": 2,
     "nights": 2,
@@ -8,9 +8,6 @@
     ],
     "top": 3,
     "codes": []
-  },
-  "digest": {
-    "weekday": "mon"
   },
   "searches": [
     {
@@ -27,12 +24,14 @@
       "codes": [],
       "offers": [],
       "rooms": [],
-      "alerts": [
-        {
-          "kind": "below",
-          "amount": 1300
+      "alert": {
+        "under": 1300,
+        "require": {
+          "recent_low": false,
+          "discounted": false,
+          "drop_pct": null
         }
-      ]
+      }
     }
   ],
   "tracked": []

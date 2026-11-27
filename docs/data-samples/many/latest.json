@@ -15,15 +15,15 @@
       "top": 3,
       "codes": [],
       "history_key": "adults=2;codes=;offers=;rooms=",
-      "alerts": [
-        {
-          "kind": "below",
-          "amount": 130000
-        },
-        {
-          "kind": "below_recent_lowest"
+      "alert": {
+        "under": 1300,
+        "again_cheaper_by": 0,
+        "require": {
+          "recent_low": true,
+          "discounted": false,
+          "drop_pct": null
         }
-      ],
+      },
       "stays": [
         {
           "key": "2026-12-19_2026-12-21",
@@ -33,9 +33,7 @@
           "sold_out": false,
           "offer_count": 3,
           "previous_price": null,
-          "matched_rules": [
-            "below:130000"
-          ],
+          "alert_match": false,
           "price": 99300,
           "per_night": 49650,
           "recent_lowest": 94200,
@@ -54,10 +52,7 @@
           "sold_out": false,
           "offer_count": 3,
           "previous_price": null,
-          "matched_rules": [
-            "below:130000",
-            "below_recent_lowest"
-          ],
+          "alert_match": true,
           "price": 100900,
           "per_night": 50450,
           "recent_lowest": 105000,
@@ -76,9 +71,7 @@
           "sold_out": false,
           "offer_count": 3,
           "previous_price": null,
-          "matched_rules": [
-            "below:130000"
-          ],
+          "alert_match": false,
           "price": 108100,
           "per_night": 54050,
           "recent_lowest": 102200,
@@ -97,7 +90,7 @@
           "sold_out": false,
           "offer_count": 3,
           "previous_price": null,
-          "matched_rules": [],
+          "alert_match": false,
           "price": 139000,
           "per_night": 69500,
           "recent_lowest": 136400,
@@ -116,7 +109,7 @@
           "sold_out": true,
           "offer_count": 0,
           "previous_price": null,
-          "matched_rules": [],
+          "alert_match": false,
           "price": null,
           "per_night": null,
           "recent_lowest": null,
@@ -141,12 +134,15 @@
       "top": 2,
       "codes": [],
       "history_key": "adults=2;codes=;offers=;rooms=",
-      "alerts": [
-        {
-          "kind": "per_night_below",
-          "amount": 50000
+      "alert": {
+        "under": 1500,
+        "again_cheaper_by": 0,
+        "require": {
+          "recent_low": false,
+          "discounted": false,
+          "drop_pct": null
         }
-      ],
+      },
       "stays": [
         {
           "key": "2026-12-29_2027-01-01",
@@ -156,9 +152,7 @@
           "sold_out": false,
           "offer_count": 3,
           "previous_price": null,
-          "matched_rules": [
-            "per_night_below:50000"
-          ],
+          "alert_match": true,
           "price": 139900,
           "per_night": 46633,
           "recent_lowest": 141000,
@@ -177,9 +171,7 @@
           "sold_out": false,
           "offer_count": 3,
           "previous_price": null,
-          "matched_rules": [
-            "per_night_below:50000"
-          ],
+          "alert_match": true,
           "price": 143000,
           "per_night": 47666,
           "recent_lowest": 140000,
@@ -198,7 +190,7 @@
           "sold_out": false,
           "offer_count": 3,
           "previous_price": 160000,
-          "matched_rules": [],
+          "alert_match": false,
           "price": 151200,
           "per_night": 50400,
           "recent_lowest": 149000,
@@ -217,7 +209,7 @@
           "sold_out": true,
           "offer_count": 0,
           "previous_price": null,
-          "matched_rules": [],
+          "alert_match": false,
           "price": null,
           "per_night": null,
           "recent_lowest": null,
@@ -242,7 +234,7 @@
       "top": null,
       "codes": [],
       "history_key": "adults=2;codes=;offers=;rooms=Standard",
-      "alerts": [],
+      "alert": null,
       "stays": [
         {
           "key": "2027-02-12_2027-02-14",
@@ -252,7 +244,7 @@
           "sold_out": false,
           "offer_count": 3,
           "previous_price": 130000,
-          "matched_rules": [],
+          "alert_match": false,
           "price": 110000,
           "per_night": 55000,
           "recent_lowest": 108000,
@@ -271,7 +263,7 @@
           "sold_out": false,
           "offer_count": 3,
           "previous_price": null,
-          "matched_rules": [],
+          "alert_match": false,
           "price": 118000,
           "per_night": 59000,
           "recent_lowest": 121000,
@@ -290,7 +282,7 @@
           "sold_out": false,
           "offer_count": 3,
           "previous_price": null,
-          "matched_rules": [],
+          "alert_match": false,
           "price": 125000,
           "per_night": 62500,
           "recent_lowest": 119000,
@@ -315,12 +307,15 @@
       "top": 3,
       "codes": [],
       "history_key": "adults=2;codes=;offers=;rooms=",
-      "alerts": [
-        {
-          "kind": "below",
-          "amount": 100000
+      "alert": {
+        "under": 1000,
+        "again_cheaper_by": 0,
+        "require": {
+          "recent_low": false,
+          "discounted": false,
+          "drop_pct": null
         }
-      ],
+      },
       "stays": []
     },
     {
@@ -337,12 +332,15 @@
       "top": 3,
       "codes": [],
       "history_key": "adults=2;codes=;offers=;rooms=",
-      "alerts": [
-        {
-          "kind": "below",
-          "amount": 120000
+      "alert": {
+        "under": 1200,
+        "again_cheaper_by": 0,
+        "require": {
+          "recent_low": false,
+          "discounted": false,
+          "drop_pct": null
         }
-      ],
+      },
       "stays": [
         {
           "key": "2027-03-05_2027-03-07",
@@ -352,7 +350,7 @@
           "sold_out": true,
           "offer_count": 0,
           "previous_price": null,
-          "matched_rules": [],
+          "alert_match": false,
           "price": null,
           "per_night": null,
           "recent_lowest": null,
@@ -371,7 +369,7 @@
           "sold_out": true,
           "offer_count": 0,
           "previous_price": null,
-          "matched_rules": [],
+          "alert_match": false,
           "price": null,
           "per_night": null,
           "recent_lowest": null,
@@ -390,7 +388,7 @@
           "sold_out": true,
           "offer_count": 0,
           "previous_price": null,
-          "matched_rules": [],
+          "alert_match": false,
           "price": null,
           "per_night": null,
           "recent_lowest": null,

@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "defaults": {
     "adults": 2,
     "nights": 2,
@@ -8,9 +8,6 @@
     ],
     "top": 3,
     "codes": []
-  },
-  "digest": {
-    "weekday": "mon"
   },
   "searches": [],
   "tracked": []

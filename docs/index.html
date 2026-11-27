@@ -206,6 +206,7 @@
   .sec-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 12px; margin: 0 0 10px; }
   .sec-head h2 { margin: 0; font-size: 17px; font-weight: 650; letter-spacing: -.01em; }
   .tracked { margin-top: 22px; }
+  .sec-note { margin: -4px 0 12px; font-size: 13px; color: var(--muted); }
   .empty-line {
     margin: 0; padding: 14px 16px; border: 1px dashed var(--line-strong); border-radius: 16px;
     color: var(--muted); font-size: 13px;
@@ -238,18 +239,11 @@
   .trip-detail { margin: 10px 0 0; font-size: 12.5px; color: var(--ink-2); overflow-wrap: anywhere; }
   .trip .chips { margin-top: 10px; }
   .trip .chart-box { margin-top: 12px; }
-  .trip-controls {
-    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 14px;
+  .suffix { font-size: 12.5px; color: var(--muted); }
+  .trip-foot {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px;
     padding-top: 12px; border-top: 1px solid var(--line);
   }
-  .below { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
-  .suffix-field { display: inline-flex; align-items: center; gap: 6px; }
-  .below input, .val input {
-    width: 96px; height: 30px; padding: 0 8px; border-radius: 9px; background: var(--card);
-    border: 1px solid var(--line-strong); font-size: 13.5px; font-variant-numeric: tabular-nums;
-  }
-  .suffix { font-size: 12.5px; color: var(--muted); }
-  .trip-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
   .trip-foot .btn:last-child { margin-left: auto; }
   .trip.sold .trip-title, .trip.sold .trip-title-text { color: var(--ink-2); }
   .trip.sold .trip-detail { color: var(--muted); }
@@ -286,7 +280,7 @@
     border: 1px solid var(--line-strong); background: var(--card); color: var(--ink); font-size: 14px;
   }
   .field input[type="date"] { font-variant-numeric: tabular-nums; }
-  .field input[aria-invalid="true"], .alert-row select[aria-invalid="true"] { border-color: var(--down); }
+  .field input[aria-invalid="true"] { border-color: var(--down); }
   .field-err { margin: 0; font-size: 12px; color: var(--down); overflow-wrap: anywhere; }
   .field-err:empty { display: none; }
   .field-hint { margin: 0; font-size: 12px; color: var(--muted); }
@@ -308,20 +302,29 @@
     border-color: color-mix(in srgb, var(--accent) 50%, transparent);
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);
   }
-  .alerts { display: grid; gap: 8px; }
-  .alert-item { display: grid; gap: 4px; }
-  .alert-row { display: grid; grid-template-columns: minmax(0, 1fr) auto 36px; gap: 8px; align-items: center; }
-  .alert-row select {
-    width: 100%; height: 38px; min-width: 0; padding: 0 8px; border-radius: 10px;
-    border: 1px solid var(--line-strong); background: var(--card); color: var(--ink); font-size: 14px;
+  /* Email alerts block: price, again-limit, then the optional filters. Disabled controls read muted while no price is set. */
+  .alert-block { display: grid; gap: 10px; min-width: 0; }
+  .alert-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 14px; color: var(--ink-2); }
+  .alert-only { display: grid; gap: 8px; }
+  .alert-only > .alert-text { font-size: 14px; color: var(--ink-2); }
+  .check {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 28px; font-size: 14px; color: var(--ink-2); cursor: pointer;
   }
+  .check input { width: 18px; height: 18px; margin: 0; flex: none; accent-color: var(--accent); }
+  .check-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+  .alert-block input[type="number"] {
+    width: 7.5rem; height: 38px; min-width: 0; padding: 0 10px; border-radius: 10px;
+    border: 1px solid var(--line-strong); background: var(--card); color: var(--ink);
+    font-size: 14px; font-variant-numeric: tabular-nums;
+  }
+  .alert-block input[aria-invalid="true"] { border-color: var(--down); }
+  .alert-block input:disabled { opacity: .5; cursor: default; }
+  .check-row input[type="number"] { width: 5.5rem; }
+  .alert-block.inactive .alert-line, .alert-block.inactive .alert-only > .alert-text,
+  .alert-block.inactive .check, .alert-block.inactive .suffix { color: var(--muted); }
   .val { display: inline-flex; align-items: center; gap: 6px; }
-  .val input { width: 7.5rem; height: 38px; font-size: 14px; }
-  .icon-btn-s {
-    width: 36px; height: 36px; padding: 0; border-radius: 10px; border: 1px solid var(--line-strong);
-    background: var(--card); color: var(--ink-2); font-size: 18px; line-height: 1; cursor: pointer;
-  }
-  .icon-btn-s:hover { background: var(--soft); }
+  .alert-summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: -4px 0 12px; }
+  .alert-sum { margin: 0; min-width: 0; font-size: 13px; color: var(--ink-2); overflow-wrap: anywhere; }
   .preview { margin: 0; font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
   .preview:empty { display: none; }
   .ed-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -740,16 +743,15 @@ function isPriced(stay) {
   return !!stay && !stay.sold_out && isNumber(stay.price);
 }
 
-function isUnderRule(rule) {
-  return rule.indexOf("below:") === 0 || rule.indexOf("per_night_below:") === 0;
+/* Under the search's email limit (whole złoty, or null for no alert). The scanner's alert_match wins when it is
+   written; otherwise the price is tested against the limit. A tracked trip has no limit, so it never gets the badge. */
+function isUnder(stay, under) {
+  if (!isPriced(stay)) return false;
+  if (typeof stay.alert_match === "boolean") return stay.alert_match;
+  return isNumber(under) && stay.price < under * 100;
 }
 
-/* Under a configured threshold. Trusts matched_rules, as the store wrote them. */
-function isUnder(stay) {
-  return isPriced(stay) && (stay.matched_rules || []).some(isUnderRule);
-}
-
-/* Cheaper than the hotel's own 30-day lowest: the store's below_recent_lowest condition. */
+/* Cheaper than the hotel's own 30-day lowest: the same test as the alert's recent_low filter. */
 function isBelowLowest(stay) {
   return isPriced(stay) && isNumber(stay.recent_lowest) && stay.price < stay.recent_lowest;
 }
@@ -762,10 +764,11 @@ function hasFewRooms(stay) {
   return isPriced(stay) && isNumber(stay.rooms_left) && stay.rooms_left <= 2;
 }
 
-/* Attention flags for one stay, in display order. Each has a short label and a tooltip. */
-function stayFlags(stay) {
+/* Attention flags for one stay, in display order. Each has a short label and a tooltip. under is the search's
+   limit in whole złoty, or null when the search sends no alerts. */
+function stayFlags(stay, under) {
   var out = [];
-  if (isUnder(stay)) {
+  if (isUnder(stay, under)) {
     out.push({ kind: "under", label: "Under alert", tip: "Under the alert threshold for this search" });
   }
   if (isBelowLowest(stay)) {
@@ -797,17 +800,9 @@ function orderStays(stays) {
   return priced.concat(sold);
 }
 
-/* Threshold for the search: first below rule, else per_night_below times nights. */
-function thresholdOf(search) {
-  var alerts = search.alerts || [];
-  for (var i = 0; i < alerts.length; i++) {
-    var a = alerts[i];
-    if (a && a.kind === "below" && isNumber(a.amount)) return { kind: "below", amount: a.amount, total: a.amount };
-    if (a && a.kind === "per_night_below" && isNumber(a.amount)) {
-      return { kind: "per_night", amount: a.amount, total: a.amount * search.nights };
-    }
-  }
-  return null;
+/* The search's email limit in whole złoty, or null when the search sends no alerts. */
+function alertUnder(search) {
+  return search && search.alert && isNumber(search.alert.under) ? search.alert.under : null;
 }
 
 function summarize(search) {
@@ -819,7 +814,8 @@ function summarize(search) {
       cheapest = s;
     }
   });
-  var th = thresholdOf(search);
+  var under = alertUnder(search);
+  var threshold = under === null ? null : under * 100;
   var perNight = null;
   if (cheapest) {
     perNight = isNumber(cheapest.per_night) ? cheapest.per_night : Math.floor(cheapest.price / cheapest.nights);
@@ -830,23 +826,23 @@ function summarize(search) {
     soldOut: stays.length - priced.length,
     cheapest: cheapest,
     perNight: perNight,
-    threshold: th,
-    underCount: priced.filter(isUnder).length,
-    vsAlertPct: cheapest && th ? (cheapest.price - th.total) / th.total * 100 : null,
+    threshold: threshold,
+    underCount: priced.filter(function (s) { return isUnder(s, under); }).length,
+    vsAlertPct: cheapest && threshold !== null ? (cheapest.price - threshold) / threshold * 100 : null,
     lowest: cheapest && isNumber(cheapest.recent_lowest) ? cheapest.recent_lowest : null,
     vsLowPct: cheapest && isNumber(cheapest.recent_lowest) ? (cheapest.price - cheapest.recent_lowest) / cheapest.recent_lowest * 100 : null
   };
 }
 
-/* Heat reference: the alert total, else the cheapest priced stay. */
+/* Heat reference in grosze: the alert limit, else the cheapest priced stay. */
 function heatReference(summary) {
-  if (summary.threshold) return summary.threshold.total;
+  if (summary.threshold !== null) return summary.threshold;
   return summary.cheapest ? summary.cheapest.price : null;
 }
 
-function heatTier(stay, ref) {
+function heatTier(stay, ref, under) {
   if (!isPriced(stay)) return "sold";
-  if (isUnder(stay)) return "under";
+  if (isUnder(stay, under)) return "under";
   if (!isNumber(ref) || ref <= 0) return "far";
   var ratio = stay.price / ref;
   if (ratio <= HEAT_NEAR) return "near";
@@ -861,10 +857,11 @@ function defaultRows(search) {
   var anyPriced = ordered.some(isPriced);
   if (search.top === null || search.top === undefined || !anyPriced) return ordered;
   var rank = 0;
+  var under = alertUnder(search);
   return ordered.filter(function (s) {
     if (!isPriced(s)) return false;
     rank += 1;
-    return rank <= search.top || stayFlags(s).length > 0;
+    return rank <= search.top || stayFlags(s, under).length > 0;
   });
 }
 
@@ -1025,7 +1022,7 @@ function chartGeometry(series, opts) {
 }
 
 /* Check-in calendar: weeks as columns (Monday first), one row per weekday that holds a check-in in this search. */
-function calendarLayout(stays, ref) {
+function calendarLayout(stays, ref, under) {
   var items = [];
   var mondays = [];
   (Array.isArray(stays) ? stays : []).forEach(function (stay) {
@@ -1052,7 +1049,7 @@ function calendarLayout(stays, ref) {
       row: item.row,
       lane: weekdays.indexOf(item.row),
       day: new Date(item.t).getUTCDate(),
-      tier: heatTier(item.stay, ref)
+      tier: heatTier(item.stay, ref, under)
     };
   });
   var months = [];
@@ -1072,16 +1069,8 @@ function calendarLayout(stays, ref) {
 var DAY_TOKENS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 var DAY_JS = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
 var DAY_SHORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-var ALERT_KINDS = ["below", "per_night_below", "drop_pct", "below_recent_lowest", "discounted"];
-var ALERT_LABEL = {
-  below: "Total below",
-  per_night_below: "Per night below",
-  drop_pct: "Drop of at least",
-  below_recent_lowest: "Cheaper than 30-day low",
-  discounted: "Discounted"
-};
-var NOTIFY_MODES = ["any", "drop"];
-var NOTIFY_LABEL = { any: "Any change", drop: "Drops only" };
+var ALERT_AGAIN_DEFAULT = 50;
+var MAX_DROP_PCT = 100;
 var ADD_DAYS = 60;
 var POLL_MS = 20000;
 var GIVE_UP_MS = 10 * 60000;
@@ -1234,7 +1223,7 @@ function parseWhole(text, min, max) {
 }
 
 function emptyConfig() {
-  return { version: 1, searches: [], tracked: [] };
+  return { version: 2, searches: [], tracked: [] };
 }
 
 function configObject(value) {
@@ -1267,23 +1256,24 @@ function configOptions(raw) {
   }));
 }
 
+/* Strict v2 alert: under is required; again_cheaper_by and the require keys are optional but typed when present.
+   Unknown keys pass through, so the dashboard can write back what it does not understand. */
 function configAlert(raw) {
-  if (!configObject(raw)) return false;
-  if (raw.kind === "below" || raw.kind === "per_night_below") return configInteger(raw.amount);
-  if (raw.kind === "drop_pct") return configInteger(raw.pct) && raw.pct <= 100;
-  return raw.kind === "discounted" || raw.kind === "below_recent_lowest";
+  if (!configObject(raw) || !configInteger(raw.under)) return false;
+  if (hasOwn(raw, "again_cheaper_by") && !(Number.isInteger(raw.again_cheaper_by) && raw.again_cheaper_by >= 0)) return false;
+  if (!hasOwn(raw, "require")) return true;
+  var req = raw.require;
+  if (!configObject(req)) return false;
+  if (hasOwn(req, "recent_low") && typeof req.recent_low !== "boolean") return false;
+  if (hasOwn(req, "discounted") && typeof req.discounted !== "boolean") return false;
+  return !hasOwn(req, "drop_pct") || req.drop_pct === null ||
+    (Number.isInteger(req.drop_pct) && req.drop_pct >= 1 && req.drop_pct <= MAX_DROP_PCT);
 }
 
 /* Validated raw JSON owns writes. Defaults and derived ids belong only to effectiveConfig. */
 function readConfig(raw) {
-  if (!configObject(raw) || raw.version !== 1) return null;
+  if (!configObject(raw) || raw.version !== 2) return null;
   if (hasOwn(raw, "defaults") && (!configObject(raw.defaults) || !configOptions(raw.defaults))) return null;
-  if (hasOwn(raw, "digest")) {
-    if (!configObject(raw.digest)) return null;
-    var weekday = raw.digest.weekday;
-    if (hasOwn(raw.digest, "weekday") && weekday !== null && (typeof weekday !== "string" ||
-      ["off"].concat(DAY_TOKENS).indexOf(weekday.trim().toLowerCase()) < 0)) return null;
-  }
   if (hasOwn(raw, "searches") && !Array.isArray(raw.searches)) return null;
   if (hasOwn(raw, "tracked") && !Array.isArray(raw.tracked)) return null;
   var searchIds = {};
@@ -1292,14 +1282,14 @@ function readConfig(raw) {
     searchIds[s.id] = true;
     if (!configDate(s.from) || !configDate(s.to) || s.from >= s.to || !configOptions(s)) return false;
     if (hasOwn(s, "name") && s.name !== null && (typeof s.name !== "string" || !s.name.trim())) return false;
-    return !hasOwn(s, "alerts") || (Array.isArray(s.alerts) && s.alerts.every(configAlert));
+    if (hasOwn(s, "alerts")) return false;
+    return !hasOwn(s, "alert") || s.alert === null || configAlert(s.alert);
   });
   var tripIds = {};
   var trackedValid = (raw.tracked || []).every(function (t) {
     if (!configObject(t) || !configDate(t.check_in) || !configDate(t.check_out) || t.check_in >= t.check_out ||
-      !configInteger(t.adults) || !configDate(t.added) || NOTIFY_MODES.indexOf(t.notify) < 0) return false;
+      !configInteger(t.adults) || !configDate(t.added)) return false;
     if (hasOwn(t, "codes") && !configTexts(t.codes)) return false;
-    if (hasOwn(t, "below") && t.below !== null && !configInteger(t.below)) return false;
     var id = effectiveTracked(t).id;
     if ((hasOwn(t, "id") && t.id !== id) || hasOwn(tripIds, id)) return false;
     tripIds[id] = true;
@@ -1316,17 +1306,48 @@ function effectiveDefaults(defaults) {
   return out;
 }
 
+/* A raw alert with its defaults filled in: again_cheaper_by 0, every require flag off. Null means no email. */
+function effectiveAlert(alert) {
+  if (!configObject(alert)) return null;
+  var req = configObject(alert.require) ? alert.require : {};
+  var out = Object.assign({}, alert);
+  out.again_cheaper_by = hasOwn(alert, "again_cheaper_by") ? alert.again_cheaper_by : 0;
+  out.require = Object.assign({}, req, {
+    recent_low: req.recent_low === true,
+    discounted: req.discounted === true,
+    drop_pct: isNumber(req.drop_pct) ? req.drop_pct : null
+  });
+  return out;
+}
+
+/* One line for a search card: "Emails stays under 1 200 zł, again if 50 zł cheaper, only if 30-day low". */
+function alertSummary(alert) {
+  var a = effectiveAlert(alert);
+  if (!a) return "No email alerts";
+  var again = a.again_cheaper_by > 0
+    ? "again if " + formatPln(a.again_cheaper_by * 100) + " cheaper"
+    : "again at any lower price";
+  var only = [];
+  if (a.require.recent_low) only.push("30-day low");
+  if (a.require.discounted) only.push("discounted");
+  if (a.require.drop_pct !== null) only.push("dropped at least " + a.require.drop_pct + "%");
+  var text = "Emails stays under " + formatPln(a.under * 100) + ", " + again;
+  if (only.length === 1) text += ", only if " + only[0];
+  else if (only.length > 1) text += ", only if " + only.slice(0, -1).join(", ") + " and " + only[only.length - 1];
+  return text;
+}
+
 function effectiveSearch(search, defaults) {
   var out = Object.assign({}, effectiveDefaults(defaults), search);
   out.name = typeof search.name === "string" ? search.name.trim() : null;
   out.must_include = orderDays(out.must_include.map(function (day) { return day.trim().toLowerCase(); }));
   ["codes", "offers", "rooms"].forEach(function (key) { out[key] = out[key].map(function (item) { return item.trim(); }); });
-  out.alerts = hasOwn(search, "alerts") ? clone(search.alerts) : [];
+  out.alert = effectiveAlert(search.alert);
   return out;
 }
 
 function effectiveTracked(trip) {
-  var out = Object.assign({ below: null }, trip);
+  var out = Object.assign({}, trip);
   out.codes = (trip.codes || []).map(function (code) { return code.trim(); });
   out.id = trackedId(trip.check_in, trip.check_out, trip.adults, out.codes);
   return out;
@@ -1362,8 +1383,6 @@ function trackedEntry(search, stay, today, defaults) {
     check_out: stay.check_out,
     adults: current.adults,
     codes: codes,
-    notify: "any",
-    below: null,
     added: today
   };
 }
@@ -1417,36 +1436,43 @@ function patchTracked(config, id, patch) {
   return next;
 }
 
-function setTrackedNotify(config, id, mode) {
-  return patchTracked(config, id, { notify: mode });
-}
-
-/* pln is a whole złoty amount or null (no alert). */
-function setTrackedBelow(config, id, pln) {
-  return patchTracked(config, id, { below: pln });
-}
-
-function kindHasValue(kind) {
-  return kind === "below" || kind === "per_night_below" || kind === "drop_pct";
-}
-
-function alertToDraft(alert, source) {
-  if (alert.kind === "below" || alert.kind === "per_night_below") {
-    return { kind: alert.kind, value: String(alert.amount), source: source };
+/* Editor draft of an alert block. Text holds what the user sees; flags are booleans. An empty under means no email.
+   A new alert opens with the default again-limit. */
+function draftFromAlert(alert) {
+  var a = effectiveAlert(alert);
+  if (!a) {
+    return { under: "", again: String(ALERT_AGAIN_DEFAULT), recentLow: false, discounted: false, dropOn: false, dropPct: "" };
   }
-  if (alert.kind === "drop_pct") {
-    return { kind: alert.kind, value: String(alert.pct), source: source };
-  }
-  return { kind: alert.kind, value: "", source: source };
+  return {
+    under: String(a.under),
+    again: String(a.again_cheaper_by),
+    recentLow: a.require.recent_low,
+    discounted: a.require.discounted,
+    dropOn: a.require.drop_pct !== null,
+    dropPct: a.require.drop_pct === null ? "" : String(a.require.drop_pct)
+  };
 }
 
-function draftToAlert(row) {
-  if (row.kind === "below" || row.kind === "per_night_below") {
-    return { kind: row.kind, amount: parseWhole(row.value, 1, MAX_PLN) };
+/* Raw alert for a draft whose alert block changed; raw is the fresh alert. Only fields the user changed are written,
+   so untouched values and unknown keys keep their raw form. A new alert writes every field. An empty price writes
+   no alert (null). Callers only pass a draft that passed checkDraft. */
+function alertFromDraft(d, raw) {
+  var a = d.alert;
+  if (a.under.trim() === "") return null;
+  var was = d.original ? d.original.alert : null;
+  var fresh = !configObject(raw);
+  var out = fresh ? {} : Object.assign({}, raw);
+  function moved(key) { return fresh || !was || !sameJson(a[key], was[key]); }
+  if (moved("under")) out.under = parseWhole(a.under, 1, MAX_PLN);
+  if (moved("again")) out.again_cheaper_by = parseWhole(a.again, 0, MAX_PLN);
+  if (moved("recentLow") || moved("discounted") || moved("dropOn") || moved("dropPct")) {
+    var req = fresh || !configObject(raw.require) ? {} : Object.assign({}, raw.require);
+    if (moved("recentLow")) req.recent_low = a.recentLow;
+    if (moved("discounted")) req.discounted = a.discounted;
+    if (moved("dropOn") || moved("dropPct")) req.drop_pct = a.dropOn ? parseWhole(a.dropPct, 1, MAX_DROP_PCT) : null;
+    out.require = req;
   }
-  if (row.kind === "drop_pct") return { kind: row.kind, pct: parseWhole(row.value, 1, 100) };
-  if (row.kind === "below_recent_lowest" || row.kind === "discounted") return { kind: row.kind };
-  return null;
+  return out;
 }
 
 /* The draft owns effective input values and an opening baseline. Unchanged fields keep the fresh raw value. */
@@ -1461,7 +1487,7 @@ function draftFromSearch(search, defaults) {
     mustInclude: s.must_include,
     topAll: s.top === null,
     top: String(s.top === null ? 3 : s.top),
-    alerts: s.alerts.map(alertToDraft)
+    alert: draftFromAlert(s.alert)
   };
   draft.original = clone(draft);
   return draft;
@@ -1471,10 +1497,10 @@ function draftChanged(draft, key) {
   return !draft.original || !sameJson(draft[key], draft.original[key]);
 }
 
-/* Inline checks for a draft. Returns messages per field (empty object or nulls when fine). */
+/* Inline checks for a draft. Messages per field, empty when fine. A field the user has not changed is never
+   rejected, so a stored value above the editor's limit still saves with the rest of the search. */
 function checkDraft(d, today) {
   var errors = {};
-  var alerts = [];
   var f = parseIsoDay(d.from);
   var t = parseIsoDay(d.to);
   var now = parseIsoDay(today);
@@ -1485,24 +1511,17 @@ function checkDraft(d, today) {
   if (!d.topAll && (draftChanged(d, "top") || draftChanged(d, "topAll")) && parseWhole(d.top, 1, MAX_TOP) === null) {
     errors.top = "Enter 1 to " + MAX_TOP + ".";
   }
-  d.alerts.forEach(function (row) {
-    var original = d.original && d.original.alerts[row.source];
-    if (original && row.kind === original.kind && row.value === original.value) {
-      alerts.push(null);
-      return;
+  var a = d.alert;
+  var was = d.original ? d.original.alert : null;
+  function moved(key) { return !was || !sameJson(a[key], was[key]); }
+  if (a.under.trim() !== "") {
+    if (moved("under") && parseWhole(a.under, 1, MAX_PLN) === null) errors.alertUnder = "Whole złoty above 0.";
+    if (moved("again") && parseWhole(a.again, 0, MAX_PLN) === null) errors.alertAgain = "Whole złoty, 0 or more.";
+    if (a.dropOn && (moved("dropOn") || moved("dropPct")) && parseWhole(a.dropPct, 1, MAX_DROP_PCT) === null) {
+      errors.alertDrop = "Whole percent, 1 to " + MAX_DROP_PCT + ".";
     }
-    var msg = null;
-    if (row.kind === "below" || row.kind === "per_night_below") {
-      if (parseWhole(row.value, 1, MAX_PLN) === null) msg = "Whole złoty above 0.";
-    } else if (row.kind === "drop_pct") {
-      if (parseWhole(row.value, 1, 100) === null) msg = "Whole percent, 1 to 100.";
-    } else if (ALERT_KINDS.indexOf(row.kind) < 0) {
-      msg = "Pick a kind.";
-    }
-    alerts.push(msg);
-  });
-  var valid = Object.keys(errors).length === 0 && alerts.every(function (m) { return m === null; });
-  return { errors: errors, alerts: alerts, valid: valid };
+  }
+  return { errors: errors, valid: Object.keys(errors).length === 0 };
 }
 
 /* The config search that a valid draft becomes. base is the fresh search, so keys the page does not edit survive. */
@@ -1514,15 +1533,10 @@ function searchFromDraft(d, id, base) {
   ["from", "to", "nights", "adults"].forEach(function (key) { if (draftChanged(d, key)) out[key] = d[key]; });
   if (draftChanged(d, "mustInclude")) out.must_include = orderDays(d.mustInclude);
   if (draftChanged(d, "topAll") || draftChanged(d, "top")) out.top = d.topAll ? null : parseWhole(d.top, 1, MAX_TOP);
-  if (draftChanged(d, "alerts")) {
-    var alerts = out.alerts || [];
-    out.alerts = d.alerts.map(function (row) {
-      var original = d.original && d.original.alerts[row.source];
-      if (original && row.kind === original.kind && row.value === original.value && alerts[row.source]) return alerts[row.source];
-      var alert = draftToAlert(row);
-      if (!alert) throw new Error("Pick a valid alert kind.");
-      return Object.assign({}, alerts[row.source], alert);
-    });
+  if (draftChanged(d, "alert")) {
+    var alert = alertFromDraft(d, out.alert);
+    if (alert) out.alert = alert;
+    else delete out.alert;
   }
   return out;
 }
@@ -1540,15 +1554,6 @@ function changeTone(change, pct) {
   if (change < 0) return "good";
   if (change > 0 && Math.abs(pct) >= 1) return "bad";
   return "none";
-}
-
-/* Attention flags for a tracked trip: the stay flags plus under-alert from the trip's own threshold. */
-function tripFlags(trip) {
-  var flags = stayFlags(trip);
-  if (isPriced(trip) && isNumber(trip.below) && trip.price < trip.below) {
-    flags.unshift({ kind: "under", label: "Under alert", tip: "Under your alert of " + formatPln(trip.below) });
-  }
-  return flags;
 }
 
 function pollDecision(sinceMs, nowMs, expectedRevision, scannedRevision) {
@@ -2266,8 +2271,8 @@ function encodeConfig(config) {
   /* Reference lines for a stay in the stays table: the search's threshold and the hotel's 30-day low. */
   function refsForStay(search, stay) {
     var refs = [];
-    var th = thresholdOf(search);
-    if (th) refs.push({ kind: "alert", value: th.total });
+    var under = alertUnder(search);
+    if (under !== null) refs.push({ kind: "alert", value: under * 100 });
     if (isNumber(stay.recent_lowest)) refs.push({ kind: "low", value: stay.recent_lowest });
     return refs;
   }
@@ -2284,14 +2289,13 @@ function encodeConfig(config) {
     return detail;
   }
 
-  /* Price history for a tracked trip, with the alert, the first price and the lowest price seen as reference lines. */
+  /* Price history for a tracked trip, with the first price and the lowest price seen as reference lines. */
   function tripDetail(cfg, live) {
     var wrap = el("div", { class: "trip-chart", "data-detail": "trip|" + cfg.id });
     var box = el("div", { class: "chart-box", role: "img", "aria-label": "Price history for this trip" });
     wrap.appendChild(box);
     var series = historySeries(historyRowsFor(live.history_key, live.key), state.latest.scanned_at);
     var refs = [];
-    if (isNumber(cfg.below)) refs.push({ kind: "alert", value: cfg.below * 100 });
     if (isNumber(live.first_price)) refs.push({ kind: "first", value: live.first_price });
     if (isNumber(live.lowest_seen)) refs.push({ kind: "lowest", value: live.lowest_seen });
     attachChart(box, function (width) {
@@ -2483,7 +2487,7 @@ function encodeConfig(config) {
     row.appendChild(el("div", { class: "c-stay", role: "cell" }, [button]));
     row.appendChild(total);
     row.appendChild(night);
-    row.appendChild(el("div", { class: "c-flags", role: "cell" }, [priced ? chipsFor(stay) : null]));
+    row.appendChild(el("div", { class: "c-flags", role: "cell" }, [priced ? chipsFor(stay, alertUnder(search)) : null]));
     row.appendChild(action);
 
     row.addEventListener("click", function (event) {
@@ -2493,8 +2497,8 @@ function encodeConfig(config) {
     return row;
   }
 
-  function chipsFor(stay) {
-    return flagChips(stayFlags(stay));
+  function chipsFor(stay, under) {
+    return flagChips(stayFlags(stay, under));
   }
 
   function staysCard(search, summary) {
@@ -2547,10 +2551,10 @@ function encodeConfig(config) {
   function heatCard(search, ref) {
     var card = el("section", { class: "card heat" });
     card.appendChild(el("div", { class: "card-head" }, [el("h3", { text: "By check-in" })]));
-    var th = thresholdOf(search);
-    var nearText = th ? "Within 10% above the alert" : "Within 10% above the cheapest";
-    var midText = th ? "10 to 25% above the alert" : "10 to 25% above the cheapest";
-    var farText = th ? "More than 25% above the alert" : "More than 25% above the cheapest";
+    var hasAlert = alertUnder(search) !== null;
+    var nearText = hasAlert ? "Within 10% above the alert" : "Within 10% above the cheapest";
+    var midText = hasAlert ? "10 to 25% above the alert" : "10 to 25% above the cheapest";
+    var farText = hasAlert ? "More than 25% above the alert" : "More than 25% above the cheapest";
     card.appendChild(el("div", { class: "legend" }, [
       el("span", { "data-tip": "Priced below the alert threshold" }, [el("i", { class: "cell under", "aria-hidden": "true" }), "Under alert"]),
       el("span", { "data-tip": nearText }, [el("i", { class: "cell near", "aria-hidden": "true" }), "Near"]),
@@ -2558,7 +2562,7 @@ function encodeConfig(config) {
       el("span", { "data-tip": farText }, [el("i", { class: "cell far", "aria-hidden": "true" }), "Far"]),
       el("span", { "data-tip": "No price for these dates" }, [el("i", { class: "cell sold", "aria-hidden": "true" }), "Sold out"])
     ]));
-    var layout = calendarLayout(search.stays, ref);
+    var layout = calendarLayout(search.stays, ref, alertUnder(search));
     var grid = el("div", { class: "cal", role: "group", "aria-label": "Prices by check-in for " + search.name });
     grid.style.setProperty("--cols", String(Math.max(layout.cols, 1)));
     grid.style.setProperty("--rows", String(Math.max(layout.weekdays.length, 1)));
@@ -2610,11 +2614,12 @@ function encodeConfig(config) {
   function kpiRow(search, summary) {
     var c = summary.cheapest;
     var th = summary.threshold;
-    var thText = th ? (th.kind === "per_night" ? formatPln(th.amount) + " a night" : formatPln(th.amount)) : "no alert set";
-    var underValue = th && summary.priced > 0 ? String(summary.underCount) : DASH;
-    var underSub = !th ? "no alert set" : summary.priced > 0 ? "of " + summary.priced + " priced" : "no prices";
-    var alertValue = th && c ? formatSignedPct(summary.vsAlertPct) : DASH;
-    var alertGood = th && c && roundHalfUp(summary.vsAlertPct) < 0;
+    var hasAlert = th !== null;
+    var thText = hasAlert ? formatPln(th) : "no alert set";
+    var underValue = hasAlert && summary.priced > 0 ? String(summary.underCount) : DASH;
+    var underSub = !hasAlert ? "no alert set" : summary.priced > 0 ? "of " + summary.priced + " priced" : "no prices";
+    var alertValue = hasAlert && c ? formatSignedPct(summary.vsAlertPct) : DASH;
+    var alertGood = hasAlert && c && roundHalfUp(summary.vsAlertPct) < 0;
     var lowValue = c && summary.vsLowPct !== null ? formatSignedPct(summary.vsLowPct) : DASH;
     var lowGood = c && summary.vsLowPct !== null && roundHalfUp(summary.vsLowPct) < 0;
     var cheapSub = c ? formatStay(c.check_in, c.check_out) : (summary.total ? "All sold out" : "No stays");
@@ -2622,7 +2627,7 @@ function encodeConfig(config) {
       kpi("Cheapest", c ? formatPln(c.price) : DASH, cheapSub, "Cheapest priced stay in this search, total for the whole stay"),
       kpi("Per night", c ? formatPln(summary.perNight) : DASH, c ? nightsText(search.nights) : "", "Cheapest stay's price per night"),
       kpi("Under alert", underValue, underSub, "Priced stays under the alert threshold"),
-      kpi("vs alert", alertValue, th ? thText : "no alert set", "Cheapest stay against the alert threshold", alertGood ? "good" : ""),
+      kpi("vs alert", alertValue, thText, "Cheapest stay against the alert threshold", alertGood ? "good" : ""),
       kpi("vs 30-day low", lowValue, summary.lowest !== null ? formatPln(summary.lowest) : "no 30-day low", "Cheapest stay against the hotel's lowest price of the last 30 days", lowGood ? "good" : "")
     ]);
   }
@@ -2662,7 +2667,6 @@ function encodeConfig(config) {
     var open = !!live && !!state.openTrip[cfg.id];
     var sold = !!live && live.sold_out === true;
     var passed = typeof cfg.check_in === "string" && cfg.check_in < today;
-    var connected = isConnected();
     var card = el("article", { class: "trip" + (sold ? " sold" : ""), "data-trip": cfg.id });
 
     var head;
@@ -2696,67 +2700,13 @@ function encodeConfig(config) {
       var parts = [live.room_name, live.meal_plan, live.offer_name, live.cancel].filter(function (p) { return typeof p === "string" && p; });
       if (parts.length) card.appendChild(el("p", { class: "trip-detail", text: parts.join(" · ") }));
       if (!sold) {
-        var flags = tripFlags(live);
+        var flags = stayFlags(live);
         if (flags.length) card.appendChild(flagChips(flags));
       }
       if (open) card.appendChild(tripDetail(cfg, live));
     } else {
       card.appendChild(el("p", { class: "trip-note", text: passed ? "Check-in passed" : "Scanning…" }));
     }
-
-    var seg = el("div", { class: "seg mini", role: "group", "aria-label": "Notify me about " + title });
-    NOTIFY_MODES.forEach(function (mode) {
-      var button = el("button", {
-        type: "button",
-        "aria-pressed": cfg.notify === mode ? "true" : "false",
-        text: NOTIFY_LABEL[mode],
-        "data-focus": "notify|" + cfg.id + "|" + mode
-      });
-      button.addEventListener("click", guard(function () {
-        if (cfg.notify !== mode) {
-          runEdit("tracked", function (c) { return setTrackedNotify(c, cfg.id, mode); }, "Notify " + mode);
-        }
-      }));
-      seg.appendChild(button);
-    });
-
-    var belowInput = el("input", {
-      type: "number",
-      name: "below-" + cfg.id,
-      inputmode: "numeric",
-      min: "1",
-      step: "1",
-      max: String(MAX_PLN),
-      placeholder: DASH,
-      "aria-label": "Alert below, zł, for " + title,
-      "data-focus": "below|" + cfg.id
-    });
-    belowInput.value = isNumber(cfg.below) ? String(cfg.below) : "";
-    if (!connected) {
-      belowInput.readOnly = true;
-      belowInput.addEventListener("click", function () { requireConnected(); });
-    }
-    belowInput.addEventListener("change", function () {
-      if (!requireConnected()) {
-        belowInput.value = isNumber(cfg.below) ? String(cfg.below) : "";
-        return;
-      }
-      var raw = belowInput.value.trim();
-      var value = raw === "" ? null : parseWhole(raw, 1, MAX_PLN);
-      if (raw !== "" && value === null) {
-        state.notice = { kind: "error", text: "Alert below takes whole złoty above 0." };
-        renderApp();
-        return;
-      }
-      if (value === (isNumber(cfg.below) ? cfg.below : null)) return;
-      runEdit("tracked", function (c) { return setTrackedBelow(c, cfg.id, value); }, "Alert below");
-    });
-
-    var belowLabel = el("label", { class: "below" }, [
-      el("span", { text: "Alert below" }),
-      el("span", { class: "suffix-field" }, [belowInput, el("span", { class: "suffix", text: "zł" })])
-    ]);
-    card.appendChild(el("div", { class: "trip-controls" }, [seg, belowLabel]));
 
     var foot = el("div", { class: "trip-foot" });
     if (live && isPriced(live)) {
@@ -2792,6 +2742,7 @@ function encodeConfig(config) {
       head.appendChild(connect);
     }
     section.appendChild(head);
+    section.appendChild(el("p", { class: "sec-note", text: "Tracked trips are watched on this page only. They don't send email." }));
     var status = pendingLine("tracked");
     if (status) section.appendChild(status);
     var rows = trackRows();
@@ -2843,14 +2794,6 @@ function encodeConfig(config) {
     return tok.charAt(0).toUpperCase() + tok.slice(1);
   }
 
-  function nextAlertKind(draft) {
-    var used = draft.alerts.map(function (row) { return row.kind; });
-    for (var i = 0; i < ALERT_KINDS.length; i++) {
-      if (used.indexOf(ALERT_KINDS[i]) < 0) return ALERT_KINDS[i];
-    }
-    return "below";
-  }
-
   function setErr(node, message) {
     node.textContent = message || "";
   }
@@ -2861,7 +2804,6 @@ function encodeConfig(config) {
     var today = todayIso(nowMs());
     var form = el("form", { class: "editor", novalidate: "", "aria-label": "Edit search" });
     var preview = el("p", { class: "preview", "aria-live": "polite" });
-    var alertErrs = [];
     var fromErr = el("p", { class: "field-err", id: "edFromErr" });
     var toErr = el("p", { class: "field-err", id: "edToErr" });
     var topErr = el("p", { class: "field-err", id: "edTopErr" });
@@ -2869,6 +2811,17 @@ function encodeConfig(config) {
     var fromInput;
     var toInput;
     var nameInput;
+    var ad = d.alert;
+    var alertBlock = el("div", { class: "alert-block", role: "group", "aria-labelledby": "edAlertHead" });
+    var alertUnderErr = el("p", { class: "field-err", id: "edAlertUnderErr" });
+    var alertAgainErr = el("p", { class: "field-err", id: "edAlertAgainErr" });
+    var alertDropErr = el("p", { class: "field-err", id: "edAlertDropErr" });
+    var underInput;
+    var againInput;
+    var recentBox;
+    var discountBox;
+    var dropBox;
+    var dropInput;
 
     function refresh() {
       var now = todayIso(nowMs());
@@ -2878,7 +2831,19 @@ function encodeConfig(config) {
       setErr(topErr, check.errors.top);
       fromInput.setAttribute("aria-invalid", check.errors.from ? "true" : "false");
       toInput.setAttribute("aria-invalid", check.errors.to ? "true" : "false");
-      alertErrs.forEach(function (node, i) { setErr(node, check.alerts[i]); });
+      var active = ad.under.trim() !== "";
+      setErr(alertUnderErr, check.errors.alertUnder);
+      setErr(alertAgainErr, check.errors.alertAgain);
+      setErr(alertDropErr, check.errors.alertDrop);
+      underInput.setAttribute("aria-invalid", check.errors.alertUnder ? "true" : "false");
+      againInput.setAttribute("aria-invalid", check.errors.alertAgain ? "true" : "false");
+      dropInput.setAttribute("aria-invalid", check.errors.alertDrop ? "true" : "false");
+      alertBlock.classList.toggle("inactive", !active);
+      againInput.disabled = !active;
+      recentBox.disabled = !active;
+      discountBox.disabled = !active;
+      dropBox.disabled = !active;
+      dropInput.disabled = !active || !ad.dropOn;
       nameInput.placeholder = derivedName(d.from, d.to, scanDay()) || "From the dates";
       if (check.errors.from || check.errors.to) {
         preview.textContent = "";
@@ -2976,54 +2941,64 @@ function encodeConfig(config) {
     }
     topWrap.appendChild(topErr);
 
-    var alertsBox = el("div", { class: "alerts" });
-    d.alerts.forEach(function (row, index) {
-      var select = el("select", { name: "kind-" + index, "aria-label": "Alert " + (index + 1) + " kind", "data-focus": "ed|kind|" + index });
-      ALERT_KINDS.forEach(function (kind) {
-        var opt = el("option", { value: kind, text: ALERT_LABEL[kind] });
-        if (kind === row.kind) opt.selected = true;
-        select.appendChild(opt);
+    /* The one alert block: price, the again-limit, then the optional filters. Typing updates the draft in place. */
+    function numberInput(name, label, value, min, max, focus, onInput) {
+      var input = el("input", {
+        type: "number",
+        name: name,
+        inputmode: "numeric",
+        min: String(min),
+        step: "1",
+        max: String(max),
+        "aria-label": label,
+        "data-focus": focus
       });
-      select.addEventListener("change", function () {
-        row.kind = select.value;
-        row.value = "";
-        renderApp();
-      });
-      var line = el("div", { class: "alert-row" }, [select]);
-      if (kindHasValue(row.kind)) {
-        var isPercent = row.kind === "drop_pct";
-        var valueInput = el("input", {
-          type: "number",
-          name: "value-" + index,
-          inputmode: "numeric",
-          min: "1",
-          step: "1",
-          max: isPercent ? "100" : String(MAX_PLN),
-          placeholder: isPercent ? "%" : "zł",
-          "aria-label": (isPercent ? "Percent" : "Złoty") + " for alert " + (index + 1),
-          "data-focus": "ed|val|" + index
-        });
-        valueInput.value = row.value;
-        valueInput.addEventListener("input", function () { row.value = valueInput.value; refresh(); });
-        line.appendChild(el("span", { class: "val" }, [valueInput, el("span", { class: "suffix", text: isPercent ? "%" : "zł" })]));
-      } else {
-        line.appendChild(el("span"));
-      }
-      var remove = el("button", { type: "button", class: "icon-btn-s", "aria-label": "Remove alert " + (index + 1), text: "×", "data-focus": "ed|rm|" + index });
-      remove.addEventListener("click", function () {
-        d.alerts.splice(index, 1);
-        renderApp();
-      });
-      line.appendChild(remove);
-      var err = el("p", { class: "field-err" });
-      alertErrs.push(err);
-      alertsBox.appendChild(el("div", { class: "alert-item" }, [line, err]));
-    });
-    var addAlert = el("button", { type: "button", class: "link", text: "Add alert", "data-focus": "ed|add" });
-    addAlert.addEventListener("click", function () {
-      d.alerts.push({ kind: nextAlertKind(d), value: "" });
-      renderApp();
-    });
+      input.value = value;
+      input.addEventListener("input", function () { onInput(input.value); refresh(); });
+      return input;
+    }
+
+    function checkBox(name, checked, focus, onChange) {
+      var box = el("input", { type: "checkbox", name: name, "data-focus": focus });
+      box.checked = checked;
+      box.addEventListener("change", function () { onChange(box.checked); refresh(); });
+      return box;
+    }
+
+    function amountLine(text, input, unit) {
+      return el("label", { class: "alert-line" }, [
+        el("span", { class: "alert-text", text: text }),
+        el("span", { class: "val" }, [input, el("span", { class: "suffix", text: unit })])
+      ]);
+    }
+
+    function checkLine(box, text) {
+      return el("label", { class: "check" }, [box, el("span", { text: text })]);
+    }
+
+    underInput = numberInput("alert-under", "Email me when a stay costs under, zł", ad.under, 1, MAX_PLN, "ed|under", function (v) { ad.under = v; });
+    againInput = numberInput("alert-again", "Email again only if at least this much cheaper, zł", ad.again, 0, MAX_PLN, "ed|again", function (v) { ad.again = v; });
+    recentBox = checkBox("alert-recent-low", ad.recentLow, "ed|recent", function (on) { ad.recentLow = on; });
+    discountBox = checkBox("alert-discounted", ad.discounted, "ed|discounted", function (on) { ad.discounted = on; });
+    dropBox = checkBox("alert-drop", ad.dropOn, "ed|drop-on", function (on) { ad.dropOn = on; });
+    dropInput = numberInput("alert-drop-pct", "Minimum drop since the last scan, %", ad.dropPct, 1, MAX_DROP_PCT, "ed|drop", function (v) { ad.dropPct = v; });
+
+    alertBlock.appendChild(el("span", { class: "field-label", id: "edAlertHead", text: "Email alerts" }));
+    alertBlock.appendChild(amountLine("Email me when a stay costs under", underInput, "zł"));
+    alertBlock.appendChild(alertUnderErr);
+    alertBlock.appendChild(amountLine("Email the same stay again only if it's at least", againInput, "zł cheaper"));
+    alertBlock.appendChild(alertAgainErr);
+    alertBlock.appendChild(el("div", { class: "alert-only" }, [
+      el("span", { class: "alert-text", text: "Only if also:" }),
+      checkLine(recentBox, "Cheaper than the hotel's 30-day low"),
+      checkLine(discountBox, "Discounted"),
+      el("div", { class: "check-row" }, [
+        el("label", { class: "check" }, [dropBox, el("span", { text: "Dropped at least" })]),
+        dropInput,
+        el("span", { class: "suffix", text: "% since the last scan" })
+      ]),
+      alertDropErr
+    ]));
 
     var cancel = el("button", { type: "button", class: "btn", text: "Cancel", "data-focus": "ed|cancel" });
     cancel.addEventListener("click", function () { closeEditor(); });
@@ -3070,11 +3045,7 @@ function encodeConfig(config) {
       days,
       el("p", { class: "field-hint", text: "None selected: any check-in" })
     ]));
-    form.appendChild(el("div", { class: "field" }, [
-      el("span", { class: "field-label", text: "Alerts" }),
-      alertsBox,
-      el("div", {}, [addAlert])
-    ]));
+    form.appendChild(alertBlock);
     form.appendChild(preview);
     form.appendChild(actions);
 
@@ -3086,14 +3057,15 @@ function encodeConfig(config) {
     return form;
   }
 
-  function openEditor(id) {
+  /* focusKey is the editor control that takes focus: the name field unless the caller names another. */
+  function openEditor(id, focusKey) {
     var search = findById(state.config.searches, id);
     if (!search) return;
     state.editing = id;
     state.draft = draftFromSearch(search, state.config.defaults);
     state.confirmDelete = null;
     renderApp();
-    var first = findByAttr("data-focus", "ed|name");
+    var first = findByAttr("data-focus", focusKey || "ed|name");
     if (first) first.focus();
   }
 
@@ -3159,6 +3131,25 @@ function encodeConfig(config) {
       el("h2", { text: name }),
       searchMeta(cfg, naming.custom),
       el("div", { class: "search-actions" }, [editButton])
+    ]));
+    var alertButton = el("button", {
+      type: "button",
+      class: "link",
+      text: isConnected() ? "Edit alerts" : CONNECT_HINT,
+      "data-focus": "alert|" + cfg.id
+    });
+    alertButton.addEventListener("click", function () {
+      if (!requireConnected()) return;
+      if (state.editing === cfg.id) {
+        var price = findByAttr("data-focus", "ed|under");
+        if (price) price.focus();
+        return;
+      }
+      openEditor(cfg.id, "ed|under");
+    });
+    section.appendChild(el("div", { class: "alert-summary" }, [
+      el("p", { class: "alert-sum", text: alertSummary(cfg.alert) }),
+      alertButton
     ]));
     var status = pendingLine("search|" + cfg.id);
     if (status) section.appendChild(status);

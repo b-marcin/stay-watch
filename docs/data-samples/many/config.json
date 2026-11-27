@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "defaults": {
     "adults": 2,
     "nights": 2,
@@ -8,9 +8,6 @@
     ],
     "top": 3,
     "codes": []
-  },
-  "digest": {
-    "weekday": "mon"
   },
   "searches": [
     {
@@ -27,15 +24,14 @@
       "codes": [],
       "offers": [],
       "rooms": [],
-      "alerts": [
-        {
-          "kind": "below",
-          "amount": 1300
-        },
-        {
-          "kind": "below_recent_lowest"
+      "alert": {
+        "under": 1300,
+        "require": {
+          "recent_low": true,
+          "discounted": false,
+          "drop_pct": null
         }
-      ]
+      }
     },
     {
       "id": "late-december",
@@ -49,12 +45,14 @@
       "codes": [],
       "offers": [],
       "rooms": [],
-      "alerts": [
-        {
-          "kind": "per_night_below",
-          "amount": 500
+      "alert": {
+        "under": 1500,
+        "require": {
+          "recent_low": false,
+          "discounted": false,
+          "drop_pct": null
         }
-      ]
+      }
     },
     {
       "id": "long-name",
@@ -67,8 +65,7 @@
       "top": null,
       "codes": [],
       "offers": [],
-      "rooms": [],
-      "alerts": []
+      "rooms": []
     },
     {
       "id": "empty-window",
@@ -82,12 +79,14 @@
       "codes": [],
       "offers": [],
       "rooms": [],
-      "alerts": [
-        {
-          "kind": "below",
-          "amount": 1000
+      "alert": {
+        "under": 1000,
+        "require": {
+          "recent_low": false,
+          "discounted": false,
+          "drop_pct": null
         }
-      ]
+      }
     },
     {
       "id": "sold-week",
@@ -103,12 +102,14 @@
       "codes": [],
       "offers": [],
       "rooms": [],
-      "alerts": [
-        {
-          "kind": "below",
-          "amount": 1200
+      "alert": {
+        "under": 1200,
+        "require": {
+          "recent_low": false,
+          "discounted": false,
+          "drop_pct": null
         }
-      ]
+      }
     }
   ],
   "tracked": []
